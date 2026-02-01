@@ -1,0 +1,773 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{amsmath, amssymb, xcolor, graphicx, comment, algorithm, algpseudocode}
+\usepackage{soul}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\sign}{\mbox{sign}}
+
+\newcommand{\one}{\mathbf{1}}
+
+\title{Distributed Risk-Aware Bidding Strategy for Incorporating Renewable Gneration into Real-Time Electricity Market}
+\author{\IEEEauthorblockN{Tommy Truong, Zhihua Qu, and Marwan A. Simaan}
+\IEEEauthorblockA{University of Central Florida}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+tbd
+\end{abstract}
+
+%\begin{keywords}
+{\it Keywords:} tbd 
+%\end{keywords}
+
+\section{Introduction}
+
+Competitive markets operating under uncertainty often exhibit a fundamental tension between individual rationality and collective efficiency.
+In settings such as renewable energy markets, firms must make production or bidding decisions while facing stochastic prices and incomplete information
+\textcolor{red}{[ADD references on stochastic markets / renewable uncertainty]}.
+When each firm optimizes its own expected profit independently, the resulting Nash equilibrium generally fails to achieve socially optimal outcomes,
+even when all firms behave rationally
+\textcolor{red}{[ADD classic Nash inefficiency / Cournot references]}.
+This inefficiency is further exacerbated under uncertainty, where firms’ attitudes toward risk significantly influence their strategic behavior
+\textcolor{red}{[ADD references on risk preferences under uncertainty]}.
+
+Existing studies on stochastic Cournot and oligopoly games have examined the impact of uncertainty and risk preferences on equilibrium outcomes,
+typically treating risk attitudes as fixed parameters
+\textcolor{red}{[ADD references on risk-averse Cournot / stochastic duopoly]}.
+Separately, Pareto efficiency has been studied either through centralized optimization or cooperative formulations that require full information sharing
+\textcolor{red}{[ADD references on Pareto optimization / social welfare in markets]}.
+However, how \emph{risk sensitivity itself} can be leveraged as a coordination mechanism to reconcile Nash equilibrium behavior with Pareto-optimal outcomes—
+particularly in distributed and information-limited environments—remains largely unexplored
+
+This paper proposes a risk-aware optimization framework in which firms’ sensitivity to uncertainty serves as a tunable coordination variable.
+We show that, for a class of stochastic market games, there exists a structured relationship between firms’ risk parameters and the resulting Nash equilibrium
+such that appropriately chosen risk sensitivities induce Nash equilibria that lie on the Pareto frontier
+\textcolor{red}{[ADD references on risk-sensitive control / coherent risk measures / policy gradients if desired]}.
+In this sense, risk is not merely a preference parameter but a mechanism through which selfish agents can be guided toward efficient collective outcomes
+without violating incentive compatibility.
+
+Building on this insight, we develop distributed algorithms that allow firms to adapt their risk parameters using only local information exchange.
+The proposed approach preserves the decentralized nature of the market: firms remain self-interested in their primary decisions,
+while global efficiency emerges through consensus-based coordination on aggregate quantities
+\textcolor{red}{[ADD references on consensus algorithms / distributed optimization]}.
+Analytical results establish existence and characterization of Pareto-consistent Nash equilibria,
+and convergence of the distributed algorithms is shown under mild conditions
+\textcolor{red}{[ADD references on distributed Nash learning or gradient methods if needed]}.
+Numerical examples illustrate how risk-aware adaptation shifts equilibrium behavior from inefficient Nash outcomes to Pareto-optimal payoffs,
+highlighting the role of fairness and coordination under uncertainty.
+
+The remainder of the paper is organized as follows.
+Section II formulates the stochastic market model and risk-aware objectives.
+Section III characterizes the Nash equilibrium under fixed risk parameters.
+Section IV establishes conditions under which Nash equilibria achieve Pareto efficiency through structured risk allocation.
+Section V presents distributed algorithms based on consensus and feedback adaptation to realize these outcomes.
+Numerical results are provided in Section VI, followed by concluding remarks in Section VII.
+
+
+\section{Problem Formulation}
+
+In this paper, we consider the simple case that all traditional generation assets are owned by a single utility company\footnote{The proposed results apply to the general case of multiple utility companies of individual cost functions except for notational complexity.} while renewable generation are operated by individual entities (one of which could be the utility company). And, the utility company and the renewable generation operators are the participants in both day-ahead and real-time electricity markets for profit. 
+
+Electricity markets aim to optimize a composite objective function in the form of 
+\begin{equation} 
+J(P_g) = a_2 P_g^2 + a_1 P_g + a_0, \label{eq:Jm}
+\end{equation}
+where $a_i$ are cost coefficients, and $P_g$ is the aggregated power of traditional generation. For simplicity, marginal costs of operating renewables and battery storage sites are modeled as zero, and hence they need not to be included explicitly in objective function \eqref{eq:Jm}. 
+
+Let $\Omega$ be the set of renewable generation operators, with $n=|\Omega|$ being its cardinal. For the day-ahead market, their renewable generations, $P_j$ for $j\in\Omega$, are modeled as stochastic variables, and similarly the grid total load $P_L$ is also modeled as a stochastic variable. Lets form the whole vector of random variables as 
+\begin{equation} 
+x = \begin{bmatrix} P_1 & \cdots & P_n & P_L \end{bmatrix}^T.  \label{eq:x}
+\end{equation}
+We assume that probability distribution of random vector $x$ is Gaussian as follows:
+\[ f(x) = (2\pi)^{-\frac{n+1}{2}}\Sigma^{-\frac{1}{2}} e^{-\frac{1}{2}(x-x^o)^T\Sigma^{-1}(x-x^o)},  \]
+where  $x^o=\mathbb{E}[x]$ is the vector of forecast (for the day-ahead market), and 
+\begin{eqnarray*}
+\Sigma & = & \mathbb{E}[(x-x^o)(x-x^o)^T] \\
+& = & \begin{bmatrix} \sigma_{11} & \cdots & \sigma_{1n} & \sigma_{1L} \\ \vdots & \cdots & \vdots & \vdots \\ \sigma_{n1} & \cdots & \sigma_{nn} & \sigma_{nL} \\ \sigma_{1L} & \cdots & \sigma_{nL} & \sigma_{LL}
+\end{bmatrix},  
+\end{eqnarray*}
+is the covariance matrix with $\sigma_{ij}=\sigma_{ji}$. In the covariance matrix, the last row and column correspond to covariances between the renewable generations and the load while $\sigma_{LL}=\sigma_L^2>0$ is the variance of the load. It is known that 
+$\sigma_{ii}=\sigma_i^2>0$, $\sigma_{ij}=\rho_{ij}\sigma_i\sigma_j$, $\sigma_{iL}=\rho_{iL}\sigma_i\sigma_L$, where $\rho_{ij},\rho_{iL}\in[0,1]$. Typically, $\rho_{ij},\rho_{iL}\not=0$ because renewable generations and load are correlated through the projected weather condition. 
+
+The day ahead market clears the projected aggregated power generation $P_g^o$ and its associated price $\lambda^o$ by minimizing $J(P_g^o)$ under the following power balance constraint:
+\begin{equation} 
+P_g^o + \sum_{j=1}^n \alpha_j x_j^o  = x_{n+1}^o, \label{eq:DA_power}
+\end{equation}
+where $x_{n+1}^o=P_L^o$, $\alpha_j\geq0$, and $\alpha_j x_j^o =\alpha_j P_j^o$ represent the bids by the renewable generation operators into the day-ahead market. Similarly, the real-time market clears the aggregated power generation $P_g$ and its associated price $\lambda$ by minimizing $J(P_g)$ under the following real-time power balance constraint:
+\begin{equation} 
+P_g + \sum_{j=1}^n x_j   = x_{n+1}. \label{eq:RT_power}
+\end{equation}
+It is well known that, with global information, day-ahead price $\lambda^o$ and real-time $\lambda$ are the dual variables associated with constraints \eqref{eq:DA_power} and \eqref{eq:RT_power}, respectively. 
+
+The renewable generation operators aim to maximize the following objectives\footnote{Strictly speaking, we should use $J_i^{\prime} = \Pi_i - \beta_i \mathbb{E}[(\Pi_i - \mathbb{E}[\Pi_i])^2]$ which also yields a second-order polynomial in $\alpha_i$ as does \eqref{eq:J_i} but involves calculations of higher moments. Accordingly, \eqref{eq:J_i} is adopted instead.} individually:
+\begin{subequations}
+\begin{equation} 
+J_i = \Pi_i - \beta_i \mathbb{E}[(\lambda - \lambda^o)^2], \label{eq:J_i}
+\end{equation}
+where $\beta_i\geq0$, 
+\begin{equation} 
+\Pi_i %= \lambda^o \alpha_i P_i^o + \mathbb{E}[\lambda (P_i - \alpha_i P_i^o)] 
+= \lambda^o \alpha_i x_i^o + \mathbb{E}[\lambda (x_i - \alpha_i x_i^o)], \label{eq:Pi_i}
+\end{equation}
+\end{subequations}
+and the pair $\{\alpha_i, \; \beta_i\}$ represents the bidding strategy of the $i$-th operator into the electricity markets. If $\beta_i=0$ is chosen, the $i$-th entity aims to maximize its average profit from the total revenues from participating in the day ahead and real time markets. By selecting $\beta_i>0$, the $i$-th entity also attempts to reduce its profit variation by suppressing variations of real time price $\lambda$ around day ahead price $\lambda^o$.  By choosing $\beta_i<0$, the $i$th entity tries to maximize its profit by encouraging more variations of real time price $\lambda$ around day ahead price $\lambda^o$. In other words, the $i$-th entity is risk averse if $\beta_i>0$ and risk seeking if $\beta_i<0$.
+
+The objective of this paper is to show the following advantages by introducing the risk aware bidding strategy of $\{\alpha_i, \; \beta_i\}$: \textcolor{red}{ADD}. Power grid congestion is not considered in the paper but can be considered. 
+
+\section{Centralized Risk-Aware Solution Under Global Information}
+
+The electricity markets are bi-level optimization problems linked together by dual variables. At the upper level, they are quadratic optimization problems with equality constraints, that is, the markets perform their economic dispatch with the following Lagrangians: 
+\begin{subequations}
+\begin{equation} 
+L^o = a_2(P_g^o)^2+a_1P_g^o+a_0 + \lambda^o\left(x_{n+1}^o- P_g^o-\sum_{j=1}^n \alpha_j x_j^o \right), \label{eq:L*}
+\end{equation}
+\begin{equation} 
+L = a_2P_g^2+a_1P_g+a_0 + \lambda^o\left(x_{n+1}-P_g-\sum_{j=1}^n x_j\right). \label{eq:L}
+\end{equation}
+\end{subequations}
+Applying the first-order optimality condition to the Lagrangians yields the following solutions for the prices:
+\begin{subequations}
+\begin{equation} 
+\lambda^o = 2a_2P_g^o +a_1 = 2a_2\left(x_{n+1}^o-\sum_{j=1}^n \alpha_j x_j^o \right) +a_1 , \label{eq:lambda*}
+\end{equation}
+\begin{equation} 
+\lambda = 2a_2P_g+a_1=2a_2\left(x_{n+1}-\sum_{j=1}^n x_j \right) + a_1. \label{eq:lambda}
+\end{equation}
+\end{subequations}
+
+The lower level optimization problems are also quadratic, and the centralized solutions under global information are summarized into the following lemma and theorem. Lemma 1 provides the solution of cooperative optimization when all the entities bind themselves together and act as one. In this case, the best outcome for the group is achieved under the risk neutral strategy.
+
+\noindent {\bf Lemma 1:} {\it Consider the case that all renewable generation entities form a coalition by sharing all the information and setting $\alpha_i=\alpha$ and $\beta_i=\frac{1}{n}\beta$, respectively. Then, for any choice of $\beta\in[-(4a_2)^{-1},\; +\infty)$, optimal bidding strategy to optimize objective $J_i$ in \eqref{eq:J_i} is
+\begin{equation} 
+\alpha^* = \frac{1 + 4a_2 \beta}{2(1 + 2a_2\beta)}.
+\label{eq:alpha_1}
+\end{equation} 
+In addition, by further choosing $\beta_i$ to optimize $\Pi_i$ in \eqref{eq:Pi_i}, the optimal bidding strategy $\{\alpha^*, \; \beta^*\}$ is given by }
+\begin{equation}
+\alpha^*  =  \frac{1}{2}, \;\;\; 
+\beta^*  =  0.
+\label{eq:optimal_1}
+\end{equation}
+
+\noindent {\bf Proof:} It follows from \eqref{eq:Pi_i} and \eqref{eq:lambda*} that, if $\alpha_i=\alpha$, 
+\begin{eqnarray*}
+\Pi_r & = & \sum_{j=1}^n \Pi_j = \lambda^o \alpha x_r^o +  \mathbb{E}[\lambda (x_r-\alpha x_r^o)] \\
+ \lambda^o   & = & 2a_2\left(x_{n+1}^o-\alpha x_r^o \right) +a_1,
+\end{eqnarray*}
+where $x_r = \sum_{j=1}^n x_j$ is the total renewable generation, and $x_r^o = \sum_{j=1}^n x_j^o$. Substituting \eqref{eq:lambda} into the above equations yeld
+\begin{eqnarray}
+\Pi_r & = &  [2a_2\left(x_{n+1}^o-\alpha x_r^o \right) +a_1] \alpha x_r^o \nonumber \\
+&& + \mathbb{E}[(2a_2\left(x_{n+1}-x_r \right) + a_1)(x_r-\alpha x_r^o)] \nonumber \\
+  & = & 2a_2\alpha(1-\alpha)(x_r^o)^2 +a_1x_r^o  + 2a_2\mathbb{E}[\left(x_{n+1}x_r-x_r^2 \right)] \nonumber\\
+   & = & 2a_2\alpha(1-\alpha)(x_r^o)^2 +a_1x_r^o \nonumber \\
+   && + 2a_2\left(x_{n+1}^ox_r^o+\sigma_{rL}-(x_r^o)^2-\sigma_r^2 \right), \label{eq:Pi_r_exp}
+\end{eqnarray}
+where $\one$ is the $n$-dimensional column vector of $1$s and 
+\begin{eqnarray*}
+    \sigma_r^2 & = & \mathbb{E}[(x_1+\cdots+x_n-(x_1^o+\cdots+x_n^o))^2] \\
+    & = & \mathbb{E}[ \one^T (x-x^o)(x-x^o)^T\one] \\
+    & = & \one^T \Sigma \one. 
+\end{eqnarray*}
+On the other hand, it follows from \eqref{eq:J_i}, \eqref{eq:lambda*}, and \eqref{eq:lambda} that, if $\beta_i = \frac{1}{n}\beta$,
+\begin{eqnarray*}
+J_r & = & \sum_{j\in\Omega} J_j \\
+ & = & \Pi_r  - \beta \mathbb{E}[2a_2 (x_{n+1}-x_{n+1}^o -x_r +\alpha x_r^o)^2] \\
+ & = & 2a_2\alpha(1-\alpha)(x_r^o)^2  - 4a_2^2  \beta  (1-\alpha)^2 (x_r^o)^2 \\
+ & & +a_1x_r^o + 2a_2\left(x_{n+1}^ox_r^o+\sigma_{rL}-(x_r^o)^2-\sigma_r^2 \right)\\
+ && - 4a_2^2  \beta (\sigma_L^2+\sigma_r^2 - 2\sigma_{rL}). 
+\end{eqnarray*}
+Using the above expression, taking the partial derivative of $J_r$ with respect to $\alpha$, and setting the partial derivative to zero yield optimal bidding strategy \eqref{eq:alpha_1}. 
+
+Substituting solution \eqref{eq:alpha_1} into 
+\eqref{eq:Pi_r_exp} and taking the partial of $\Pi_r$ with respect to $\beta$ result in
+\[ \frac{\partial \Pi_r}{\partial \beta} = - 2a_2(x_r^o)^2\frac{4a_2^2\beta}{(1+2a_2\beta)^3}, \]
+which yields the optimal bidding strategy \eqref{eq:optimal_1}. This completes the proof. \hfill $\Box$
+
+It follows from \eqref{eq:alpha_1} that
+\[ \lim_{\beta\rightarrow-a_2/4} \alpha = 0, \;\;\;  \lim_{\beta\rightarrow0} \alpha = 0.5, \;\;\; \lim_{\beta\rightarrow +\infty} \alpha = 1. \]
+Since $\alpha\in[0,1]$, the design parameter $\beta$ translates operator's risk tolerance level into specific choice of $\alpha$ value. Although the values correspond to risk neutral choices may change, this translation is applicable to not only cooperative coalition game but also noncooperative games. 
+
+The following theorem provides the solution to non-cooperative optimization in which each agent devises its strategy according to its own objective function $J_i$. 
+
+\noindent {\bf Theorem 1:} {\it For renewable energy generation operators, their oligopoly game always has a Nash equilibrium. Specifically, 
+for any choice of $\beta_i\in[-(4a_2)^{-1},+\infty)$, the optimal bidding strategy $\alpha_i^*$ to optimize objective $J_i$ in \eqref{eq:J_i} forms a Nash equilibrium corresponding to the solution to linear algebraic equation:
+\begin{equation} 
+A \begin{bmatrix} \alpha_1^* & \cdots & \alpha_n^* \end{bmatrix}^T = B,
+\label{eq:alpha_i}
+\end{equation} 
+where $\gamma_{ij}=x_j^o/x_i^o$,
+\[ A=[A_{ij}], \;\;\; A_{ij} = \left\{ \begin{array}{lll} 2(1+2a_2\beta_i) & \; & \mbox{if $i=j$} \\
+(1+4a_2\beta_i)\gamma_{ij} && \mbox{if $i\not=j$}\end{array} \right., \]
+and
+\[  B=[B_i],  \;\;\; B_i = (1+4a_2\beta_i)\sum_{j=1}^n \gamma_{ij}. \]
+In addition,  the total profit $\sum_{i=1}^n\Pi_i$ can be maximized by choosing $\beta_j$ to maximize the following function: 
+\begin{equation} 
+g(\alpha_1^*,\cdots,\alpha^*_n) = f(\alpha_1^*,\cdots,\alpha^*_n) \left[ 1 - f(\alpha_1^*,\cdots,\alpha^*_n)  \right](x_r^o)^2.  
+\label{eq:G}
+\end{equation} 
+where $x_r^o=\sum_{j=1}^n x_j^o$, $\eta_i = x_i^o/x_r^o$, and 
+\begin{equation} 
+f(\alpha_1,\cdots,\alpha_n) \stackrel{\triangle}{=} \sum_{i=1}^n  \alpha_i^* \eta_i.  
+\label{eq:F}
+\end{equation} 
+}
+
+\noindent {\bf Proof:} It follows from \eqref{eq:Pi_i},  \eqref{eq:lambda*}, and \eqref{eq:lambda} that 
+\begin{eqnarray}
+\Pi_i & = & \left[ 2a_2\left(x_{n+1}^o-\sum_{j=1}^n \alpha_j x_j^o 
+  \right) +a_1 \right] \alpha_i x_i^o \nonumber \\ && 
+  + \mathbb{E}\left[\left(2a_2\left(x_{n+1}-\sum_{j=1}^n x_j \right) + a_1\right) (x_i - \alpha_i x_i^o)\right] \nonumber \\
+  & = & 2a_2\sum_{j=1}^n\alpha_i(1-\alpha_j)x_j^o x_i^o +a_1 x_i^o  \nonumber \\ 
+  && + 2a_2\mathbb{E}\left[\left(x_{n+1}-\sum_{j=1}^n x_j \right) x_i\right] \nonumber\\
+   & = & 2a_2\sum_{j=1}^n\alpha_i(1-\alpha_j)x_j^o x_i^o +a_1 x_i^o  \nonumber \\ 
+  && + 2a_2\left(x_{n+1}^o x_i^o + \sigma_{iL}- \sum_{j=1}^n (x_j^o  x_i^o+ \sigma_{ij})\right), \label{eq:Pi_j_exp}
+\end{eqnarray}
+where the identity $\mathbb{E}[x_ix_j]=x_i^ox_j^o+\sigma_{ij}$ is used. On the other hand, It follows from \eqref{eq:lambda*} and \eqref{eq:lambda} that 
+\begin{eqnarray} 
+&& \mathbb{E}[(\lambda - \lambda^o)^2] \nonumber \\
+& = & 
+4a_2^2  \mathbb{E}\left[\left(x_{n+1}-x_{n+1}^0 +\sum_{j=1}^n x_j-\alpha_j x_j^o\right)^2\right] \nonumber \\
+& = & 4a_2^2\left[\sigma_{LL} + 2\sum_{j=1}^n \sigma_{jL} + 2 \sum_{j=1}^n \sum_{l=1}^n \sigma_{jl} \right. \nonumber \\
+&& \left.+ \left(\sum_{j=1}^n (1-\alpha_j) x_j^o\right)^2 \right]
+, \label{eq:sigma_lambda}
+\end{eqnarray}
+The expression of $J_i$ defined in \eqref{eq:J_i} becomes explicit in terms of $\alpha_i$ by combining \eqref{eq:Pi_j_exp} and \eqref{eq:sigma_lambda}. Taking the partial derivatives of $J_i$ with respect to $\alpha_i$ yields
+\begin{subequations}
+\begin{eqnarray} 
+\frac{\partial J_i}{\partial \alpha_i} & = &  2a_2(1+4a_2\beta_i) \sum_{j=1}^n(1-\alpha_j)x_j^o x_i^o \nonumber \\
+&& - 2a_2 \alpha_i (x_i^o)^2, \label{eq:p1_Ji} \\
+\frac{\partial J^2_i}{\partial \alpha_i^2} & = & - (4a_2+8a_2^2\beta_i) (x_i^o)^2 <0 \;\;\; \forall \beta_i\geq0. \label{eq:p2_Ji}
+\end{eqnarray}
+\end{subequations}
+Inequality \eqref{eq:p2_Ji} shows that Nash equilibrium exists, and setting \eqref{eq:p1_Ji} to be zero yields equation \eqref{eq:alpha_i} to solve for Nash equilibrium. 
+
+It follows from \eqref{eq:alpha_i} that $\alpha_i^*$ are functions of $\beta_j$. We know from  \eqref{eq:Pi_j_exp} that 
+\begin{eqnarray}
+    \Pi & = & \sum_i \Pi_i \nonumber \\
+     & = & 2a_2\left[ g(\alpha_1,\cdots,\alpha_n) - \left(x_r^o\right)^2 + x_{n+1}^o x_r^o\right]  +a_1 x_r^o  \nonumber \\ 
+     && + 2a_2 \left[ \sum_{i=1}^n \sigma_{iL} -\sum_{i=1}^n\sum_{j=1}^n\sigma_{ij}\right], \label{eq:Pi_exp}
+\end{eqnarray}
+where 
+\[ g(\alpha_1,\cdots,\alpha_n) \stackrel{\triangle}{=} \sum_{i=1}^n  \alpha_i x_i^o  \sum_{j=1}^n (1-\alpha_j ) x_j^o. \] 
+Hence, $\Pi$ is maximized if function $g(\cdot)$ is maximized by choosing $\beta_j$.
+Simplifying the above expression of $g(\cdot)$ yields \eqref{eq:G}. This completes the proof. \hfill $\Box$
+
+Theorem 1 extends the results in \cite{Chow2017} in several ways. First, load uncertainties and correlations among the renewable generations are considered.  As a result, we know from \eqref{eq:Pi_exp} that the degradation of total profit function $\Pi$ due to uncertainties is 
+\[ \Delta \Pi = 2a_2 \left[ \sum_{i=1}^n\sum_{j=1}^n\sigma_{ij}- \sum_{i=1}^n \sigma_{iL}\right], \]
+is less as long as there is some correlation (e.g., due to weather) between renewable generation and load variation. Second, risk aware bidding strategies are considered, specifically, theorem 1 allows us to study and compare three classes of bidding strategies: risk neutral, risk reverse, and risk seeking. The latter two correspond to optimization of design parameters $\beta_j$. 
+
+Theorem 1 shows that the Nash equilibrium in terms of design parameters $\beta_j$ can be further optimized, and the optimal choices of $\beta_j$ are the main subject of this paper. To illustrate some of the specifics, lets first consider the two simple cases: $n=1$, and $n=2$. The corresponding results are provided by the subsequent corollaries, followed by explanations. 
+
+\noindent  {\bf Corollary 1:} {\it If $n=1$, the optimal biding strategy becomes the same as that in lemma 1 and with $g(\alpha^*)=\frac{1}{4} (x_r^o)^2$.}
+
+\noindent  {\bf Corollary 2:} {\it In the case of duopoly ($n=2$), the Nash bidding strategies with respect to $J_i$ are:
+\begin{subequations}
+\label{eq:2p-alpha}
+\begin{equation}
+\alpha_1^*= \frac{(1+4a_2\beta_1)}{3+4a_2(\beta_1+\beta_2)}(1+\gamma_{12}), 
+\label{eq:2p-alpha1}
+\end{equation} 
+\begin{equation}
+ \alpha_2^*= \frac{(1+4a_2\beta_2)}{3+4a_2(\beta_1+\beta_2)}(1+\gamma_{21}), \, 
+\label{eq:2p-alpha2}
+\end{equation} 
+\end{subequations}
+Furthermore, $\beta_i$ can be optimized with respect to $(\Pi_1+\Pi_2)$, and the outcomes are strategically dependent as follows. 
+\begin{itemize}
+\item Risk neutral (RN) optimal bidding strategy ($\beta_i^{NR}=0$ for $i=1,2$) and the corresponding optimized profit is:
+\begin{equation}
+g^{RN}(\alpha_1^*, \alpha_2^*)  =  \frac{2}{9}(x_r^o)^2. 
+\label{eq:2p-neutral}
+\end{equation} 
+\item Risk seeking (RS) optimal bidding strategy  and the corresponding enhanced optimal profit are:
+\begin{subequations}
+\label{eq:2p-RS}
+\begin{equation}
+\beta_1^{RS}+\beta_2^{RS}=-\frac{1}{4a_2},
+\label{eq:2p-RS-beta}
+\end{equation} 
+\begin{equation}
+ g^{RS}(\alpha_1^*,\alpha_2^*)= \frac{1}{4}(x_r^o)^2 > g^{RN}(\alpha_1^*, \alpha_2^*). 
+\label{eq:2p-RS-g}
+\end{equation} 
+\end{subequations}
+\end{itemize} }
+
+ \noindent {\bf Proof:} It follows from \eqref{eq:alpha_i} that 
+ \begin{eqnarray*}
+  && \begin{bmatrix} 2(1+2a_2 \beta_1) & (1+4a_2\beta_1)\gamma_{12}  \\ (1+4a_2\beta_2)\gamma_{21}  & 2(1+2a_2 \beta_2)  \end{bmatrix}   
+  \begin{bmatrix}  \alpha_1^* \\ \alpha_2^* \end{bmatrix}  \\
+  & = &  \begin{bmatrix}  (1+4a_2\beta_1)(1+\gamma_{12}) \\ (1+4a_2\beta_2)(1+\gamma_{21}) \end{bmatrix},
+      \end{eqnarray*}
+ whose solution is given by \eqref{eq:2p-alpha}.
+
+It follows from \eqref{eq:2p-alpha} that, when $\beta_i=0$, 
+\[ \alpha_1^* = \frac{1}{3}(1+\gamma_{12}), \;\;\; \alpha_2^* = \frac{1}{3}(1+\gamma_{21}). \]
+Substituting the above solutions into \eqref{eq:F} and \eqref{eq:G} yields \eqref{eq:2p-neutral}.
+
+To further optimize the risk-aware bidding strategy \eqref{eq:2p-alpha}, we rewrite the solution as 
+\[ \alpha_1^* = \xi_1 (1+\gamma_{12}), \;\;\; \alpha_2^* = \xi_2(1+\gamma_{21}), \]
+where 
+\begin{equation}
+    \xi_i = \frac{(1+4a_2\beta_i)}{3+4a_2(\beta_1+\beta_2)}. \label{eq:xi}
+\end{equation} 
+It follows from \eqref{eq:F} and \eqref{eq:G} that 
+\begin{eqnarray*}
+    g(\alpha_1^*, \alpha_2^*) & = & (\xi_1+\xi_2) [1- (\xi_1+\xi_2)] (x_r^o)^2, 
+\end{eqnarray*}
+which is maximized to be that in \eqref{eq:2p-RS-g} if 
+\[ \xi_1+\xi_2=\frac{1}{2}. \]
+Invoking \eqref{eq:xi} and solving for the optimal values of $\beta_i$ yield $\beta_i^{RS}$ in \eqref{eq:2p-RS-beta}. This completes the proof. \hfill $\Box$
+
+The significant outcome of theorem 1 and its corollaries is that, while the profit under noncooperative risk neutral Nash equilibrium is typically worse than that of cooperative coalition solution, risk seeking Nash strategies with $(\beta_1+\beta_2)$ being an optimal value can be employed to recover the same profit as the cooperative coalition's. This includes the special but fair strategy that all the entities employ the same risk seeking level. In what follows, this strategy is to be developed via distributed optimization with {\it minimum} information exchange/observation.   
+
+\section{Risk Aware Nash Solutions with Pareto Payoff}
+
+The results in Section~III establish that, for any fixed choice of the
+risk parameters $\{\beta_i\}_{i=1}^n$, the noncooperative bidding game
+among renewable generators admits a unique Nash equilibrium in terms of
+the bidding coefficients $\{\alpha_i^\ast\}_{i=1}^n$.
+However, the resulting Nash equilibrium is generally not Pareto optimal
+with respect to the total expected profit.
+
+In this section, we show that the Nash equilibrium can be systematically
+shifted to a Pareto-optimal operating point by appropriately selecting
+the risk parameters $\{\beta_i\}$.
+Importantly, this Pareto enhancement does not require coordination on
+the bidding variables $\alpha_i$ themselves, but only on the aggregate
+risk exposure across agents.
+
+\noindent\textbf{Theorem 2} There exists a family of risk parameter allocations $(\beta_1^*,\ldots,\beta_n^*)$ such that the corresponding Nash equilibrium $(\alpha_1^*,\ldots,\alpha_n^*)$ satisfying \eqref{eq:alpha_i} achieves the maximum aggregate profit:
+\[
+g(\alpha_1^*,\ldots,\alpha_n^*) = g^{\max} = \frac{1}{4}(x_r^o)^2.
+\]
+Specifically, any risk parameters satisfying
+\[
+f(\alpha_1^*(\boldsymbol{\beta}),\ldots,\alpha_n^*(\boldsymbol{\beta})) = \frac{1}{2}, \label{eq:pareto_condition}
+\]
+where $\alpha_i^*(\boldsymbol{\beta})$ denote the Nash equilibrium strategies corresponding to $\boldsymbol{\beta} = (\beta_1,\ldots,\beta_n)$, will induce a Pareto-optimal Nash equilibrium.
+
+\noindent\textbf{Proof:} Define the mapping $\Phi: \mathbb{R}^n \to \mathbb{R}$ by $\Phi(\beta_1,\ldots,\beta_n) = f(\alpha_1^*(\boldsymbol{\beta}),\ldots,\alpha_n^*(\boldsymbol{\beta}))$, where $\alpha_i^*(\boldsymbol{\beta})$ are determined by the Nash equilibrium conditions \eqref{eq:alpha_i}. Since the matrix $A$ in \eqref{eq:alpha_i} is invertible for $\beta_i > -\frac{1}{4a_2}$ (as shown in the proof of Theorem 1), the Nash equilibrium depends continuously on $(\beta_1,\ldots,\beta_n)$, and hence $\Phi$ is continuous.
+
+We establish existence by showing that $\Phi$ can take values both below and above $\frac{1}{2}$:
+\begin{itemize}
+\item For the risk-neutral case $\beta_i = 0$ for all $i$ with symmetric players, $\Phi(0,\ldots,0) = \frac{n}{n+1} > \frac{1}{2}$ for $n \geq 1$.
+\item As $\beta_i \to -\frac{1}{4a_2}$ uniformly for all $i$, the Nash equilibrium yields $\alpha_i^* \to 0$, giving $\Phi(\boldsymbol{\beta}) \to 0 < \frac{1}{2}$.
+\end{itemize}
+
+By the intermediate value theorem, there exists $(\beta_1^*,\ldots,\beta_n^*)$ such that $\Phi(\beta_1^*,\ldots,\beta_n^*) = \frac{1}{2}$, achieving $g = g^{\max}$. \hfill$\Box$
+
+
+\noindent {\bf Theorem 3:}
+\label{thm:pareto_nash}
+The risk-aware Nash equilibrium can be enhanced to yield a Pareto-optimal
+total profit if and only if the risk parameters satisfy
+\begin{equation}
+\sum_{i=1}^n \beta_i = \frac{1-n}{4a_2},
+\label{eq:beta_sum_condition}
+\end{equation}
+
+\noindent {\bf Proof:}
+At the Nash equilibrium, the bidding coefficients satisfied
+\[
+\alpha_i^\ast \eta_i
+= (1+4a_2\beta_i)\bigl(1-f(\alpha^\ast)\bigr)
+\]
+
+Summing over all $i$ yields
+\[
+f(\alpha^\ast)
+= \bigl(1-f(\alpha^\ast)\bigr)
+\left(n + 4a_2\sum_{i=1}^n \beta_i\right).
+\]
+
+Solving for $f(\alpha^\ast)$ gives
+\[
+f(\alpha^\ast)
+= \frac{n + 4a_2\sum_{i=1}^n \beta_i}{1 + n + 4a_2\sum_{i=1}^n \beta_i}.
+\]
+
+The Pareto-optimality condition \eqref{eq:pareto_condition} holds if and
+only if
+\[
+n + 4a_2\sum_{i=1}^n \beta_i = 1,
+\]
+
+The Pareto condition constrains only the aggregate risk exposure, therefore, infinitely many heterogeneous risk allocations $\{\beta_i\}$ yield Pareto-optimal Nash equilbria. 
+
+\noindent {\bf Corollary 1: $n=1$}
+If there is only one renewable generator, the Pareto-optimal Nash
+condition reduces to
+\[
+\beta_1 = 0,
+\]
+corresponding to a risk-neutral bidding strategy.
+
+This result confirms that, in the absence of competition, risk-seeking
+behavior provides no strategic advantage. The Pareto-optimal Nash
+equilibrium coincides with the profit-maximizing solution of the single
+agent, consistent with Lemma~1 and standard monopoly pricing intuition.
+
+\noindent {\bf Corollary 2: $n=2$}
+For two competing renewable generators, the Pareto-optimal Nash
+equilibrium satisfies
+\[
+\beta_1 + \beta_2 = -\frac{1}{4a_2}.
+\]
+
+This condition admits infinitely many Pareto-optimal risk allocations.
+In particular, the symmetric and fair solution
+$\beta_1 = \beta_2 = -\tfrac{1}{8a_2}$
+yields a risk-seeking Nash equilibrium that achieves the same total
+profit as the centralized cooperative solution, despite the absence of
+explicit coordination.
+
+\noindent {\bf Corollary 3: $n=\infty$}
+As the number of renewable generators grows large, the Pareto-optimal
+condition implies that the aggregate risk parameter
+$\sum_{i=1}^n \beta_i$ diverges to negative infinity. To interpret this
+result on a per-agent basis, consider the average risk sensitivity
+\[
+\frac{1}{n}\sum_{i=1}^n \beta_i
+= \frac{1-n}{4a_2 n}
+= -\frac{1}{4a_2} + \frac{1}{4a_2 n}.
+\]
+Taking the limit as $n \to \infty$, we obtain
+\[
+\lim_{n\to\infty} \frac{1}{n}\sum_{i=1}^n \beta_i
+= -\frac{1}{4a_2},
+\]
+which coincides with the lower bound on admissible risk parameters
+established in Lemma~1.
+
+Since admissible risk parameters must satisfy
+$\beta_i \ge -\frac{1}{4a_2}$ to ensure existence of the Nash equilibrium,
+this result shows that, as the number of renewable generators grows,
+Pareto-optimality forces the \emph{average} risk sensitivity to approach
+the feasibility boundary from above. In the large-population limit,
+socially optimal performance is therefore achieved when the collective
+risk exposure saturates this lower bound, even though individual agents
+may remain strictly feasible for any finite $n$.
+
+This reveals an emergent mean-field structure: rather than requiring
+coordination of individual bidding strategies, Pareto efficiency is
+recovered through convergence of the aggregate risk profile to its
+feasibility limit.
+
+
+\section{Distributed Risk Aware Solutions}
+
+The previous analysis shows that the total profit $\Pi$ corresponding to the Nash equilibrium \eqref{eq:alpha_i} can be improved by optimizing function \eqref{eq:G}. The optimization process is constructed in such a way that {\it minimum} information is shared. To this end, let us define
+\[ \beta_i^{\prime} = a_2 \beta_i, \;\;\; i=1,\cdots,n. \] 
+This means that objective functions in \eqref{eq:J_i} is expressed as 
+\begin{equation} 
+J_i = \Pi_i - \frac{\beta_i^{\prime} }{a_2} \mathbb{E}[(\lambda - \lambda^o)^2], \label{eq:betap_i}
+\end{equation}
+in which the physical meaning of $\beta_i^{\prime}$ remains identically the same as that of $\beta_i$.
+This substitution removes the need of sharing private cost information about the traditional generation assets. The following lemma and theorem provide specific algorithms for distributively solving for the risk-aware Nash equilibrium (under fixed choices of $\beta_i$) and the optimized risk-aware Nash solution (via optimization of $\beta_i$), respectively.   
+
+\noindent {\bf Lemma 2:}  {\it Under fixed choices of $\beta_i$, the risk-aware Nash equilibrium in \eqref{eq:alpha_i} can be solved as follows:}
+
+\begin{equation}
+\alpha_i^*
+= \frac{1+4\beta_i'}{\eta_i\bigl(1 + n + 4\sum_{j=1}^n \beta_j'\bigr)}
+\label{eq:lemma2}
+\end{equation}
+
+\noindent {\bf Proof:} It follows from \eqref{eq:p1_Ji} that the Nash equilibrium is to be solved according to the equation 
+\[ (1+4\beta_i^{\prime}) \sum_{j=1}^n(1-\alpha_j)x_j^o - \alpha_i x_i^o =0, \]
+which can be rewritten as 
+\begin{equation} 
+  (1+4\beta_i^{\prime}) [ 1- f(\alpha_1,\cdots,\alpha_n)] - \alpha_i \eta_i =0,
+\label{eq:NE_equation}
+\end{equation} 
+where function $f(\cdot)$ is defined in \eqref{eq:F}, and $\eta_i=x_i^o/x_r^o$. 
+
+Lemma 2 implies that, for fixed $\beta_i'$, the Nash equilibrium in $\alpha_i$ can be computed distributively through a scalar-coupled iteration involving only local parameters $\beta_i'$ and the aggregate signal $f(\alpha)$.
+\vspace*{.5in}
+
+\subsection{Consensus Protocol for Aggregate Quantities}
+
+To compute the Pareto-optimal strategies, operators need to determine key aggregate quantities through consensus. We employ a standard average consensus protocol where each operator $i$ maintains a state variable $z_i(k)$ at iteration $k$, initialized with its local value. The consensus update is:
+\begin{equation}
+z_i(k+1) = z_i(k) + \epsilon \sum_{j \in \mathcal{N}_i} [z_j(k) - z_i(k)], \label{eq:consensus}
+\end{equation}
+where $\epsilon > 0$ is the consensus gain satisfying $\epsilon < \frac{1}{\max_i |\mathcal{N}_i|}$ for convergence.
+
+\noindent\textbf{Lemma 3:} \textit{Under Assumption 1, the consensus protocol \eqref{eq:consensus} converges to the average:
+\begin{equation}
+\lim_{k\to\infty} z_i(k) = \bar{z} = \frac{1}{n}\sum_{j=1}^n z_j(0), \quad \forall i. \label{eq:consensus_limit}
+\end{equation}}
+
+\noindent\textbf{Proof:} Standard result from consensus theory. The update \eqref{eq:consensus} can be written in matrix form as $\mathbf{z}(k+1) = P\mathbf{z}(k)$ where $P = I - \epsilon L$ and $L$ is the Laplacian matrix of $\mathcal{G}$. Under Assumption 1, $P$ is a doubly stochastic matrix with a single eigenvalue at 1, ensuring convergence to the average. \hfill$\Box$
+
+Using Lemma 3, we define the following consensus-based computations:
+
+\textbf{Computing $n$:} Operator 1 initializes $z_1(0) = 1$ and all others initialize $z_j(0) = 0$. After consensus, $\bar{z} = \frac{1}{n}$, so:
+\begin{equation}
+n = \frac{1}{\bar{z}}. \label{eq:consensus_n}
+\end{equation}
+
+\textbf{Computing $x_r^o$:} Each operator initializes $z_i(0) = x_i^o$ and runs consensus to obtain $\bar{z} = \frac{1}{n}\sum_{j=1}^n x_j^o$. Then:
+\begin{equation}
+x_r^o = n \cdot \bar{z}. \label{eq:consensus_xr}
+\end{equation}
+
+\textbf{Computing $\eta_i$:} After obtaining $x_r^o$, each operator computes:
+\begin{equation}
+\eta_i = \frac{x_i^o}{x_r^o}. \label{eq:eta_definition}
+\end{equation}
+
+\textbf{Computing $f$:} Each operator initializes $z_i(0) = \alpha_i x_i^o$ and runs consensus to obtain $\bar{z} = \frac{1}{n}\sum_{j=1}^n \alpha_j x_j^o$. Then:
+\begin{equation}
+f = \frac{n\bar{z}}{x_r^o} = \sum_{j=1}^n \alpha_j \eta_j. \label{eq:F}
+\end{equation}
+
+\subsection{Algorithm Optimization}
+The distributed computation of the aggregate forecast $x_r^o$ and the corresponding weights $\eta_i$ enables a fully decentralized implementation of the Nash equilibrium characterized in Lemma~2. In this subsection, we leverage this structure to design an iterative distributed algorithm that jointly computes the Nash equilibrium bidding coefficients and optimizes the risk parameters to achieve Pareto-optimal performance.
+
+Specifically, for fixed values of $\{\beta_i'\}$, Lemma~2 provides a closed-form expression for the Nash equilibrium bidding coefficients $\{\alpha_i^*\}$ in terms of the locally available quantities $\beta_i'$ and $\eta_i$. Building on this result, the proposed algorithm alternates between updating the bidding coefficients $\alpha_i$ to track the Nash equilibrium and adjusting the risk parameters $\beta_i'$ to steer the system toward the Pareto-optimal operating point identified in Section~IV.
+
+Assuming that the consensus process described in the previous subsection is executed sufficiently fast relative to the outer updates, each agent has access to an accurate estimate of $\eta_i$ at every iteration. Under this assumption, the following distributed nonlinear iterative scheme is implemented. For all $k \in \mathbb{N}^+$, each renewable generator updates its bidding coefficient and risk parameter as
+
+
+\begin{align}
+\alpha_i^{\text{target}}(k)
+&= \frac{1 + 4\beta_i'(k)}{\eta_i}
+\bigl(1 - f(\alpha(k))\bigr),
+\label{eq:alpha_target}
+\\[6pt]
+\alpha_i(k+1)
+&= P_{[0,\,1]}\!\left\{
+(1-\epsilon_1)\alpha_i(k)
++ \epsilon_1 \alpha_i^{\text{target}}(k)
+\right\},
+\label{eq:alpha_k}
+\\[6pt]
+f(\alpha(k+1))
+&= \sum_{i=1}^n \eta_i\,\alpha_i(k+1),
+\label{eq:f_opt}
+\\[6pt]
+S(k)
+&= f(\alpha(k+1)) - \frac{1}{2},
+\label{eq:s_f}
+\\[6pt]
+\beta_i'(k+1)
+&= \max\left\{\beta_i'(k) - \epsilon_2 S(k), \; -\frac{1}{4}+\delta\right\},
+\label{eq:beta_k}
+\end{align}
+
+where $\epsilon_1,\epsilon_2 > 0$ are step sizes (with $\epsilon_1 \leq 1$ for damped updates), $\delta > 0$ is a small constant ensuring $\beta_i' > -\frac{1}{4}$ for stability, and $P_{[0, 1]}\{\cdot\}$ is the projection onto the interval $[0,1]$. The target bidding coefficient $\alpha_i^{\text{target}}$ follows from the Nash equilibrium condition in Lemma~2, and the damped update in \eqref{eq:alpha_k} ensures smooth convergence. The error signal $S(k)$ measures the deviation from the Pareto-optimal condition $f = \frac{1}{2}$. The algorithm is considered converged when the stopping criterion is satisfied:
+\begin{equation}
+    |S(k)| < \tau \quad \text{and} \quad \|\alpha(k+1) - \alpha(k)\| < \tau_\alpha,
+    \label{eq:stop}
+\end{equation}
+where $\tau, \tau_\alpha > 0$ are convergence tolerances.
+
+\begin{algorithm}[hbt]
+\caption{Distributed Risk-Aware Nash Optimization}
+\label{alg:dist_risk_aware}
+\begin{algorithmic}[1]
+\Require Initial $\beta_i'(0)$; step sizes $\epsilon_1 \in (0,1], \epsilon_2 > 0$; tolerances $\tau, \tau_\alpha > 0$
+\Ensure Converged values $\beta_i'^*, \alpha^*_i$
+\State \textbf{Initialize:} $\alpha_i(0) = 0.5$ for all $i$, $k = 0$
+\State \textbf{One-time consensus:} Compute $n$, $x_r^o$, and $\eta_i$ via \eqref{eq:consensus_n}--\eqref{eq:eta_definition}
+\While{stopping criterion \eqref{eq:stop} not satisfied}
+    \State Compute $f(\alpha(k))$ via consensus \eqref{eq:F}
+    \State Compute target: $\alpha_i^{\text{target}} = \frac{1+4\beta_i'(k)}{\eta_i}(1-f(\alpha(k)))$
+    \State Update: $\alpha_i(k+1) = P_{[0,1]}\{(1-\epsilon_1)\alpha_i(k) + \epsilon_1 \alpha_i^{\text{target}}\}$
+    \State Compute $f(\alpha(k+1))$ via consensus \eqref{eq:F}
+    \State Compute error: $S(k) = f(\alpha(k+1)) - \frac{1}{2}$
+    \State Update: $\beta_i'(k+1) = \max\{\beta_i'(k) - \epsilon_2 S(k), -\frac{1}{4}+\delta\}$
+    \State $k \gets k+1$
+\EndWhile
+\State \Return $\{\alpha_i^*, \beta_i'^*\}_{i=1}^n$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Illustrative Example \label{sec:examples}}
+
+To demonstrate the analytical and algorithmic results derived in the previous sections, a single instance of the proposed framework is considered, in which both the centralized solution and the distributed solution are computed and compared.
+
+\subsection{Power System Setup}
+
+\begin{table}[hbt!]
+\centering
+\caption{Example Parameters}
+\label{tab:example_params}
+\begin{tabular}{|c c|}
+\hline
+\textbf{Parameter} & \textbf{Value} \\
+\hline
+n & $3$ \\
+$a_2$ & 0.1 \\
+$a_1$ & 1 \\
+$a_0$ & 0 \\
+$x_1$ & 120 \\
+$x_2$ & 100 \\
+$x_3$ & 80 \\
+$x_L$ & 400 \\
+\hline
+\end{tabular}
+\end{table}
+
+Consider a day-ahead/real-time electricity market with three renewable generation operators $i \in \{1,2,3\}$ and one conventional generation aggregator. The system parameter settings are provided in Table \ref{tab:example_params}. It follows that the objective function is 
+\[
+J(P_g) = 0.1P_g^2 + P_g
+\]
+
+and the day-ahead forecasts be $x_1^o, x_2^o, x_3^o$ for the renewable and $x_4^o = P_L^o$ for the load. Real-time realizations are $x_1, x_2, x_3$ for the renewable and $x_4 = P_L$ for the load. Each forecast can be modeled as $x_i \sim \mathcal{N}(x_i^o,\sigma_i^2)$.
+
+\subsection{Analytical Nash Solutions}
+
+Given all knowledge of system parameters in Table \ref{tab:example_params}, the solutions to the Nash equilibrium is given by equation \ref{eq:alpha_i}, and the corresponding profits are computed using equation \ref{eq:G}. Additionally, risk parameters $\beta_i$ are assumed fixed, and the Nash equilibrium bidding strategies $\alpha_i^*$ are solved analytically under full information, When all renewable generations form a coalition, the optimal bidding strategy forms equation~\eqref{eq:alpha_closed_form_beta_n3}.
+
+\begin{equation}
+\alpha^*(\beta)
+=\frac{1+4a_2\beta}{1 + 3a_2\beta}
+\label{eq:alpha_closed_form_beta_n3}
+\end{equation}
+
+% TODO: Generate analytical figures for lemma1.png, f_b.png, g_b.png
+% These figures show the theoretical relationship between beta and alpha, f, g
+% under the coalition (cooperative) strategy from Lemma 1.
+%
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=1\linewidth]{figs/lemma1.png}
+%     \caption{Optimal Bidding Strategy Under Coalition}
+%     \label{fig:n3lemma1}
+% \end{figure}
+%
+% \begin{figure}[hbt!]
+%     \centering
+%     \includegraphics[width=1\linewidth]{figs/f_b.png}
+%     \caption{Solutions of $f(\alpha)$ vs $\beta_i$}
+%     \label{fig:f_b}
+% \end{figure}
+%
+% \begin{figure}[hbt!]
+%     \centering
+%     \includegraphics[width=1\linewidth]{figs/g_b.png}
+%     \caption{Solutions of $g(\alpha)$ vs $\beta_i$}
+%     \label{fig:g_b}
+% \end{figure}
+
+For non-cooperative cases, the Nash bidding strategies with respect to $J_i$ are:
+\begin{align}
+\alpha_1^*
+&=
+\frac{(1+4a_2\beta_1)\,\bigl(1+\gamma_{12}+\gamma_{13}\bigr)}
+{4\left(1+a_2(\beta_1+\beta_2+\beta_3)\right)},
+\\[6pt]
+\alpha_2^*
+&=
+\frac{(1+4a_2\beta_2)\,\bigl(1+\gamma_{21}+\gamma_{23}\bigr)}
+{4\left(1+a_2(\beta_1+\beta_2+\beta_3)\right)},
+\\[6pt]
+\alpha_3^*
+&=
+\frac{(1+4a_2\beta_3)\,\bigl(1+\gamma_{31}+\gamma_{32}\bigr)}
+{4\left(1+a_2(\beta_1+\beta_2+\beta_3)\right)}.
+\end{align}
+
+In particular, the risk neutral Nash bidding strategies are $(\alpha_1,\alpha_2,\alpha_3) = (0.675, 0.75, 0.9375)$, resulting in $\sum \Pi = \$16875$. While from equation \ref{eq:theorem2}, the risk seeking optimal bidding strategy is: 
+
+\[
+\sum \beta_i = -\frac{1}{2a_2}
+\]
+
+which implies that many solutions are possible, if each renewable applies the same $\beta_i$ then the fair solution is $\beta^* = \beta_i =-0.2083$ which yields $\alpha_i^*=(0.4160, 0.50042, 0.62406)$ resulting in $\sum \Pi = \$22500$. For non-symmetric solutions, it can be illustrated in Figure \ref{fig:beta_rs}.
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/risk_seek_sol.png}
+    \caption{Optimal $\beta_i$ Risk Seeking Solutions}
+    \label{fig:beta_rs}
+\end{figure}
+
+\subsection{Solutions under Distributed Algorithm}
+
+\begin{table}[h]
+\centering
+\caption{Test cases with initial transformed risk parameters $\beta_i' = a_2\beta_i$}
+\label{tab:test_cases}
+\begin{tabular}{lcccc}
+\hline
+Test case & $\beta_1'$ & $\beta_2'$ & $\beta_3'$ & Risk Profile \\
+\hline
+I & 0 & 0 & 0 & Risk-neutral \\
+II & -1 & -1 & -1 & Risk-seeking \\
+III & 1 & 1 & 1 & Risk-averse \\
+IV & -1 & 1 & 1 & Mixed \\
+V & -0.25 & 0 & 0.25 & Mixed \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/sum_beta_convergence_all_cases.png}
+    \caption{Convergence of $\sum\beta_i'$ for all test cases. Each case converges to the Pareto-optimal sum $\sum\beta_i'^* = (1-n)/4 = -0.5$.}
+    \label{fig:sum_beta_all}
+\end{figure}
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/beta_individual_all_cases.png}
+    \caption{Individual $\beta_i'$ convergence for each test case. Despite different initial conditions, all cases achieve Pareto-optimal sum.}
+    \label{fig:beta_individual}
+\end{figure}
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/alpha_individual_all_cases.png}
+    \caption{Individual $\alpha_i$ convergence for each test case. Bidding fractions adjust to achieve $f(\alpha) = 0.5$.}
+    \label{fig:alpha_individual}
+\end{figure}
+
+Figure~\ref{fig:sum_beta_all} shows the convergence of the aggregate risk parameter $\sum\beta_i'$ for all test cases. Despite vastly different initial conditions---ranging from risk-neutral (Case~I) to risk-seeking (Case~II) to risk-averse (Case~III) to mixed profiles (Cases~IV and V)---all cases converge to the Pareto-optimal value $\sum\beta_i'^* = (1-n)/4 = -0.5$ as predicted by Theorem~3. Figure~\ref{fig:beta_individual} provides a detailed view of individual $\beta_i'$ trajectories within each case, showing how operators with different initial risk preferences adapt their parameters to collectively satisfy the Pareto condition.
+
+Figure~\ref{fig:alpha_individual} shows the corresponding evolution of bidding fractions $\alpha_i$. As the risk parameters converge, the bidding strategies adjust to achieve $f(\alpha) = 0.5$, confirming the Nash equilibrium behavior characterized in Lemma~2. The impact of the risk-parameter updates on market efficiency is illustrated in Figures~\ref{fig:f_all} and~\ref{fig:S_all}, where the aggregate bidding fraction $f(\alpha)$ converges to $1/2$ and the error signal $|S|$ decreases below the convergence tolerance for all test cases.
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/f_convergence_all_cases.png}
+    \caption{Convergence of aggregate bidding fraction $f(\alpha)$ to Pareto target $0.5$ for all test cases.}
+    \label{fig:f_all}
+\end{figure}
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/S_convergence_all_cases.png}
+    \caption{Convergence of error signal $|S| = |f - 0.5|$ (log scale) for all test cases.}
+    \label{fig:S_all}
+\end{figure}
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/g_convergence_all_cases.png}
+    \caption{Convergence of market efficiency $g(\alpha) = f(1-f)(x_r^o)^2$ to maximum value $g_{\max} = 0.25(x_r^o)^2$ for all test cases.}
+    \label{fig:g_all}
+\end{figure}
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/profit_convergence_all_cases.png}
+    \caption{Convergence of aggregate profit $\sum\Pi_i$ for all test cases.}
+    \label{fig:profit_all}
+\end{figure}
+
+Figure~\ref{fig:g_all} demonstrates that market efficiency $g(\alpha)$ converges to its maximum value $g_{\max} = 0.25(x_r^o)^2 = 22500$ for all test cases, confirming that the distributed algorithm successfully achieves Pareto optimality. Figure~\ref{fig:profit_all} shows the corresponding convergence of aggregate profits $\sum\Pi_i$.
+
+These results validate that the proposed distributed algorithm achieves Pareto-enhanced Nash equilibria using only local computations and minimal information exchange. Regardless of initial risk preferences, the algorithm guides all operators toward the collective optimum. In particular, the renewable operators do not require knowledge of other agents' forecasts, cost parameters, or private objectives, yet collectively achieve the same performance as a centralized optimizer. This highlights the practicality of the proposed framework for real-time electricity markets with decentralized renewable participants.
+
+\section{Conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
