@@ -1,7 +1,13 @@
-%% Risk-Aware Power System - Multiple Test Cases Comparison
-% Implementation of Algorithm 1 from the paper
+%% Risk-Aware Power System - Multiple Test Cases Comparison (IMPROVED)
+% Implementation of IMPROVED Algorithm from the paper
 % "Distributed Risk-Aware Bidding Strategy for Incorporating Renewable
 % Generation into Real-Time Electricity Market"
+%
+% KEY IMPROVEMENT: Direct computation of alpha* instead of damped iteration
+%   - Eliminates oscillations
+%   - Faster convergence
+%   - Only one consensus round per iteration (instead of two)
+%   - Single tuning parameter (epsilon2) instead of two
 %
 % This version runs MULTIPLE TEST CASES and displays results on combined plots.
 %
@@ -34,26 +40,24 @@ sigma_r2 = 0;      % variance of aggregate renewable
 sigma_L2 = 0;      % variance of load
 sigma_rL = 0;      % covariance between renewable and load
 
-% Initial bidding fractions (same for all test cases)
-alpha_init = [0.5; 0.5; 0.5];
-
 % Communication graph (adjacency matrix) - must be connected
 Adj = [0 1 1;
        1 0 1;
        1 1 0];  % Fully connected
 
 % Algorithm parameters
-epsilon1 = 0.2;      % Consensus step size (< 1/max_degree)
-epsilon2 = 0.05;     % Beta update step size (increased for faster convergence)
-tau = 1e-6;          % Stopping tolerance for |S| = |f - 0.5|
-alpha_tol = 1e-6;    % Stopping tolerance for alpha convergence
-min_iter = 10;       % Minimum iterations before checking convergence
-max_outer_iter = 1000;  % Max iterations for outer loop
+epsilon_consensus = 0.2;  % Consensus step size (< 1/max_degree)
+epsilon2 = 0.5;          % Beta update step size
+tau = 1e-6;              % Stopping tolerance for |S| = |f - 0.5|
+beta_tol = 1e-6;         % Stopping tolerance for beta convergence
+min_iter = 10;           % Minimum iterations before checking convergence
+max_outer_iter = 1000;   % Max iterations for outer loop
 max_consensus_iter = 100;  % Max iterations for consensus
-consensus_tol = 1e-10;  % Consensus convergence tolerance
+consensus_tol = 1e-10;   % Consensus convergence tolerance
+delta = 0.01;            % Safety margin for beta' > -0.25
 
 % Visualization parameters
-save_figs = false;           % Set to true to save figures to figs/ folder
+save_figs = true;           % Set to true to save figures to figs/ folder
 
 %% ========================================================================
 %                         TEST CASES DEFINITION
@@ -66,7 +70,8 @@ test_cases = {
     'Case II',  [-1; -1; -1],        'Risk-seeking';
     'Case III', [1; 1; 1],           'Risk-averse';
     'Case IV',  [-1; 1; 1],          'Mixed';
-    'Case V',   [-0.25; 0; 0.25],    'Mixed (mild)';
+    'Case V',   [-0.25; 0; 0.2],    'Mixed (mild)';
+    'Case VI',   [-0.25; 0; 0],    'Mixed (mild)';
 };
 
 num_cases = size(test_cases, 1);
@@ -151,25 +156,28 @@ fprintf('g_sym = f*(1-f)*x_r^o^2 = %.4f\n\n', f_sym*(1-f_sym)*xr0^2);
 % =========================================================================
 
 fprintf('=========================================================\n');
-fprintf('              PART 2: DISTRIBUTED ALGORITHM\n');
+fprintf('      PART 2: IMPROVED DISTRIBUTED ALGORITHM\n');
+fprintf('      (Direct Alpha Computation - No Iteration)\n');
 fprintf('=========================================================\n\n');
 
 % --- One-time consensus for aggregate quantities (same for all cases) ---
 fprintf('One-time consensus for n, x_r^o, eta_i\n');
 
-% Compute n via consensus (Eq. 5.3)
-z = zeros(n, 1); z(1) = 1;
-n_est = 1 / run_consensus(z, L, epsilon1, max_consensus_iter, consensus_tol);
+% Compute n via consensus (Eq. 5.3) using z_n
+z_n = zeros(n, 1); z_n(1) = 1;
+z_n_bar = run_consensus(z_n, L, epsilon_consensus, max_consensus_iter, consensus_tol);
+n_est = 1 / z_n_bar;
 fprintf('  Estimated n = %.4f (true = %d)\n', n_est, n);
 
-% Compute x_r^o via consensus (Eq. 5.4)
-z = x0;
-z_bar = run_consensus(z, L, epsilon1, max_consensus_iter, consensus_tol);
-xr0_est = n_est * z_bar;
+% Compute x_r^o via consensus (Eq. 5.4) using z_xr0
+z_xr0 = x0;
+z_xr0_bar = run_consensus(z_xr0, L, epsilon_consensus, max_consensus_iter, consensus_tol);
+xr0_est = n_est * z_xr0_bar;
 fprintf('  Estimated x_r^o = %.4f (true = %.2f)\n', xr0_est, xr0);
 
-% Compute eta_i locally (Eq. 5.5)
-eta_est = x0 / xr0_est;
+% Compute eta_i locally (Eq. 5.5) using z_eta
+z_eta = x0 / xr0_est;
+eta_est = z_eta;
 fprintf('  Estimated eta = [%s]\n\n', num2str(eta_est', '%.4f '));
 
 % --- Run distributed algorithm for each test case ---
@@ -178,10 +186,16 @@ for tc = 1:num_cases
 
     % Initialize variables for this test case
     beta_prime_init = case_betas{tc};
-    alpha = alpha_init;
     beta_prime = beta_prime_init;
 
-    fprintf('  Initial beta'' = [%s]\n', num2str(beta_prime', '%.4f '));
+    % Clamp initial beta' to feasible region (beta' > -0.25)
+    beta_prime = max(beta_prime, -0.25 + delta);
+
+    fprintf('  Initial beta'' = [%s]', num2str(beta_prime_init', '%.4f '));
+    if any(beta_prime_init < -0.25 + delta)
+        fprintf(' -> clamped to [%s]', num2str(beta_prime', '%.4f '));
+    end
+    fprintf('\n');
 
     % History for plotting
     history.alpha = zeros(n, max_outer_iter);
@@ -190,56 +204,107 @@ for tc = 1:num_cases
     history.S = zeros(1, max_outer_iter);
     history.Pi = zeros(n, max_outer_iter);
     history.J = zeros(n, max_outer_iter);
-    history.alpha_change = zeros(1, max_outer_iter);
+    history.sum_beta_prime = zeros(1, max_outer_iter);
 
     converged = false;
+    sum_beta_prev = sum(beta_prime);
 
     for k = 1:max_outer_iter
         % Store history
-        history.alpha(:, k) = alpha;
         history.beta_prime(:, k) = beta_prime;
 
-        % Compute f via consensus (Eq. 5.6)
-        z = alpha .* x0;
-        z_bar = run_consensus(z, L, epsilon1, max_consensus_iter, consensus_tol);
-        f = n_est * z_bar / xr0_est;
+        % ============================================================
+        % STEP 1: CONSENSUS ON SUM OF BETA' (one consensus round)
+        % Using z_beta(k) as consensus variable at iteration k
+        % ============================================================
+        z_beta = beta_prime;
+        z_beta_bar = run_consensus(z_beta, L, epsilon_consensus, max_consensus_iter, consensus_tol);
+        z_beta_sum = n_est * z_beta_bar;  % Consensus estimate of sum(beta')
+        sum_beta_prime = z_beta_sum;
+        history.sum_beta_prime(k) = sum_beta_prime;
+
+        % ============================================================
+        % STEP 2: DIRECT COMPUTATION OF NASH EQUILIBRIUM
+        % alpha*_i = (1+4*beta'_i)/eta_i * [1/(1+n+4*sum(beta'_j))]
+        % Using consensus terms: z_eta and z_beta_sum(k)
+        % ============================================================
+        denominator = 1 + n_est + 4 * z_beta_sum;
+        alpha = (1 + 4 * beta_prime) ./ z_eta / denominator;
+        alpha = max(0, min(1, alpha));  % Clamp to [0,1]
+        history.alpha(:, k) = alpha;
+
+        % ============================================================
+        % STEP 3: COMPUTE f FROM ACTUAL (CLAMPED) ALPHA
+        % NOTE: Must use actual alpha, not formula, because clamping
+        % breaks the theoretical relationship f = (n+4*sum(beta'))/(1+n+4*sum(beta'))
+        % Using consensus term z_eta
+        % ============================================================
+        f = sum(alpha .* z_eta);  % Actual f from clamped alpha using z_eta
         history.f(k) = f;
 
-        % Compute error signal S (Eq. 5.8)
+        % ============================================================
+        % STEP 4: COMPUTE ERROR SIGNAL
+        % ============================================================
         S = f - 0.5;
         history.S(k) = S;
+
+        % ============================================================
+        % STEP 5: UPDATE BETA' (gradient descent on Pareto error)
+        % FIX: Iterative deficit redistribution to ensure total change
+        % in sum(beta') matches the intended n*epsilon2*S
+        % ============================================================
+        lower_bound = -0.25 + delta;
+
+        if S > 0  % Need to decrease beta' values
+            % Total desired decrease in sum(beta')
+            remaining_delta = n * epsilon2 * S;
+
+            % Iteratively distribute the change, accounting for clamping
+            for redistrib_iter = 1:10
+                % Find operators with headroom (not at bound)
+                headroom = beta_prime - lower_bound;
+                has_headroom = headroom > 1e-10;
+                n_free = sum(has_headroom);
+
+                if n_free == 0 || remaining_delta < 1e-12
+                    break;
+                end
+
+                % Distribute remaining delta among free operators
+                per_operator = remaining_delta / n_free;
+
+                % Compute actual change (limited by headroom)
+                actual_change = min(per_operator, headroom) .* has_headroom;
+
+                % Apply change
+                beta_prime = beta_prime - actual_change;
+
+                % Update remaining delta for next iteration
+                remaining_delta = remaining_delta - sum(actual_change);
+            end
+        else  % S <= 0, need to increase beta' values (no upper bound)
+            beta_prime = beta_prime - epsilon2 * S;
+        end
+
+        % Final safety clamping
+        beta_prime = max(beta_prime, lower_bound);
 
         % Compute profits and objectives at current state
         Pi_actual = compute_profit(alpha, n, a2, a1, x0, xL0, xr0, eta, ...
             sigma_r2, sigma_L2, sigma_rL);
-        J_actual = Pi_actual - beta_prime .* 4*a2*(xr0^2)*(1-f)^2;
+        price_var = 4 * a2^2 * (xr0^2 * (1-f)^2 + sigma_L2 + sigma_r2 - 2*sigma_rL);
+        J_actual = Pi_actual - (beta_prime / a2) .* price_var;
         history.Pi(:, k) = Pi_actual;
         history.J(:, k) = J_actual;
 
-        % Update alpha using best response (derived from Nash condition)
-        alpha_target = (1 + 4*beta_prime) .* (1 - f) ./ eta_est;
-        alpha_target = max(0, min(1, alpha_target));  % Clamp to [0, 1]
-        alpha_new = 0.5 * alpha + 0.5 * alpha_target;  % Damped update
-
-        % Check stopping criterion
-        alpha_change = norm(alpha_new - alpha);
-        history.alpha_change(k) = alpha_change;
-
-        if k >= min_iter && abs(S) < tau && alpha_change < alpha_tol
+        % Check convergence
+        if k >= min_iter && abs(S) < tau && abs(sum_beta_prime - sum_beta_prev) < beta_tol
             fprintf('  Converged at iteration %d: |S| = %.2e\n', k, abs(S));
             converged = true;
             break;
         end
 
-        % Apply alpha update
-        alpha = alpha_new;
-
-        % Update beta' using gradient descent (Eq. 5.9)
-        beta_prime = beta_prime - epsilon2 * S;
-
-        % Ensure beta' > -1/4 for stability (Theorem 1)
-        % Use -0.2499 to allow starting at -0.25 without immediate clamping issues
-        beta_prime = max(beta_prime, -0.2499);
+        sum_beta_prev = sum_beta_prime;
     end
 
     if ~converged
@@ -253,7 +318,7 @@ for tc = 1:num_cases
     history.S = history.S(1:k);
     history.Pi = history.Pi(:, 1:k);
     history.J = history.J(:, 1:k);
-    history.alpha_change = history.alpha_change(1:k);
+    history.sum_beta_prime = history.sum_beta_prime(1:k);
     history.iterations = k;
     history.converged = converged;
     history.beta_prime_init = beta_prime_init;
