@@ -7,8 +7,6 @@
 
 \newcommand{\one}{\mathbf{1}}
 
-\pagenumbering{arabic}
-
 \usepackage{hyperref} 
 
 \title{Distributed Risk-Aware Bidding Strategy for Incorporating Renewable Generation into Real-Time Electricity Market}
@@ -346,49 +344,84 @@ and the total profit $\Pi$ in \eqref{eq:Pi_exp} is optimized with
 \[ \left[\mbox{diag}\{\eta_1,\cdots,\eta_n\} + \one \boldsymbol{\eta}^T \right] \boldsymbol{\alpha}=\one, \]
 where $\boldsymbol{\eta}=[\eta_1 \; \cdots \; \eta_n]^T$ and $\one=[1 \; \cdots \; 1]^T$. It is simple to verify that the solution is given by \eqref{eq:alpha_i_0}. And, the corresponding total profit can be calculated in terms of \eqref{eq:G} and \eqref{eq:F}.  \hfill $\Box$
 
-Corollary~3 provides a closed-form Nash solution to the risk-neutral bidding problem, and the solution implicitly assumes that overbidding (that is, $\alpha_i^* > 1$ for some $i$) is allowed. Physically, operator $i$ is overbidding if it commits to deliver more power than its forecast capacity $x_i^o$ into the day-ahead market, exposing itself to  shortfall real-time. It follows that Nash strategy \eqref{eq:alpha_i_0} renders no overbidding if and only if 
-\begin{equation*}
-    \eta_i \geq \frac{1}{n+1} \;\;\; \forall i. 
-\end{equation*}
-Since $\sum_i \eta_i =1$, we know that 
-\[ \min_i \eta_i \leq \frac{1}{n}. \] Therefore, Nash strategy \eqref{eq:alpha_i_0} does not produce overbidding if 
+In the risk-neutral case ($\beta_i = 0$), the Nash equilibrium is given directly by Corollary~3: $\alpha_i^* = \frac{1}{n+1}\eta_i^{-1}$. Overbidding ($\alpha_i^* > 1$) occurs if and only if $\eta_i < \frac{1}{n+1}$, that is,
 \begin{equation}
-    \min_i \eta_i \in \left[ \frac{1}{n+1}, \; \frac{1}{n}\right], \;\;\; 
-    \max_i \eta_i \leq \frac{2}{n+1},
-    \label{eq:eta_0}
+    \eta_i \geq \frac{1}{n+1} \;\;\; \forall i \label{eq:eta_0}
 \end{equation}
-which implies that the maximum capacity difference among the renewable operators is limited to $1/(n+1)$. Should overbidding be forbidden while condition~\eqref{eq:eta_0} fail, the bidding strategy is given by the following corollary instead of corrollary 3. 
+is the no-overbidding condition. Physically, $\alpha_i^* > 1$ means operator $i$ commits to deliver more power than its forecast capacity $x_i^o$ into the day-ahead market, exposing itself to real-time shortfall.
 
-\noindent  {\bf Corollary 4:} {\it In the case that overbidding is not permitted, the optimal risk-neutral biding strategy is 
+When condition~\eqref{eq:eta_0} fails, the no-overbidding policy imposes the box constraint
 \begin{equation}
- \hspace*{-0.2in}    \alpha_i^* = \left\{ \begin{array}{ll} \displaystyle \frac{1}{n+1-|\Omega_s|}\eta_i^{-1} \left[ 1- \sum_{j\in\Omega_s} \eta_j\right]  & i\not \in\Omega_s \\
-    1 & i\in\Omega_s \end{array} \right. \label{eq:alpha_i_1} 
-\end{equation} 
-where $\Omega_s$ is the set of operators who are constrained to overbid, $|\Omega_s|$ denotes the cardinal value of $\Omega_s$, and
-\[ \Omega_s=\left\{j \in\Omega: \; \eta_i<\tfrac{1}{n+1}\right\}.  \]
-Furthermore, the total profit $\Pi$ in \eqref{eq:Pi_exp} is optimized with} 
-\begin{eqnarray*}
-    g^{RN}(\boldsymbol{\alpha}^*) &= & \frac{1}{(n+1-|\Omega_s|)^2} \left[ n-|\Omega_s| +\sum_{j\in\Omega_s} \eta_j \right] \\
-    && \times \left[ 1 -\sum_{j\in\Omega_s} \eta_j \right](x_r^o)^2
-\end{eqnarray*}
+0\le \bar{\alpha}_i \le 1,\qquad
+\bar{\alpha}_i = \min\{1,\, \alpha_i^*\}, \label{eq:alpha_clamp}
+\end{equation}
+but the constrained equilibrium is not obtained by merely projecting the unconstrained profile componentwise. Indeed, from the first-order condition~\eqref{eq:p1Ji=0}, any unsaturated operator must still satisfy
+\[
+(1+4a_2\beta_i)\sum_{j=1}^n(1-\bar{\alpha}_j)x_j^o-\bar{\alpha}_i x_i^o=0.
+\]
+For the risk-neutral case $\beta_i=0$, define
+\[
+t^{RN}\triangleq 1-\bar{f}^{RN},\qquad
+\bar{f}^{RN}=\sum_{i=1}^n \eta_i\bar{\alpha}_i .
+\]
+Then the constrained Nash solution has the closed form
+\begin{equation}
+\bar{\alpha}_i=
+\min\!\left\{1,\;\frac{t^{RN}}{\eta_i}\right\},
+\label{eq:alpha_clamp_RN_closed}
+\end{equation}
+or equivalently
+\[
+\eta_i\bar{\alpha}_i=\min\{\eta_i,t^{RN}\},\qquad
+t^{RN}=1-\sum_{i=1}^n \min\{\eta_i,t^{RN}\}.
+\]
+Let the shares be ordered as
+\[
+\eta_{(1)}\le \eta_{(2)}\le \cdots \le \eta_{(n)},
+\]
+and suppose exactly the first $m$ operators are saturated, i.e.,
+$\Omega_s=\{(1),\ldots,(m)\}$. Then
+\begin{equation}
+t_m^{RN}=
+\frac{1-\sum_{k=1}^m \eta_{(k)}}{n-m+1},
+\label{eq:tbar_RN}
+\end{equation}
+and the constrained bids are
+\begin{equation}
+\bar{\alpha}_{(i)}=
+\left\{
+\begin{array}{ll}
+1, & i\le m,\\[2mm]
+\dfrac{1-\sum_{k=1}^m\eta_{(k)}}{(n-m+1)\eta_{(i)}}, & i>m,
+\end{array}
+\right.
+\label{eq:alpha_bar_RN_active}
+\end{equation}
+where $m$ is the unique index satisfying
+\[
+\eta_{(m)}\le t_m^{RN}\le \eta_{(m+1)}.
+\]
+Accordingly, the aggregate bidding fraction for the risk-neutral constrained equilibrium is
+\begin{equation}
+\bar{f}^{RN}
+=
+\sum_{i=1}^m\eta_{(i)}
++
+\frac{n-m}{n-m+1}
+\left(1-\sum_{i=1}^m\eta_{(i)}\right)
+=
+1-\frac{1-\sum_{i=1}^m\eta_{(i)}}{n-m+1}.
+\label{eq:fbar_RN}
+\end{equation}
+This expression reduces to the unconstrained value $f^{RN}=\frac{n}{n+1}$ when $m=0$. Whenever $m\ge 1$, clamping reduces $\bar{f}^{RN}$ below $\frac{n}{n+1}$ and moves the aggregate bid fraction toward $\frac{1}{2}$, which may improve the market efficiency term $g=\bar{f}^{RN}(1-\bar{f}^{RN})(x_r^o)^2$ relative to the unconstrained risk-neutral case.
 
-\noindent {\bf Proof:} Consider 
-To optimize $\Pi_i$ for $i\not\in\Omega_s$, it follows from \eqref{eq:p1Ji=0} that, with $\beta_i=0$,
-\begin{equation*}
-  \sum_{j=1}^n(1-\alpha_j)\eta_j - \alpha_i \eta_i=0.
-\end{equation*} 
-Since $\alpha_j=1$ for $j\in\Omega_s$, the above equation becomes
-\[ \sum_{j\not\in\Omega_s} \alpha_j \eta_j + \alpha_i \eta_i= 1- \sum_{j\in\Omega_s} \eta_j, \;\;\; \forall i\not\in\Omega_s.  \]
-The solution to the above equation is given by \eqref{eq:alpha_i_1}. 
-Next, it follows from \eqref{eq:Pi_exp} that 
-\begin{eqnarray*} 
-f(\boldsymbol{\alpha}^*) & = & \sum_{i\not\in\Omega_s} \alpha_i \eta_i + \sum_{j\in\Omega_s} \eta_j \\
-& = & \frac{n-|\Omega_s|}{n+1-|\Omega_s|} +\frac{1}{n+1-|\Omega_s|}\sum_{j\in\Omega_s} \eta_j,
-\label{eq:F_1}
-\end{eqnarray*} 
-and
-\[ g(\boldsymbol{\alpha}^*) = f(\boldsymbol{\alpha}^*) \left[ 1 - f(\boldsymbol{\alpha}^*)  \right](x_r^o)^2, \]
-which gives the result in the statement. \hfill $\Box$
+The projected total profit under the no-overbidding policy is
+\begin{eqnarray}
+\bar{\Pi} & = & 2a_2\left[\bar{f}(1-\bar{f})(x_r^o)^2 - (x_r^o)^2 + x_{n+1}^ox_r^o \right] +a_1 x_r^o \nonumber \\
+&& + \; 2a_2\left[\sum_{i=1}^n\sigma_{iL} - \sum_{i=1}^n\sum_{j=1}^n\sigma_{ij}\right], \label{eq:Pi_clamp}
+\end{eqnarray}
+where $\bar{f}$ is given by~\eqref{eq:fbar_RN} in the risk-neutral case. Overbidding can be prevented either by a utility-enforced no-overbidding rule or by a financial disincentive, but once a subset of operators saturates, the remaining operators must re-equilibrate according to \eqref{eq:alpha_bar_RN_active} because the first-order conditions~\eqref{eq:p1Ji=0} depend on the aggregate residual supply $\sum_j(1-\bar{\alpha}_j)x_j^o$.
+
 
 The significant outcome of theorem 1 and its corollaries is that, while the total profit under noncooperative risk neutral Nash equilibrium is typically worse than that of cooperative coalition solution, risk aware Nash strategies
 could be employed to recover the same profit as the cooperative coalition's. Indeed, corollary 2 provides an infinite number of combinations in risk tolerance levels as long as the aggregate risk tolerance of $(\beta_1+\beta_2)$ assumes an optimal risk seeking value. In the next section, this result is extended to a centralized solution to the general case of $n$ market participants. 
@@ -478,49 +511,103 @@ the same risk tolerance level, constraint \eqref{eq:beta_sum_condition} is satis
 \[  \beta_0= \frac{1-n}{4a_2n}; \;\;\; \beta_i=\beta_0\;\;\; \forall i\in\{1,\cdots,n\}. \]
 Note that all the entities employing a common risk seeking level is a fair policy enforceable by the utility and is also supported by the Nash equilibria formed by all the operators. In this special case, theorem 2 reduces to the following corollary. 
 
-\noindent  {\bf Corollary 5:} {\it In the general case of $n>2$, the optimal equal-risk-seeking (ERS) biding strategy  is 
+\noindent  {\bf Corollary 4:} {\it In the general case of $n>2$, the optimal equal-risk-seeking (ERS) biding strategy  is 
 \begin{equation}
 \alpha_i^* = \frac{1}{2n}\eta_i^{-1}, \label{eq:alpha_optimal_simplified}
 \end{equation} 
 and the total profit $\Pi$ in \eqref{eq:Pi_exp} is optimized with 
 \[ g^{ERS}(\boldsymbol{\alpha}^*)=\frac{1}{4} (x_r^o)^2. \] }
 
-\noindent  {\bf Corollary 6:} {\it In the case that overbidding is not permitted under the Pareto-optimal risk-seeking strategy of theorem~2, the constrained optimal biding strategy is 
+Under the Pareto-optimal Nash equilibrium~\eqref{eq:alpha_optimal}, the overbidding phenomenon is more complex than the risk-neutral case because bids depend on both capacity share and heterogeneous risk sensitivities. Applying the feasibility constraint $\alpha_i^* \leq 1$ to the Pareto bidding formula~\eqref{eq:alpha_optimal},
+\[
+\frac{1}{2}(1+4a_2\beta_i)\,\eta_i^{-1} \leq 1
+\;\Rightarrow\;
+1 + 4a_2\beta_i \leq 2\eta_i
+\;\Rightarrow\;
+a_2\beta_i \leq \frac{2\eta_i-1}{4},
+\]
+which, writing $\beta_i' = a_2\beta_i$, gives the per-operator feasibility bound
+\begin{equation}\label{eq:overbid_bound}
+\beta_i' \leq \frac{2\eta_i - 1}{4}, \quad \forall\, i.
+\end{equation}
+This bound is negative whenever $\eta_i < \frac{1}{2}$, which covers most operators in any multi-operator market; hence, preventing overbidding may require sufficiently negative $\beta_i'$ (risk-seeking in our sign convention) for small-share operators. The equal-risk-seeking (ERS) specialization in Corollary~4 yields a simpler threshold in terms of $\eta_i$ alone.
+
+When operators in $\Omega_s^P = \{i : \alpha_i^* > 1\}$ are subject to the no-overbidding constraint $\bar{\alpha}_i\le 1$, the constrained Pareto-type equilibrium must again be recomputed from the first-order condition~\eqref{eq:p1Ji=0}. Define
+\[
+w_i\triangleq 1+4a_2\beta_i,\qquad
+t^P\triangleq 1-\bar{f}^P,\qquad
+\bar{f}^P=\sum_{i=1}^n \eta_i\bar{\alpha}_i .
+\]
+Then every constrained equilibrium satisfies
 \begin{equation}
- \hspace*{-0.2in}    \bar{\alpha}_i = \left\{ \begin{array}{ll} \displaystyle \frac{w_i}{\eta_i} \cdot \frac{1- \sum_{j\in\Omega_s^P} \eta_j}{1+\sum_{j\not\in\Omega_s^P} w_j}  & i\not \in\Omega_s^P \\[6pt]
-    1 & i\in\Omega_s^P \end{array} \right. \label{eq:alpha_clamp} 
-\end{equation} 
-where $w_i\triangleq 1+4a_2\beta_i$, $\Omega_s^P$ is the set of operators whose unconstrained bids \eqref{eq:alpha_optimal} exceed unity, and
-\begin{equation} \Omega_s^P=\left\{j \in\Omega: \; a_2\beta_j > \tfrac{2\eta_j-1}{4}\right\}.  \label{eq:overbid_bound}\end{equation}
-Furthermore, the constrained total profit is 
-\begin{eqnarray}
-\bar{\Pi} & = & 2a_2\left[\bar{f}^P(1-\bar{f}^P)(x_r^o)^2 - (x_r^o)^2 + x_{n+1}^ox_r^o \right] +a_1 x_r^o \nonumber \\
-&& + \; 2a_2\left[\sum_{i=1}^n\sigma_{iL} - \sum_{i=1}^n\sum_{j=1}^n\sigma_{ij}\right], \label{eq:Pi_clamp}
-\end{eqnarray}
-where 
+\bar{\alpha}_i
+=
+\min\!\left\{1,\; \frac{w_i t^P}{\eta_i}\right\},
+\label{eq:alpha_clamp_P_closed}
+\end{equation}
+or equivalently
+\[
+\eta_i\bar{\alpha}_i=\min\{\eta_i,w_i t^P\},\qquad
+t^P=1-\sum_{i=1}^n\min\{\eta_i,w_i t^P\}.
+\]
+Now order the ratios
+\[
+\tau_i\triangleq \frac{\eta_i}{w_i}
+\]
+as
+\[
+\tau_{(1)}\le \tau_{(2)}\le \cdots \le \tau_{(n)},
+\]
+and suppose the first $m$ operators are saturated, i.e., $\Omega_s^P=\{(1),\ldots,(m)\}$. Then
+\begin{equation}
+t_m^P=
+\frac{1-\sum_{k=1}^m \eta_{(k)}}{1+\sum_{k=m+1}^n w_{(k)}},
+\label{eq:tbar_P}
+\end{equation}
+and the constrained bids become
+\begin{equation}
+\bar{\alpha}_{(i)}=
+\left\{
+\begin{array}{ll}
+1, & i\le m,\\[2mm]
+\dfrac{w_{(i)}}{\eta_{(i)}}\;
+\dfrac{1-\sum_{k=1}^m \eta_{(k)}}{1+\sum_{k=m+1}^n w_{(k)}}, & i>m,
+\end{array}
+\right.
+\label{eq:alpha_bar_P_active}
+\end{equation}
+where $m$ is the unique index satisfying
+\[
+\tau_{(m)}\le t_m^P\le \tau_{(m+1)}.
+\]
+Therefore, the aggregate constrained bid fraction is
 \begin{equation}
 \bar{f}^{P}
-= \sum_{j\in\Omega_s^P}\eta_j
+=
+\sum_{i=1}^m\eta_{(i)}
 +
-\frac{\left(\sum_{j\not\in\Omega_s^P} w_j\right)\left(1-\sum_{j\in\Omega_s^P}\eta_j\right)}
-{1+\sum_{j\not\in\Omega_s^P} w_j}.
+\frac{\left(\sum_{i=m+1}^n w_{(i)}\right)\left(1-\sum_{i=1}^m\eta_{(i)}\right)}
+{1+\sum_{i=m+1}^n w_{(i)}}
+=
+1-\frac{1-\sum_{i=1}^m\eta_{(i)}}{1+\sum_{i=m+1}^n w_{(i)}}.
 \label{eq:fbar_P}
 \end{equation}
-}
- 
-\noindent {\bf Proof:} The proof parallels that of corollary~4. For $i\not\in\Omega_s^P$, it follows from \eqref{eq:p1Ji=0} that 
-\[  w_i\sum_{j=1}^n(1-\bar{\alpha}_j)\eta_j = \bar{\alpha}_i \eta_i. \]
-Since $\bar{\alpha}_j=1$ for $j\in\Omega_s^P$, the above equation becomes
-\[ w_i\sum_{j\not\in\Omega_s^P} (1-\bar{\alpha}_j) \eta_j + \bar{\alpha}_i \eta_i= w_i\left(1- \sum_{j\in\Omega_s^P} \eta_j\right), \;\;\; \forall i\not\in\Omega_s^P.  \]
-The solution to the above equation is given by \eqref{eq:alpha_clamp}. The expression for $\bar{f}^P$ in \eqref{eq:fbar_P} follows from direct substitution into \eqref{eq:F}, and $\bar{\Pi}$ in \eqref{eq:Pi_clamp} follows from \eqref{eq:Pi_exp}. \hfill $\Box$
- 
-Whenever $\Omega_s^P\neq\varnothing$, clamping pushes $\bar{f}^P$ below $\tfrac{1}{2}$ and reduces $g$ accordingly; this contrasts with the risk-neutral case of corollary~4, where clamping can move $f$ toward $\tfrac{1}{2}$. The sensitivity is illustrated numerically in Section~\ref{sec:examples}.
+Under the Pareto condition \eqref{eq:beta_sum_condition}, $\sum_{i=1}^n w_i = 1$, so \eqref{eq:tbar_P} further simplifies to
+\[
+t_m^P=
+\frac{1-\sum_{k=1}^m \eta_{(k)}}{2-\sum_{k=1}^m w_{(k)}},
+\qquad
+\bar{f}^{P}
+=
+1-\frac{1-\sum_{i=1}^m\eta_{(i)}}{2-\sum_{i=1}^m w_{(i)}}.
+\]
+Whenever $\Omega_s^P\neq\varnothing$, clamping strictly reduces the aggregate bid fraction relative to the unconstrained Pareto equilibrium because each saturated operator contributes $\eta_i$ rather than $\eta_i\alpha_i^*>\eta_i$. Since total profit depends on the aggregate fraction through $g(\boldsymbol{\alpha})$ in~\eqref{eq:G}, the deviation induced by clamping is captured by~\eqref{eq:Pi_clamp} with $\bar{f}=\bar{f}^P$. In particular, if the unconstrained Pareto equilibrium targets $f(\boldsymbol{\alpha}^*)$ near $\tfrac{1}{2}$ (as in the ERS case), then the no-overbidding constraint may push $\bar{f}^P$ away from $\tfrac{1}{2}$ and reduce $g$ accordingly; this contrasts with the risk-neutral case, where clamping can move $f$ toward $\tfrac{1}{2}$. The sensitivity is illustrated numerically in Section~\ref{sec:examples}.
 
 In what follows, the Pareto optimal bidding strategy is cast into distributed optimization algorithm so {\it minimum} information sharing is need and privacy is protected.   
 
 \section{Distributed Risk Aware Solutions}
 
-It follows from \eqref{eq:Pi_exp}, theorem 1, theorem 2 and corollary 5 that the Pareto optimal total profit 
+It follows from \eqref{eq:Pi_exp}, theorem 1, theorem 2 and corollary 4 that the Pareto optimal total profit 
 \begin{eqnarray*}
     \Pi^{\max}  
      & = & 2a_2\left[  x_{n+1}^o - \frac{3}{4} x_r^o \right]x_r^o   +a_1 x_r^o  \nonumber \\ && 
@@ -615,8 +702,6 @@ Algorithm \ref{alg:dist_risk_aware_beta_coord} keeps the implementation distribu
 \]
 which converges to $B^\star$ for $0<n\epsilon_\beta<2$. Hence, starting from arbitrary non-equal $\beta_i'(0)$, the market can first coordinate the Pareto-optimal aggregate risk and then execute one-shot Nash bidding via \eqref{eq:alpha_optimal_simplified}.
 \end{comment}
-
-When the no-overbidding constraint is active, the distributed implementation requires a minor modification. After consensus convergence, each operator locally checks whether its unconstrained bid $\alpha_i^* = \frac{1}{2n}\eta_i^{-1}$ exceeds unity, which occurs whenever $\eta_i < \frac{1}{2n}$. If so, operator $i$ projects its bid to $\bar{\alpha}_i = 1$ and belongs to the saturated set $\Omega_s^P$ of corollary~6. The key observation is that the constrained bid~\eqref{eq:alpha_clamp} for unsaturated operators depends on the aggregate quantities $\sum_{j\in\Omega_s^P}\eta_j$ and $\sum_{j\not\in\Omega_s^P} w_j$, both of which can be estimated through additional consensus rounds. Specifically, after each operator determines its own saturation status locally, a third consensus protocol initialized with $\phi_i(0) = \eta_i$ if $i\in\Omega_s^P$ and $\phi_i(0) = 0$ otherwise yields the average $\frac{1}{n+1}\sum_{j\in\Omega_s^P}\eta_j$, from which each operator recovers $\sum_{j\in\Omega_s^P}\eta_j$. Combined with the already-available $n$ and $\eta_i$, each unsaturated operator can then compute its constrained bid~\eqref{eq:alpha_clamp} without centralized coordination. The resulting constrained aggregate fraction $\bar{f}^P$ in~\eqref{eq:fbar_P} will generally deviate from $\tfrac{1}{2}$, and the associated profit loss relative to the unconstrained Pareto optimum is quantified by~\eqref{eq:Pi_clamp}.
 
 \section{Illustrative Example \label{sec:examples}}
 
@@ -789,15 +874,6 @@ Figures~\ref{fig:algo1_overbid_alpha}--\ref{fig:algo1_overbid_f} quantify the tr
 
 \noindent\textbf{Remark~1.} \textit{For the three-operator system in Table~\ref{tab:example_params}, the capacity shares $\eta_1=\frac{2}{5}$, $\eta_2=\frac{1}{3}$, $\eta_3=\frac{4}{15}$ give per-operator overbidding thresholds $\beta_1'\leq-\frac{1}{20}=-0.05$, $\beta_2'\leq-\frac{1}{12}\approx-0.083$, $\beta_3'\leq-\frac{7}{60}\approx-0.117$ from~\eqref{eq:overbid_bound}. Under a common $\beta'$, operator~3 (smallest share) saturates first at $\beta'>-0.117$, followed by operator~2 at $\beta'>-0.083$ and operator~1 at $\beta'>-0.05$; the count~\eqref{eq:nsat} steps from $N_{\mathrm{sat}}=0$ to $3$ accordingly. The symmetric Pareto allocation $\beta_i'=-\frac{1}{6}\approx-0.167$ lies below all thresholds, so no overbidding occurs at the Pareto-optimal Nash equilibrium. Profit loss grows appreciably only once $N_{\mathrm{sat}}\geq 2$, with the aggregate trajectory diverging sharply from the unconstrained case beyond $\beta'>-0.083$.}
 
-Figure~\ref{fig:algo1_overbidding} provides a consolidated per-operator view of these effects. The top row shows the unclamped and clamped bid trajectories for each operator, with a vertical dotted line marking its individual saturation threshold; the bottom row shows the corresponding individual profit $\Pi_i$ under both policies. The threshold ordering from Remark~1 is clearly visible: operator~3 diverges earliest, and its profit gap between the unclamped and clamped cases is the largest, since clamping it to $\bar\alpha_3=1$ reduces $f(\boldsymbol{\alpha})$ below $\tfrac{1}{2}$ and thereby depresses the payoff of all operators through the shared term $(1-f)$ in~\eqref{eq:Pi_det}.
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=1\linewidth]{figures/algorithm1_overbidding.png}
-    \caption{Per-operator overbidding effects: unclamped vs.\ no-overbidding bids $\alpha_i$ (top row) and individual profits $\Pi_i$ (bottom row) as functions of the common risk parameter $\beta'$. Vertical dotted lines mark each operator's saturation threshold~\eqref{eq:overbid_bound}. Operator~3 (smallest capacity share $\eta_3$) saturates first; the profit divergence between unclamped and clamped policies grows as $N_{\mathrm{sat}}$ increases.}
-    \label{fig:algo1_overbidding}
-\end{figure}
-
 \subsection{Solutions under Distributed Algorithms}
 
 Figures~\ref{fig:algo1_xi}--\ref{fig:algo1_psi} show convergence of the consensus states. The initial conditions follow Algorithm~\ref{alg:dist_risk_aware}: the utility sets $\xi_4(0)=1$, $\psi_4(0)=0$; each operator sets $\xi_i(0)=0$, $\psi_i(0)=x_i^o$. All agents converge to the common average $\xi_i(k)\to\frac{1}{4}$ and $\psi_i(k)\to\frac{x_r^o}{4}=75$\,MW. From these converged values, each operator~$i$ locally computes the quantities shown in Table~\ref{tab:algo1_computed}, confirming that every operator independently recovers the correct $\hat{n}_i=3$, $\eta_i$, and $\beta_i'=-\frac{1}{6}$ without any additional communication.
@@ -837,22 +913,6 @@ Op. & $\xi_i^\infty$ & $\hat{n}_i = 1/\xi_i^\infty - 1$ & $\eta_i = x_i^o\xi_i^\
     \includegraphics[width=0.48\linewidth]{figures/algorithm1_comp_g.png}
     \caption{Aggregate bid fraction $f(\boldsymbol{\alpha})$ (left, target $f=0.5$ dashed) and market efficiency $g(\boldsymbol{\alpha})$ (right, $g_{\max}$ dashed) for all four strategies.}
     \label{fig:algo1_comp_fg}
-\end{figure}
-
-To assess the robustness of the overbidding analysis with respect to initial risk profiles, the outer-loop coordination of $\beta_i'$ is evaluated under six heterogeneous starting points: risk-neutral ($\beta_i'(0)=0$), uniform risk-seeking ($\beta_i'(0)=-1$), uniform risk-averse ($\beta_i'(0)=1$), and three mixed profiles. Figures~\ref{fig:mc_overbid_count} and~\ref{fig:mc_overbid_profit} show the per-operator overbidding indicator and aggregate profit comparison for each case. Operators with smaller capacity shares saturate first in every case, consistent with the threshold ordering of Remark~1. Cases where no operator overbids throughout coordination (e.g., the symmetric Pareto starting point) yield identical unclamped and clamped profit trajectories, while cases with high initial risk-seeking values exhibit a transient profit gap that closes as $\sum\beta_i'$ converges to the Pareto target.
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=1\linewidth]{figures/mc_overbid_count.png}
-    \caption{Per-operator overbidding indicator ($\alpha_i > 1$, shown as 0/1) across six initial risk profiles. Operators with smaller capacity shares ($\eta_i$) saturate earlier in coordination, and the fraction of saturating operators (dashed) confirms the threshold ordering of Remark~1 across all cases.}
-    \label{fig:mc_overbid_count}
-\end{figure}
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=1\linewidth]{figures/mc_overbid_profit.png}
-    \caption{Aggregate profit $\sum_i\Pi_i$ under unclamped versus no-overbidding projection across six initial risk profiles. The profit gap is case-dependent and governed by the number of saturating operators; cases with no overbidding show identical trajectories. All cases converge to the Pareto-optimal profit level as coordination proceeds.}
-    \label{fig:mc_overbid_profit}
 \end{figure}
 
 

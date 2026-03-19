@@ -1,566 +1,856 @@
-%% Distributed Risk-Aware Nash Optimization Algorithm (IMPROVED VERSION)
-% Implementation of IMPROVED Algorithm from the paper
+%% Distributed Risk-Aware Nash Optimization Algorithm
+% Implementation of Algorithm 1 from the paper:
 % "Distributed Risk-Aware Bidding Strategy for Incorporating Renewable
-% Generation into Real-Time Electricity Market"
+%  Generation into Real-Time Electricity Market"
 %
-% KEY IMPROVEMENT: Direct computation of alpha* instead of damped iteration
-%   - Eliminates oscillations
-%   - Faster convergence
-%   - Only one consensus round per iteration (instead of two)
-%   - Single tuning parameter (epsilon2) instead of two
+% ALGORITHM STRUCTURE (Algorithm 1 in paper):
+%   Phase 1: Two consensus protocols (xi, psi) run until convergence
+%            - Utility (node n+1): xi_{n+1}(0)=1, psi_{n+1}(0)=0
+%            - Operator i:         xi_i(0)=0,      psi_i(0)=x_i^o
+%   Phase 2: Each operator locally computes:
+%            - n_hat = 1/xi_i - 1
+%            - eta_i = x_i^o / (psi_i/xi_i)   [psi/xi -> x_r^o]
+%            - beta_i' = (1-n_hat)/(4*n_hat)   [fair symmetric Pareto choice]
+%   Phase 3: Submit bid:
+%            - alpha_i* = 0.5*(1+4*beta_i') / eta_i    [eq. alpha_optimal_simplified]
 %
-% SINGLE TEST CASE VERSION - for debugging and parameter exploration
-%
-% Two modes:
-%   1. Centralized: Ground truth solution using global information
-%   2. Distributed: Consensus-based algorithm using only local communication
+% n is assumed known (per problem statement), but is also estimated via
+% consensus for generality/verification.
 
 clc; clear; close all;
+set(groot, 'defaultFigureColor', 'w');
+set(groot, 'defaultAxesColor', 'w');
+set(groot, 'defaultAxesXColor', 'k');
+set(groot, 'defaultAxesYColor', 'k');
+set(groot, 'defaultTextColor', 'k');
+set(groot, 'defaultLegendTextColor', 'k');
+set(groot, 'defaultLegendColor', 'w');
+set(groot, 'defaultLegendEdgeColor', 'k');
+set(groot, 'defaultColorbarColor', 'k');
 
 %% ========================================================================
 %                           USER PARAMETERS
 % =========================================================================
 
-% Number of renewable operators
-n = 3;
-
-% Cost coefficients (utility company)
-a2 = 0.1;
+n  = 3;          % Number of renewable operators (known)
+a2 = 0.1;        % Cost coefficients (utility)
 a1 = 1;
 a0 = 0;
 
-% Forecasted renewable generations x_i^o (can be asymmetric)
-x0 = [120; 100; 80];  % MW
+x0  = [120; 100; 80];   % Forecasted renewable generation [MW]
+xL0 = 400;              % Forecasted load [MW]
 
-% Forecasted load x_{n+1}^o
-xL0 = 400;  % MW
+% Covariance (zero = deterministic)
+sigma_r2 = 0;
+sigma_L2 = 0;
+sigma_rL = 0;
 
-% Covariance parameters (set to zero for deterministic analysis)
-sigma_r2 = 0;      % variance of aggregate renewable
-sigma_L2 = 0;      % variance of load
-sigma_rL = 0;      % covariance between renewable and load
+% Communication: fully connected graph over n operators + 1 utility
+% Node ordering: [op1, op2, ..., opN, utility]
+N_total = n + 1;
+Adj = ones(N_total) - eye(N_total);   % fully connected
+Deg = diag(sum(Adj, 2));
+L_full = Deg - Adj;
 
-% Initial transformed risk parameters beta_i' = a2 * beta_i (user choice)
-% Negative = risk-seeking, Zero = risk-neutral, Positive = risk-averse
-% TEST CASE V (Risk-averse) - from paper
-beta_prime_init = [-.23; -.1; -.21];
+% Consensus parameters
+epsilon_c     = 0.1;      % step size (< 1/max_degree = 1/n)
+max_cons_iter = 500;
+cons_tol      = 1e-10;
+plot_tail_buffer = 12;              % extra samples after detected convergence
+cons_plot_tol = 1e-6;               % practical convergence tolerance for plotting horizon
 
-% Communication graph (adjacency matrix) - must be connected
-% Ring topology: 1 -- 2 -- 3 -- 1
-Adj = [0 1 1;
-       1 0 1;
-       1 1 0];  % Fully connected
+% Algorithm 2 parameters (non-equal beta_i'(0))
+beta0_non_equal = [-0.23; -0.08; 0.06];   % arbitrary initial beta_i'(0)
+epsilon_beta    = 0.25;                    % outer update gain, require 0 < n*epsilon_beta < 2
+delta_beta      = 1e-4;                    % keeps beta_i' > -1/4
+beta_tol        = 1e-8;
+max_beta_iter   = 250;
+run_algo2       = false;                   % set true to re-enable Algorithm 2 section
 
-% Algorithm parameters
-epsilon_consensus = 0.2;  % Consensus step size (< 1/max_degree)
-epsilon2 = 0.5;          % Beta update step size (NEW: increased for faster convergence)
-tau = 1e-6;              % Stopping tolerance for |S| = |f - 0.5|
-beta_tol = 1e-6;         % Stopping tolerance for beta convergence
-min_iter = 10;           % Minimum iterations before checking convergence
-max_outer_iter = 1000;   % Max iterations for outer loop
-max_consensus_iter = 100;  % Max iterations for consensus
-consensus_tol = 1e-10;   % Consensus convergence tolerance
-delta = 0.01;            % Safety margin for beta' > -0.25
+% Algorithm 1 overbidding study (beta' sweep)
+beta_sweep      = linspace(-0.24, 0.35, 220);
 
-% Visualization parameters
-save_figs = false;       % Set to true to save figures to figs/ folder
-use_subplots = true;     % Set to true for one big subplot, false for individual figures
+save_figs = true;
+fig_out_dir = 'figures';
 
 %% ========================================================================
 %                         DERIVED QUANTITIES
 % =========================================================================
 
-xr0 = sum(x0);           % Aggregate renewable forecast
-eta = x0 / xr0;          % Forecast ratios eta_i = x_i^o / x_r^o
-gamma = x0' ./ x0;       % gamma_{ij} = x_j^o / x_i^o (n x n matrix)
-
-% Laplacian matrix for consensus
-Deg = diag(sum(Adj, 2));
-L = Deg - Adj;
-
-fprintf('=========================================================\n');
-fprintf('   IMPROVED DISTRIBUTED RISK-AWARE NASH OPTIMIZATION\n');
-fprintf('   (Direct Alpha Computation - No Damped Iteration)\n');
-fprintf('=========================================================\n\n');
-fprintf('Problem Parameters:\n');
-fprintf('  n = %d operators\n', n);
-fprintf('  a2 = %.2f, a1 = %.2f, a0 = %.2f\n', a2, a1, a0);
-fprintf('  x0 = [%s] MW\n', num2str(x0'));
-fprintf('  xL0 = %.2f MW\n', xL0);
-fprintf('  x_r^o = %.2f MW\n', xr0);
-fprintf('  eta = [%s]\n\n', num2str(eta', '%.4f '));
-
-% Warn if initial beta' is at or below stability boundary
-if any(beta_prime_init <= -0.25)
-    warning('Initial beta_prime contains values at or below -0.25 (stability boundary).');
-    fprintf('  Values will be clamped to > -0.25 during iteration.\n\n');
-end
-
-% Target sum of beta' for Pareto optimal f = 0.5
-beta_prime_sum_target = (1 - n) / 4;
-fprintf('Target sum(beta'') for f=0.5: %.4f\n', beta_prime_sum_target);
-fprintf('Initial sum(beta''): %.4f\n\n', sum(beta_prime_init));
+xr0   = sum(x0);
+eta   = x0 / xr0;           % true eta_i = x_i^o / x_r^o
+fprintf('==========================================================\n');
+fprintf('  DISTRIBUTED RISK-AWARE NASH OPTIMIZATION (Algorithm 1)\n');
+fprintf('==========================================================\n\n');
+fprintf('Parameters: n=%d, a2=%.2f, a1=%.2f, a0=%.2f\n', n, a2, a1, a0);
+fprintf('x0 = [%s] MW,  xL0 = %.0f MW,  x_r^o = %.0f MW\n', num2str(x0'), xL0, xr0);
+fprintf('eta = [%s]\n\n', num2str(eta', '%.6f '));
 
 %% ========================================================================
-%                    PART 1: CENTRALIZED SOLUTION (GROUND TRUTH)
+%              PART 1: CENTRALIZED SOLUTION (GROUND TRUTH)
 % =========================================================================
 
-fprintf('=========================================================\n');
-fprintf('              PART 1: CENTRALIZED SOLUTION\n');
-fprintf('=========================================================\n\n');
+fprintf('----------------------------------------------------------\n');
+fprintf('  PART 1: CENTRALIZED SOLUTION\n');
+fprintf('----------------------------------------------------------\n\n');
 
-% --- 1a. Risk-Neutral Nash Equilibrium (beta_i = 0) ---
-fprintf('--- 1a. Risk-Neutral Nash Equilibrium (beta_i = 0) ---\n');
-[alpha_RN, f_RN, Pi_RN, J_RN] = compute_nash_centralized(zeros(n,1), ...
-    n, a2, x0, xL0, xr0, eta, gamma, sigma_r2, sigma_L2, sigma_rL);
+% 1a. Coalition (Lemma 1): all operators cooperate, common alpha*=0.5, beta*=0
+%     Achieves cooperative optimum g_max = 0.25*xr0^2  [eq. alpha_1 with beta=0]
+alpha_coal = 0.5 * ones(n, 1);
+f_coal     = sum(alpha_coal .* eta);        % = 0.5 since sum(eta)=1
+g_coal     = f_coal * (1-f_coal) * xr0^2;  % = 0.25*xr0^2 = g_max
+Pi_coal    = profit(alpha_coal, a2, a1, x0, xL0, xr0, eta, sigma_r2, sigma_L2, sigma_rL);
+fprintf('Coalition / Lemma 1 (alpha*=0.5 for all, beta*=0):\n');
+fprintf('  alpha = [%s]\n', num2str(alpha_coal', '%.6f '));
+fprintf('  f = %.6f,  sum(Pi) = %.2f,  g = %.2f MW^2  (= g_max = %.2f MW^2)\n\n', ...
+    f_coal, sum(Pi_coal), g_coal, 0.25*xr0^2);
 
-fprintf('alpha_RN = [%s]\n', num2str(alpha_RN', '%.6f '));
-fprintf('f_RN = %.6f (Pareto optimal: 0.5)\n', f_RN);
-fprintf('Aggregate profit Pi_RN = %.4f\n', sum(Pi_RN));
-fprintf('g_RN = f*(1-f)*x_r^o^2 = %.4f (max possible: %.4f)\n\n', ...
-    f_RN*(1-f_RN)*xr0^2, 0.25*xr0^2);
+% 1b. Risk-Neutral NE (beta_i' = 0)
+[alpha_RN, f_RN, Pi_RN, ~] = nash_eq(zeros(n,1), n, a2, a1, x0, xL0, xr0, eta, sigma_r2, sigma_L2, sigma_rL);
+fprintf('Risk-Neutral NE (beta''=0):\n');
+fprintf('  alpha = [%s]\n', num2str(alpha_RN', '%.6f '));
+fprintf('  f = %.6f,  sum(Pi) = %.2f,  g = %.2f MW^2  (g_max = %.2f MW^2)\n\n', ...
+    f_RN, sum(Pi_RN), f_RN*(1-f_RN)*xr0^2, 0.25*xr0^2);
 
-% --- 1b. Symmetric Pareto-Optimal Strategy (Corollary 5) ---
-fprintf('--- 1b. Symmetric Pareto-Optimal Strategy ---\n');
-beta_prime_sym = (1 - n) / (4 * n);  % Eq. (4.6)
-beta_sym = beta_prime_sym / a2;      % Convert back to beta
-
-fprintf('Theoretical beta_sym'' = (1-n)/(4n) = %.6f\n', beta_prime_sym);
-fprintf('Theoretical beta_sym = beta_sym''/a2 = %.6f\n', beta_sym);
-
-[alpha_sym, f_sym, Pi_sym, J_sym] = compute_nash_centralized(...
-    beta_prime_sym * ones(n,1), n, a2, x0, xL0, xr0, eta, gamma, ...
-    sigma_r2, sigma_L2, sigma_rL);
-
-fprintf('alpha_sym = [%s]\n', num2str(alpha_sym', '%.6f '));
-fprintf('f_sym = %.6f (target: 0.5)\n', f_sym);
-fprintf('Aggregate profit Pi_sym = %.4f\n', sum(Pi_sym));
-fprintf('g_sym = f*(1-f)*x_r^o^2 = %.4f\n\n', f_sym*(1-f_sym)*xr0^2);
-
-% --- 1c. User-specified initial parameters ---
-fprintf('--- 1c. Nash with User Initial Parameters ---\n');
-[alpha_opt, f_user, Pi_user, J_user] = compute_nash_centralized(...
-    beta_prime_init, n, a2, x0, xL0, xr0, eta, gamma, ...
-    sigma_r2, sigma_L2, sigma_rL);
-
-fprintf('Initial beta'' = [%s]\n', num2str(beta_prime_init', '%.6f '));
-fprintf('alpha_opt = [%s]\n', num2str(alpha_opt', '%.6f '));
-fprintf('f_user = %.6f\n', f_user);
-fprintf('Aggregate profit = %.4f\n\n', sum(Pi_user));
+% 1c. Symmetric Pareto-Optimal: each beta_i' = (1-n)/(4n) => sum = (1-n)/4
+beta_prime_sym = (1-n) / (4*n);
+[alpha_sym, f_sym, Pi_sym, ~] = nash_eq(beta_prime_sym*ones(n,1), n, a2, a1, x0, xL0, xr0, eta, sigma_r2, sigma_L2, sigma_rL);
+fprintf('Symmetric Pareto-Optimal [beta_i'' = (1-n)/(4n) = %.6f]:\n', beta_prime_sym);
+fprintf('  alpha = [%s]\n', num2str(alpha_sym', '%.6f '));
+fprintf('  f = %.6f,  sum(Pi) = %.2f,  g = %.2f MW^2  (g_max = %.2f MW^2)\n\n', ...
+    f_sym, sum(Pi_sym), f_sym*(1-f_sym)*xr0^2, 0.25*xr0^2);
 
 %% ========================================================================
-%                    PART 2: IMPROVED DISTRIBUTED ALGORITHM
+%              PART 2: DISTRIBUTED ALGORITHM 1
 % =========================================================================
 
-fprintf('=========================================================\n');
-fprintf('         PART 2: IMPROVED DISTRIBUTED ALGORITHM\n');
-fprintf('      (Direct Alpha Computation - No Iteration)\n');
-fprintf('=========================================================\n\n');
+fprintf('----------------------------------------------------------\n');
+fprintf('  PART 2: DISTRIBUTED ALGORITHM 1 (One-Shot Consensus)\n');
+fprintf('----------------------------------------------------------\n\n');
 
-% Initialize variables
-beta_prime = beta_prime_init;
+% ---- Phase 1: Consensus initialization ----
+% xi:  utility=1, operators=0
+% psi: utility=0, operators=x_i^o
+xi_init  = zeros(N_total, 1);  xi_init(n+1)  = 1;
+psi_init = zeros(N_total, 1);  psi_init(1:n) = x0;
 
-% History for plotting
-history.alpha = zeros(n, max_outer_iter);
-history.beta_prime = zeros(n, max_outer_iter);
-history.f = zeros(1, max_outer_iter);
-history.S = zeros(1, max_outer_iter);
-history.Pi = zeros(n, max_outer_iter);
-history.J = zeros(n, max_outer_iter);
-history.sum_beta_prime = zeros(1, max_outer_iter);
+fprintf('Phase 1: Running consensus protocols...\n');
+fprintf('  xi_init  = [%s]\n', num2str(xi_init'));
+fprintf('  psi_init = [%s]\n\n', num2str(psi_init'));
 
-% --- Step 1: One-time consensus for aggregate quantities ---
-fprintf('Step 1: One-time consensus for n, x_r^o, eta_i\n');
+% Run both protocols and record full history for plotting
+xi_hist  = zeros(N_total, max_cons_iter);
+psi_hist = zeros(N_total, max_cons_iter);
+xi  = xi_init;
+psi = psi_init;
+xi_iters  = max_cons_iter;
+psi_iters = max_cons_iter;
 
-% Compute n via consensus using z_n
-z_n = zeros(n, 1); z_n(1) = 1;
-z_n_bar = run_consensus(z_n, L, epsilon_consensus, max_consensus_iter, consensus_tol);
-n_est = 1 / z_n_bar;
-fprintf('  Estimated n = %.4f (true = %d)\n', n_est, n);
-
-% Compute x_r^o via consensus using z_xr0
-z_xr0 = x0;
-z_xr0_bar = run_consensus(z_xr0, L, epsilon_consensus, max_consensus_iter, consensus_tol);
-xr0_est = n_est * z_xr0_bar;
-fprintf('  Estimated x_r^o = %.4f (true = %.2f)\n', xr0_est, xr0);
-
-% Compute eta_i locally using z_eta
-z_eta = x0 / xr0_est;
-eta_est = z_eta;
-fprintf('  Estimated eta = [%s]\n\n', num2str(eta_est', '%.4f '));
-
-% --- Step 2: Iterative optimization (IMPROVED) ---
-fprintf('Step 2: Iterative optimization loop (IMPROVED ALGORITHM)\n');
-fprintf('  Initial beta'' = [%s]\n\n', num2str(beta_prime', '%.4f '));
-
-converged = false;
-sum_beta_prev = sum(beta_prime);
-
-fprintf('Iter |  sum(beta'')  |    f(alpha)   |      |S|      |  Converged?\n');
-fprintf('-----+---------------+---------------+---------------+-------------\n');
-
-for k = 1:max_outer_iter
-    % Store history
-    history.beta_prime(:, k) = beta_prime;
-    
-    % ====================================================================
-    % STEP 1: CONSENSUS ON SUM OF BETA' (NEW: only one consensus round!)
-    % Using z_beta(k) as consensus variable at iteration k
-    % ====================================================================
-    z_beta = beta_prime;
-    z_beta_bar = run_consensus(z_beta, L, epsilon_consensus, max_consensus_iter, consensus_tol);
-    z_beta_sum = n_est * z_beta_bar;  % Consensus estimate of sum(beta')
-    sum_beta_prime = z_beta_sum;
-    history.sum_beta_prime(k) = sum_beta_prime;
-
-    % ====================================================================
-    % STEP 2: DIRECT COMPUTATION OF NASH EQUILIBRIUM (NEW: no iteration!)
-    % From Lemma 2: alpha*_i = (1+4*beta'_i)/eta_i * [1/(1+n+4*sum(beta'_j))]
-    % Using consensus terms: z_eta and z_beta_sum(k)
-    % ====================================================================
-    denominator = 1 + n_est + 4 * z_beta_sum;
-    alpha = (1 + 4 * beta_prime) ./ z_eta / denominator;
-
-    % Clamp to [0,1] for safety (should be satisfied if beta' > -0.25)
-    alpha = max(0, min(1, alpha));
-    history.alpha(:, k) = alpha;
-
-    % ====================================================================
-    % STEP 3: COMPUTE f FROM ACTUAL (CLAMPED) ALPHA
-    % NOTE: Must use actual alpha, not formula, because clamping
-    % breaks the theoretical relationship f = (n+4*sum(beta'))/(1+n+4*sum(beta'))
-    % Using consensus term z_eta
-    % ====================================================================
-    f = sum(alpha .* z_eta);  % Actual f from clamped alpha using z_eta
-    history.f(k) = f;
-    
-    % ====================================================================
-    % STEP 4: COMPUTE ERROR SIGNAL
-    % ====================================================================
-    S = f - 0.5;
-    history.S(k) = S;
-    
-    % ====================================================================
-    % STEP 5: UPDATE BETA' (gradient descent on Pareto error)
-    % FIX: Iterative deficit redistribution to ensure total change
-    % in sum(beta') matches the intended n*epsilon2*S
-    % ====================================================================
-    lower_bound = -0.25 + delta;
-
-    if S > 0  % Need to decrease beta' values
-        % Total desired decrease in sum(beta')
-        remaining_delta = n * epsilon2 * S;
-
-        % Iteratively distribute the change, accounting for clamping
-        for redistrib_iter = 1:10
-            % Find operators with headroom (not at bound)
-            headroom = beta_prime - lower_bound;
-            has_headroom = headroom > 1e-10;
-            n_free = sum(has_headroom);
-
-            if n_free == 0 || remaining_delta < 1e-12
-                break;
-            end
-
-            % Distribute remaining delta among free operators
-            per_operator = remaining_delta / n_free;
-
-            % Compute actual change (limited by headroom)
-            actual_change = min(per_operator, headroom) .* has_headroom;
-
-            % Apply change
-            beta_prime = beta_prime - actual_change;
-
-            % Update remaining delta for next iteration
-            remaining_delta = remaining_delta - sum(actual_change);
+for k = 1:max_cons_iter
+    xi_hist(:,k)  = xi;
+    psi_hist(:,k) = psi;
+    xi_new  = xi  - epsilon_c * L_full * xi;
+    psi_new = psi - epsilon_c * L_full * psi;
+    if k > 1
+        if norm(xi_new - xi) < cons_tol && xi_iters == max_cons_iter
+            xi_iters = k;
         end
-    else  % S <= 0, need to increase beta' values (no upper bound)
-        beta_prime = beta_prime - epsilon2 * S;
-    end
-
-    % Project to feasible region: beta' > -0.25 + delta
-    beta_prime = max(beta_prime, lower_bound);
-    
-    % Compute profits and objectives at current state
-    [~, ~, Pi_k, J_k] = compute_nash_centralized(beta_prime, n, a2, ...
-        x0, xL0, xr0, eta, gamma, sigma_r2, sigma_L2, sigma_rL);
-    Pi_actual = compute_profit(alpha, n, a2, a1, x0, xL0, xr0, eta, ...
-        sigma_r2, sigma_L2, sigma_rL);
-    price_var = 4 * a2^2 * (xr0^2 * (1-f)^2 + sigma_L2 + sigma_r2 - 2*sigma_rL);
-    J_actual = Pi_actual - (beta_prime / a2) .* price_var;
-    
-    history.Pi(:, k) = Pi_actual;
-    history.J(:, k) = J_actual;
-    
-    % Print progress every 10 iterations or if converged
-    if mod(k, 10) == 0 || (abs(S) < tau && abs(sum_beta_prime - sum_beta_prev) < beta_tol && k > min_iter)
-        fprintf('%4d | %12.6f | %12.6f | %13.6e |', ...
-            k, sum_beta_prime, f, abs(S));
-    end
-    
-    % Check convergence
-    if abs(S) < tau && abs(sum_beta_prime - sum_beta_prev) < beta_tol && k > min_iter
-        converged = true;
-        fprintf('     YES\n');
-        fprintf('\n*** CONVERGED at iteration %d ***\n\n', k);
-        break;
-    else
-        if mod(k, 10) == 0
-            fprintf('      NO\n');
+        if norm(psi_new - psi) < cons_tol && psi_iters == max_cons_iter
+            psi_iters = k;
         end
     end
-    
-    sum_beta_prev = sum_beta_prime;
+    xi  = xi_new;
+    psi = psi_new;
 end
+xi_final  = xi;
+psi_final = psi;
 
-if ~converged
-    fprintf('\n*** WARNING: Did not converge within %d iterations ***\n\n', max_outer_iter);
-end
+xi_bar  = mean(xi_final);
+psi_bar = mean(psi_final);
+fprintf('  xi  converged ~iter %d,  xi_bar  = %.8f  (true 1/%d = %.8f)\n', ...
+    xi_iters, xi_bar, N_total, 1/N_total);
+fprintf('  psi converged ~iter %d,  psi_bar = %.8f  (true x_r^o/%d = %.8f)\n\n', ...
+    psi_iters, psi_bar, N_total, xr0/N_total);
 
-% Trim history
-history.alpha = history.alpha(:, 1:k);
-history.beta_prime = history.beta_prime(:, 1:k);
-history.f = history.f(1:k);
-history.S = history.S(1:k);
-history.Pi = history.Pi(:, 1:k);
-history.J = history.J(:, 1:k);
-history.sum_beta_prime = history.sum_beta_prime(1:k);
+% ---- Phase 2: Local computation at each operator ----
+% Key insight: psi_i/xi_i -> (x_r^o/(n+1)) / (1/(n+1)) = x_r^o
+% So each operator can recover x_r^o as the ratio, without knowing n+1 explicitly.
+fprintf('Phase 2: Local computation at each operator:\n');
 
-%% ========================================================================
-%                         FINAL RESULTS
-% =========================================================================
+n_hat         = zeros(n, 1);
+eta_dist      = zeros(n, 1);
+xr0_dist      = zeros(n, 1);
+beta_prime_d  = zeros(n, 1);
 
-fprintf('=========================================================\n');
-fprintf('                    FINAL RESULTS\n');
-fprintf('=========================================================\n\n');
-
-fprintf('Algorithm: IMPROVED (Direct Alpha Computation)\n');
-fprintf('Iterations: %d\n', k);
-fprintf('Convergence: %s\n\n', mat2str(converged));
-
-fprintf('Final bidding fractions alpha:\n');
-fprintf('  [%s]\n\n', num2str(alpha', '%.6f '));
-
-fprintf('Final transformed risk parameters beta'':\n');
-fprintf('  [%s]\n', num2str(beta_prime', '%.6f '));
-fprintf('  sum(beta'') = %.6f (target: %.6f)\n\n', sum(beta_prime), beta_prime_sum_target);
-
-fprintf('Final aggregate bidding fraction f:\n');
-fprintf('  f = %.6f (target: 0.5)\n', f);
-fprintf('  |S| = %.6e\n\n', abs(S));
-
-fprintf('Market efficiency g = f*(1-f)*x_r^o^2:\n');
-fprintf('  g = %.4f\n', f*(1-f)*xr0^2);
-fprintf('  g_max = %.4f (Pareto optimal)\n', 0.25*xr0^2);
-fprintf('  Efficiency: %.2f%%\n\n', 100*f*(1-f)*xr0^2/(0.25*xr0^2));
-
-fprintf('Individual profits Pi_i:\n');
 for i = 1:n
-    fprintf('  Operator %d: %.4f\n', i, history.Pi(i, end));
-end
-fprintf('  Aggregate: %.4f\n', sum(history.Pi(:, end)));
-fprintf('  Target (Pareto): %.4f\n\n', sum(Pi_sym));
+    xi_i  = xi_final(i);
+    psi_i = psi_final(i);
 
-fprintf('Comparison with Risk-Neutral Nash:\n');
-fprintf('  Profit improvement: %.2f%%\n', ...
-    100*(sum(history.Pi(:,end)) - sum(Pi_RN))/sum(Pi_RN));
+    % Estimate n: Algorithm 1 line: n_hat = 1/xi_i - 1
+    n_hat(i) = 1/xi_i - 1;
+
+    % Estimate x_r^o: psi_i/xi_i -> x_r^o  (ratio of consensus values)
+    xr0_dist(i) = psi_i / xi_i;
+
+    % Estimate eta_i = x_i^o / x_r^o  (local x_i^o is known to operator i)
+    eta_dist(i) = x0(i) / xr0_dist(i);
+
+    % Fair symmetric Pareto beta: beta_i' = (1 - n_hat) / (4 * n_hat)
+    % Ensures sum_i beta_i' = (1-n)/4  [eq. beta_sum_condition_simplified]
+    beta_prime_d(i) = (1 - n_hat(i)) / (4 * n_hat(i));
+
+    fprintf('  Op %d: n_hat=%.4f, x_r^o_est=%.4f, eta_est=%.6f, beta''=%.6f\n', ...
+        i, n_hat(i), xr0_dist(i), eta_dist(i), beta_prime_d(i));
+end
+
+fprintf('\n  True:  n=%d, x_r^o=%.4f, eta=[%s]\n', n, xr0, num2str(eta', '%.6f '));
+fprintf('  sum(beta'') = %.6f  (target (1-n)/4 = %.6f)\n\n', sum(beta_prime_d), (1-n)/4);
+
+% ---- Phase 3: Bid submission ----
+% alpha_i* = 0.5 * (1 + 4*beta_i') / eta_i   [eq. alpha_optimal_simplified]
+fprintf('Phase 3: Computing and submitting bids...\n');
+alpha_dist = 0.5 * (1 + 4*beta_prime_d) ./ eta_dist;
+alpha_dist = max(0, min(1, alpha_dist));   % clamp to [0,1]
+
+f_dist = sum(alpha_dist .* eta_dist);
+g_dist = f_dist * (1-f_dist) * xr0^2;
+Pi_dist = profit(alpha_dist, a2, a1, x0, xL0, xr0, eta_dist, sigma_r2, sigma_L2, sigma_rL);
+
+for i = 1:n
+    fprintf('  Op %d: alpha* = %.6f\n', i, alpha_dist(i));
+end
+
+%% ========================================================================
+%              PART 3: ALGORITHM 1 OVERBIDDING SENSITIVITY
+% =========================================================================
+
+fprintf('\n----------------------------------------------------------\n');
+fprintf('  PART 3: ALGORITHM 1 OVERBIDDING SENSITIVITY\n');
+fprintf('----------------------------------------------------------\n\n');
+
+Nb = length(beta_sweep);
+alpha_unc_hist_b = zeros(n, Nb);
+alpha_clp_hist_b = zeros(n, Nb);
+f_unc_b = zeros(1, Nb);
+f_clp_b = zeros(1, Nb);
+g_unc_b = zeros(1, Nb);
+g_clp_b = zeros(1, Nb);
+Pi_unc_b = zeros(1, Nb);
+Pi_clp_b = zeros(1, Nb);
+Pi_unc_i_b = zeros(n, Nb);
+Pi_clp_i_b = zeros(n, Nb);
+sat_b = zeros(1, Nb);
+
+for k = 1:Nb
+    bp = beta_sweep(k);
+    alpha_unc = 0.5 * (1 + 4*bp) ./ eta_dist;
+    alpha_clp = max(0, min(1, alpha_unc));
+
+    alpha_unc_hist_b(:,k) = alpha_unc;
+    alpha_clp_hist_b(:,k) = alpha_clp;
+    sat_b(k) = sum(alpha_unc > 1);
+
+    f_unc_b(k) = sum(alpha_unc .* eta_dist);
+    f_clp_b(k) = sum(alpha_clp .* eta_dist);
+    g_unc_b(k) = f_unc_b(k) * (1 - f_unc_b(k)) * xr0^2;
+    g_clp_b(k) = f_clp_b(k) * (1 - f_clp_b(k)) * xr0^2;
+
+    Pi_unc_i = profit(alpha_unc, a2, a1, x0, xL0, xr0, eta_dist, sigma_r2, sigma_L2, sigma_rL);
+    Pi_clp_i = profit(alpha_clp, a2, a1, x0, xL0, xr0, eta_dist, sigma_r2, sigma_L2, sigma_rL);
+    Pi_unc_i_b(:,k) = Pi_unc_i;
+    Pi_clp_i_b(:,k) = Pi_clp_i;
+    Pi_unc_b(k) = sum(Pi_unc_i);
+    Pi_clp_b(k) = sum(Pi_clp_i);
+end
+
+[Pi_unc_max, idx_unc_max] = max(Pi_unc_b);
+[Pi_clp_max, idx_clp_max] = max(Pi_clp_b);
+fprintf('Unclamped max sum(Pi)=%.2f at beta''=%.4f\n', Pi_unc_max, beta_sweep(idx_unc_max));
+fprintf('No-overbidding max sum(Pi)=%.2f at beta''=%.4f\n', Pi_clp_max, beta_sweep(idx_clp_max));
+fprintf('Pareto-central reference sum(Pi)=%.2f\n', sum(Pi_sym));
+
+% Per-operator overbidding thresholds (eq:overbid_bound): alpha_i > 1 iff beta_i' > (2*eta_i-1)/4
+overbid_thresh = (2*eta_dist - 1) / 4;
+fprintf('\nPer-operator saturation thresholds (alpha_i > 1 iff beta'' > threshold):\n');
+for i = 1:n
+    fprintf('  Op %d: eta=%.4f => threshold beta'' = %.4f\n', i, eta_dist(i), overbid_thresh(i));
+end
+
+%% ========================================================================
+%              PART 3: DISTRIBUTED ALGORITHM 2 (NON-EQUAL beta_i'(0))
+% =========================================================================
+
+if run_algo2
+fprintf('\n----------------------------------------------------------\n');
+fprintf('  PART 4: DISTRIBUTED ALGORITHM 2 (Heterogeneous beta_i''(0))\n');
+fprintf('----------------------------------------------------------\n\n');
+
+if length(beta0_non_equal) ~= n
+    error('beta0_non_equal must have length n.');
+end
+
+% Keep beta feasible with theorem bound beta_i' > -1/4
+beta_k = max(beta0_non_equal(:), -0.25 + delta_beta);
+B_target = (1 - n) / 4;
+
+% Consensus over operators only for estimating mean(beta(k))
+Adj_ops = ones(n) - eye(n);
+L_ops   = diag(sum(Adj_ops, 2)) - Adj_ops;
+
+beta_hist      = zeros(n, max_beta_iter);
+Bsum_hist      = zeros(max_beta_iter, 1);
+beta_err_hist  = zeros(max_beta_iter, 1);
+alpha2_unc_hist = zeros(n, max_beta_iter);
+f2_hist         = zeros(max_beta_iter, 1);
+g2_hist         = zeros(max_beta_iter, 1);
+sat2_hist       = zeros(max_beta_iter, 1);
+
+fprintf('Initial beta''(0) = [%s]\n', num2str(beta_k', '%.6f '));
+fprintf('Target sum(beta'') = %.6f\n\n', B_target);
+
+beta_iters = max_beta_iter;
+for k = 1:max_beta_iter
+    beta_hist(:,k) = beta_k;
+
+    % Inner consensus to estimate average(beta(k)); operators do not share full vector
+    z = beta_k;
+    for t = 1:max_cons_iter
+        z_new = z - epsilon_c * L_ops * z;
+        if norm(z_new - z) < cons_tol
+            z = z_new;
+            break;
+        end
+        z = z_new;
+    end
+
+    B_est = n * mean(z);
+    err_B = B_est - B_target;
+    Bsum_hist(k) = B_est;
+    beta_err_hist(k) = err_B;
+
+    % Track one-shot bids induced by current beta_i'(k)
+    alpha_unc_k = 0.5 * (1 + 4*beta_k) ./ eta_dist;
+    alpha2_unc_hist(:,k) = alpha_unc_k;
+    f2_hist(k) = sum(alpha_unc_k .* eta_dist);
+    g2_hist(k) = f2_hist(k) * (1 - f2_hist(k)) * xr0^2;
+    sat2_hist(k) = sum(alpha_unc_k > 1);
+
+    if abs(err_B) < beta_tol
+        beta_iters = k;
+        break;
+    end
+
+    % Common correction preserves heterogeneity while steering sum(beta')
+    beta_k = max(beta_k - epsilon_beta * err_B, -0.25 + delta_beta);
+end
+
+beta_hist = beta_hist(:,1:beta_iters);
+Bsum_hist = Bsum_hist(1:beta_iters);
+beta_err_hist = beta_err_hist(1:beta_iters);
+alpha2_unc_hist = alpha2_unc_hist(:,1:beta_iters);
+f2_hist = f2_hist(1:beta_iters);
+g2_hist = g2_hist(1:beta_iters);
+sat2_hist = sat2_hist(1:beta_iters);
+beta_prime_algo2 = beta_k;
+
+% One-shot bidding after sum(beta') coordination (unclamped assumption)
+alpha_algo2 = 0.5 * (1 + 4*beta_prime_algo2) ./ eta_dist;
+f_algo2 = sum(alpha_algo2 .* eta_dist);
+g_algo2 = f_algo2 * (1-f_algo2) * xr0^2;
+Pi_algo2 = profit(alpha_algo2, a2, a1, x0, xL0, xr0, eta_dist, sigma_r2, sigma_L2, sigma_rL);
+
+fprintf('Converged in %d outer iterations.\n', beta_iters);
+fprintf('Final beta'' = [%s]\n', num2str(beta_prime_algo2', '%.6f '));
+fprintf('sum(beta'') = %.8f  (target %.8f)\n', sum(beta_prime_algo2), B_target);
+fprintf('Saturated operators (alpha_unc > 1) at final iterate: %d/%d\n', sat2_hist(end), n);
+for i = 1:n
+    fprintf('  Op %d: alpha* = %.6f\n', i, alpha_algo2(i));
+end
+fprintf('  f = %.6f,  g = %.2f,  sum(Pi) = %.2f\n', f_algo2, g_algo2, sum(Pi_algo2));
+end
+
+%% ========================================================================
+%                         FINAL SUMMARY
+% =========================================================================
+
+fprintf('\n==========================================================\n');
+fprintf('  FINAL RESULTS SUMMARY\n');
+fprintf('==========================================================\n');
+fprintf('%-35s %-14s %-14s %-14s %-14s\n', '', 'Coalition', 'Risk-Neutral', 'Pareto(Central)', 'Algo1(Dist)');
+fprintf('%s\n', repmat('-', 1, 100));
+for i = 1:n
+    fprintf('  alpha_%d*                           %-14.6f %-14.6f %-14.6f %-14.6f\n', ...
+        i, alpha_coal(i), alpha_RN(i), alpha_sym(i), alpha_dist(i));
+end
+fprintf('  f                                  %-14.6f %-14.6f %-14.6f %-14.6f\n', f_coal, f_RN, f_sym, f_dist);
+fprintf('  g = f(1-f)*x_r^o^2 [MW^2]         %-14.2f %-14.2f %-14.2f %-14.2f\n', ...
+    g_coal, f_RN*(1-f_RN)*xr0^2, f_sym*(1-f_sym)*xr0^2, g_dist);
+fprintf('  sum(Pi)                            %-14.2f %-14.2f %-14.2f %-14.2f\n', ...
+    sum(Pi_coal), sum(Pi_RN), sum(Pi_sym), sum(Pi_dist));
+for i = 1:n
+    fprintf('  Pi_%d                               %-14.2f %-14.2f %-14.2f %-14.2f\n', ...
+        i, Pi_coal(i), Pi_RN(i), Pi_sym(i), Pi_dist(i));
+end
+fprintf('  Improvement vs Risk-Neutral        %-14.2f%% %-14s %-14.2f%% %-14.2f%%\n', ...
+    100*(sum(Pi_coal)-sum(Pi_RN))/abs(sum(Pi_RN)), '-', ...
+    100*(sum(Pi_sym)-sum(Pi_RN))/abs(sum(Pi_RN)), ...
+    100*(sum(Pi_dist)-sum(Pi_RN))/abs(sum(Pi_RN)));
+fprintf('  Pareto efficiency (g/g_max)        %-14.2f%% %-14.2f%% %-14.2f%% %-14.2f%%\n', ...
+    100*g_coal/(0.25*xr0^2), 100*f_RN*(1-f_RN)*xr0^2/(0.25*xr0^2), ...
+    100*f_sym*(1-f_sym)*xr0^2/(0.25*xr0^2), 100*g_dist/(0.25*xr0^2));
+fprintf('\n  Overbidding sweep (Algorithm 1):\n');
+fprintf('    max sum(Pi), unclamped          = %.2f at beta''=%.4f\n', Pi_unc_max, beta_sweep(idx_unc_max));
+fprintf('    max sum(Pi), no-overbidding     = %.2f at beta''=%.4f\n', Pi_clp_max, beta_sweep(idx_clp_max));
 
 %% ========================================================================
 %                         VISUALIZATION
 % =========================================================================
 
-beta_prime_sum_history = sum(history.beta_prime, 1);
-beta_prime_sum_opt = beta_prime_sum_target;
+op_labels = arrayfun(@(i) sprintf('Op%d', i), 1:n, 'UniformOutput', false);
+node_labels = [op_labels, {'Utility'}];
 
-fig_width = 800;
-fig_height = 500;
+% Practical plot horizon: first index where trajectories are close to final consensus.
+xi_err = max(abs(xi_hist - xi_final), [], 1);
+psi_err = max(abs(psi_hist - psi_final), [], 1);
+k_xi_plot = find(xi_err < cons_plot_tol, 1, 'first');
+k_psi_plot = find(psi_err < cons_plot_tol, 1, 'first');
+if isempty(k_xi_plot), k_xi_plot = xi_iters; end
+if isempty(k_psi_plot), k_psi_plot = psi_iters; end
 
-if use_subplots
-    % === SUBPLOT MODE ===
-    figure('Position', [50, 50, 1400, 900]);
-    sgtitle(sprintf('Improved Distributed Risk-Aware Nash Optimization (Test Case: beta''_0=[%s])', ...
-        num2str(beta_prime_init', '%.1f ')), 'FontSize', 14);
-    
-    % Plot 1: Sum of beta'
-    subplot(2,3,1);
-    plot(1:k, beta_prime_sum_history, 'b-', 'LineWidth', 2);
-    hold on;
-    yline(beta_prime_sum_opt, 'k--', 'LineWidth', 1.5, 'DisplayName', 'Target');
-    xlabel('Iteration k');
-    ylabel('\Sigma\beta''_i(k)');
-    title('Sum of Risk Parameters');
-    legend('Location', 'best');
+K_plot = min(max_cons_iter, max([k_xi_plot, k_psi_plot]) + plot_tail_buffer);
+K = max(2, K_plot);
+% Plot A1: xi consensus trajectories
+figure('Position', [50, 50, 620, 460]);
+plot(1:K, xi_hist(1:n,1:K)', 'LineWidth', 1.5); hold on;
+plot(1:K, xi_hist(n+1,1:K)', 'k--', 'LineWidth', 1.5);
+yline(1/N_total, 'r:', 'LineWidth', 1.5);
+xlabel('Iteration k'); ylabel('\xi_i(k)');
+title('Consensus \xi (counting)');
+legend([node_labels, {sprintf('1/(n+1)=%.4f',1/N_total)}], 'Location','best','FontSize',7);
+grid on;
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
+    fig1a_path = fullfile(fig_out_dir, 'algorithm1_xi_consensus.png');
+    exportgraphics(gcf, fig1a_path, 'Resolution', 150);
+    fprintf('\nFigure saved to: %s\n', fig1a_path);
+end
+
+% Plot A2: psi consensus trajectories
+figure('Position', [80, 80, 620, 460]);
+plot(1:K, psi_hist(1:n,1:K)', 'LineWidth', 1.5); hold on;
+plot(1:K, psi_hist(n+1,1:K)', 'k--', 'LineWidth', 1.5);
+yline(xr0/N_total, 'r:', 'LineWidth', 1.5);
+xlabel('Iteration k'); ylabel('\psi_i(k)');
+title('Consensus \psi (forecast diffusion)');
+legend([node_labels, {sprintf('x_r^o/(n+1)=%.1f',xr0/N_total)}], 'Location','best','FontSize',7);
+grid on;
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
+    fig1b_path = fullfile(fig_out_dir, 'algorithm1_psi_consensus.png');
+    exportgraphics(gcf, fig1b_path, 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fig1b_path);
+end
+
+% Plot A3: Estimated n as xi evolves
+% Note: xi_i(0)=0 for operators, so 1/xi_i(0)-1 = Inf at k=1.
+% Replace non-finite values with NaN so MATLAB skips those points.
+n_hat_hist = 1./xi_hist(1:n,:) - 1;
+n_hat_plot = n_hat_hist(:,1:K);
+n_hat_plot(~isfinite(n_hat_plot)) = NaN;
+figure('Position', [110, 110, 620, 460]);
+plot(1:K, n_hat_plot', 'LineWidth', 1.5);
+yline(n, 'k--', 'LineWidth', 1.5);
+xlabel('Iteration k'); ylabel('\hat{n}_i(k)');
+title('Distributed Estimate of n');
+legend([op_labels, {sprintf('True n=%d',n)}], 'Location','best','FontSize',7);
+ylim([0, n + 3]); grid on;   % fixed ylim: transient overshoots n, but converges to n
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
+    fig1c_path = fullfile(fig_out_dir, 'algorithm1_nhat_estimate.png');
+    exportgraphics(gcf, fig1c_path, 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fig1c_path);
+end
+
+% Plot A4: Estimated x_r^o as ratio psi/xi evolves
+% Note: xi_i(0)=0, so psi_i(0)/xi_i(0) = Inf at k=1; early iterates are very large.
+% Replace non-finite values with NaN and fix ylim so convergence is visible.
+xr0_hist_ops = psi_hist(1:n,:) ./ xi_hist(1:n,:);
+xr0_hist_plot = xr0_hist_ops(:,1:K);
+xr0_hist_plot(~isfinite(xr0_hist_plot)) = NaN;
+figure('Position', [140, 140, 620, 460]);
+plot(1:K, xr0_hist_plot', 'LineWidth', 1.5);
+yline(xr0, 'k--', 'LineWidth', 1.5);
+xlabel('Iteration k'); ylabel('\hat{x}_r^o estimate');
+title('Distributed Estimate of x_r^o');
+legend([op_labels, {sprintf('True=%.0f',xr0)}], 'Location','best','FontSize',7);
+ylim([0, xr0 * 2]); grid on;  % fixed ylim: clips large transient, shows convergence
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
+    fig1d_path = fullfile(fig_out_dir, 'algorithm1_xr0_estimate.png');
+    exportgraphics(gcf, fig1d_path, 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fig1d_path);
+end
+
+% Plot A_comp: Comparative results — four individual figures, one per metric
+strat_labels = {'Coalition', 'RN-NE', 'Pareto-NE', 'Algo1'};
+strat_cats   = categorical(strat_labels, strat_labels);  % preserve order
+alpha_all = [alpha_coal, alpha_RN, alpha_sym, alpha_dist];
+Pi_all    = [Pi_coal,    Pi_RN,    Pi_sym,    Pi_dist];
+f_all     = [f_coal, f_RN, f_sym, f_dist];
+g_all     = [g_coal, f_RN*(1-f_RN)*xr0^2, f_sym*(1-f_sym)*xr0^2, g_dist];
+
+% A_comp_1: Bidding strategies alpha_i
+figure('Position', [50, 50, 620, 460]);
+bar(1:n, alpha_all);
+xlabel('Operator'); ylabel('\alpha_i^*');
+title('Bidding Strategies: All Four Methods');
+xticklabels(op_labels);
+yline(1, 'k--', 'LineWidth', 1, 'HandleVisibility', 'off');
+legend(strat_labels, 'Location', 'best', 'FontSize', 7);
+grid on;
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_comp_alpha.png'), 'Resolution', 150);
+    fprintf('\nFigure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_alpha.png'));
+end
+
+% A_comp_2: Individual profits Pi_i
+figure('Position', [80, 80, 620, 460]);
+bar(1:n, Pi_all);
+xlabel('Operator'); ylabel('\Pi_i');
+title('Individual Profit: All Four Methods');
+xticklabels(op_labels);
+legend(strat_labels, 'Location', 'best', 'FontSize', 7);
+grid on;
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_comp_profit.png'), 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_profit.png'));
+end
+
+% A_comp_3: Aggregate bid fraction f
+figure('Position', [110, 110, 620, 460]);
+bar(strat_cats, f_all);
+yline(0.5, 'r--', 'LineWidth', 1.5);
+xlabel('Strategy'); ylabel('f(\alpha)');
+title('Aggregate Bid Fraction (target f = 0.5)');
+ylim([0, 1]); grid on;
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_comp_f.png'), 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_f.png'));
+end
+
+% A_comp_4: Market efficiency g
+figure('Position', [140, 140, 620, 460]);
+bar(strat_cats, g_all);
+yline(0.25*xr0^2, 'r--', 'LineWidth', 1.5);
+xlabel('Strategy'); ylabel('g(\alpha)  [MW^2]');
+title(sprintf('Market Efficiency g  (g_{max} = %.0f MW^2)', 0.25*xr0^2));
+grid on;
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_comp_g.png'), 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_g.png'));
+end
+
+% Plot A5: overbidding bids
+figure('Position', [170, 170, 700, 460]);
+plot(beta_sweep, alpha_unc_hist_b', 'LineWidth', 1.4); hold on;
+yline(1, 'k--', 'LineWidth', 1.2);
+xlabel('\beta'' (common)'); ylabel('\alpha_i (unclamped)');
+title('Unclamped Bids vs \beta''');
+legend([op_labels, {'Capacity limit'}], 'Location', 'best');
+grid on;
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
+    fig1e_path = fullfile(fig_out_dir, 'algorithm1_overbid_alpha.png');
+    exportgraphics(gcf, fig1e_path, 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fig1e_path);
+end
+
+% Plot A6: overbidding count
+figure('Position', [200, 200, 700, 460]);
+plot(beta_sweep, sat_b, 'r', 'LineWidth', 1.8); hold on;
+yline(0, 'k--', 'LineWidth', 1.1);
+xlabel('\beta'' (common)'); ylabel('count');
+title('Number of Overbidding Operators');
+ylim([-0.1, n+0.2]); grid on;
+
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir')
+        mkdir(fig_out_dir);
+    end
+    fig1f_path = fullfile(fig_out_dir, 'algorithm1_overbid_count.png');
+    exportgraphics(gcf, fig1f_path, 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fig1f_path);
+end
+
+% Plot A7: overbidding profit impact
+figure('Position', [230, 230, 700, 460]);
+plot(beta_sweep, Pi_unc_b, 'b', 'LineWidth', 1.8); hold on;
+plot(beta_sweep, Pi_clp_b, 'm', 'LineWidth', 1.8);
+yline(sum(Pi_RN), 'k:', 'LineWidth', 1.2);
+yline(sum(Pi_sym), 'g--', 'LineWidth', 1.2);
+xlabel('\beta'' (common)'); ylabel('\Sigma \Pi_i');
+title('Profit Impact: Unclamped vs No-Overbidding');
+legend({'Unclamped', 'No-overbidding', 'RN ref', 'Pareto ref'}, 'Location', 'best');
+grid on;
+
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir')
+        mkdir(fig_out_dir);
+    end
+    fig1g_path = fullfile(fig_out_dir, 'algorithm1_overbid_profit.png');
+    exportgraphics(gcf, fig1g_path, 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fig1g_path);
+end
+
+% Plot A8: per-operator overbidding profit impact
+figure('Position', [250, 250, 760, 860]);
+tiledlayout(n, 1, 'Padding', 'compact', 'TileSpacing', 'compact');
+for i = 1:n
+    nexttile;
+    plot(beta_sweep, Pi_unc_i_b(i,:), 'b', 'LineWidth', 1.6); hold on;
+    plot(beta_sweep, Pi_clp_i_b(i,:), 'm', 'LineWidth', 1.6);
+    yline(Pi_RN(i), 'k:', 'LineWidth', 1.1);
+    yline(Pi_sym(i), 'g--', 'LineWidth', 1.1);
+    xline(overbid_thresh(i), 'r:', 'LineWidth', 1.3);
+    ylabel(sprintf('\\Pi_%d', i));
+    title(sprintf('Operator %d Profit vs \\beta'' (sat.thresh=%.3f)', i, overbid_thresh(i)));
+    if i == 1
+        legend({'Unclamped', 'No-overbidding', 'RN ref', 'Pareto ref', 'Sat. threshold'}, 'Location', 'best');
+    end
     grid on;
-    
-    % Plot 2: Individual beta'
-    subplot(2,3,2);
-    plot(1:k, history.beta_prime', 'LineWidth', 1.5);
-    hold on;
-    yline(beta_prime_sym, 'k--', 'LineWidth', 1);
-    xlabel('Iteration k');
-    ylabel('\beta''_i(k)');
-    title('Individual Risk Parameters');
-    legend_str = cell(n+1, 1);
+end
+xlabel('\beta'' (common)');
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir')
+        mkdir(fig_out_dir);
+    end
+    fig1h_path = fullfile(fig_out_dir, 'algorithm1_overbid_profit_individual.png');
+    exportgraphics(gcf, fig1h_path, 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fig1h_path);
+end
+
+% Plot A9: overbidding aggregate f
+figure('Position', [280, 280, 700, 460]);
+plot(beta_sweep, f_unc_b, 'b', 'LineWidth', 1.6); hold on;
+plot(beta_sweep, f_clp_b, 'm', 'LineWidth', 1.6);
+yline(0.5, 'k--', 'LineWidth', 1.2);
+xlabel('\beta'' (common)'); ylabel('f(\alpha)');
+title('Aggregate Bid Fraction');
+legend({'Unclamped', 'No-overbidding', 'Pareto target'}, 'Location', 'best');
+grid on;
+
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir')
+        mkdir(fig_out_dir);
+    end
+    fig1i_path = fullfile(fig_out_dir, 'algorithm1_overbid_f.png');
+    exportgraphics(gcf, fig1i_path, 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fig1i_path);
+end
+
+% Plot A10: Comprehensive per-operator overbidding effects (algorithm1_overbidding.png)
+% Row 1: per-operator alpha_i (unclamped vs clamped) vs beta' with saturation threshold
+% Row 2: per-operator Pi_i (unclamped vs clamped) vs beta' with saturation threshold
+figure('Position', [50, 50, 1200, 820]);
+tiledlayout(2, n, 'Padding', 'compact', 'TileSpacing', 'compact');
+for i = 1:n
+    nexttile;
+    plot(beta_sweep, alpha_unc_hist_b(i,:), 'b', 'LineWidth', 1.6); hold on;
+    plot(beta_sweep, alpha_clp_hist_b(i,:), 'm--', 'LineWidth', 1.6);
+    xline(overbid_thresh(i), 'r:', 'LineWidth', 1.5);
+    yline(1, 'k--', 'LineWidth', 1.2);
+    xlabel('\beta'' (common)'); ylabel(sprintf('\\alpha_%d', i));
+    title(sprintf('Op %d bid (thresh=%.3f)', i, overbid_thresh(i)));
+    if i == 1
+        legend({'Unclamped', 'No-overbid', 'Sat. threshold', 'Cap. limit'}, 'FontSize', 7, 'Location', 'best');
+    end
+    grid on;
+end
+for i = 1:n
+    nexttile;
+    plot(beta_sweep, Pi_unc_i_b(i,:), 'b', 'LineWidth', 1.6); hold on;
+    plot(beta_sweep, Pi_clp_i_b(i,:), 'm--', 'LineWidth', 1.6);
+    xline(overbid_thresh(i), 'r:', 'LineWidth', 1.5);
+    yline(Pi_RN(i), 'k:', 'LineWidth', 1.1);
+    yline(Pi_sym(i), 'g--', 'LineWidth', 1.1);
+    xlabel('\beta'' (common)'); ylabel(sprintf('\\Pi_%d', i));
+    title(sprintf('Op %d profit', i));
+    if i == 1
+        legend({'Unclamped', 'No-overbid', 'Sat. threshold', 'RN ref', 'Pareto ref'}, 'FontSize', 7, 'Location', 'best');
+    end
+    grid on;
+end
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbidding.png'), 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbidding.png'));
+end
+
+% Visualization for Algorithm 2 (heterogeneous beta_i'(0))
+if run_algo2
+figure('Position', [80, 80, 1280, 820]);
+sgtitle('Algorithm 2: Non-Equal \beta_i''(0) Coordination + One-Shot Bid', 'FontSize', 13);
+
+subplot(2,3,1);
+plot(1:beta_iters, Bsum_hist, 'LineWidth', 1.8); hold on;
+yline(B_target, 'r--', 'LineWidth', 1.5);
+xlabel('Outer iteration k'); ylabel('\Sigma_i \beta_i''(k)');
+title('Aggregate Risk Parameter Convergence');
+legend({'Estimated \Sigma\beta''', sprintf('Target=(1-n)/4=%.3f', B_target)}, 'Location','best');
+grid on;
+
+subplot(2,3,2);
+plot(1:beta_iters, beta_hist', 'LineWidth', 1.5);
+xlabel('Outer iteration k'); ylabel('\beta_i''(k)');
+title('Individual \beta_i'' Trajectories');
+legend(op_labels, 'Location','best'); grid on;
+
+subplot(2,3,3);
+plot(1:beta_iters, f2_hist, 'b', 'LineWidth', 1.8); hold on;
+plot(1:beta_iters, g2_hist, 'm', 'LineWidth', 1.8);
+yline(0.5, 'b--', 'LineWidth', 1.2);
+yline(0.25*xr0^2, 'm--', 'LineWidth', 1.2);
+xlabel('Outer iteration k'); ylabel('f(k), g(k)');
+title('Efficiency Tracking');
+legend({'f(k)', 'g(k)', 'f^*=0.5', 'g_{max}'}, 'Location','best');
+grid on;
+
+subplot(2,3,4);
+plot(1:beta_iters, beta_err_hist, 'LineWidth', 1.8);
+yline(0, 'k--', 'LineWidth', 1.3);
+xlabel('Outer iteration k'); ylabel('e_\beta(k)');
+title('Sum Error: e_\beta(k)=\Sigma\beta_i''(k)-\Sigma\beta_i''^*');
+grid on;
+
+subplot(2,3,5);
+plot(1:beta_iters, sat2_hist, 'r', 'LineWidth', 1.8); hold on;
+yline(0, 'k--', 'LineWidth', 1.2);
+xlabel('Outer iteration k'); ylabel('count');
+title('Saturation Count (\alpha_{unc}>1)');
+ylim([-0.1, n+0.2]); grid on;
+
+subplot(2,3,6);
+plot(1:beta_iters, max(alpha2_unc_hist', [], 2), 'LineWidth', 1.8); hold on;
+yline(1, 'k--', 'LineWidth', 1.2);
+xlabel('Outer iteration k'); ylabel('max_i \alpha_i');
+title('Peak Unclamped Bid');
+grid on;
+
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir')
+        mkdir(fig_out_dir);
+    end
+    fig2_path = fullfile(fig_out_dir, 'algorithm2_results.png');
+    exportgraphics(gcf, fig2_path, 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fig2_path);
+
+    fig3_path = fullfile(fig_out_dir, 'algorithm2_bidding_comparison.png');
+    fig3 = figure('Position', [120, 120, 1000, 460]);
+    subplot(1,2,1);
+    ba = bar(1:n, [alpha_RN, alpha_algo2]);
+    ba(1).DisplayName = 'Risk-Neutral';
+    ba(2).DisplayName = 'Algo 2 (unclamped)';
+    xlabel('Operator'); ylabel('\alpha_i^*');
+    title('Bidding Comparison');
+    xticklabels(op_labels); legend('Location', 'best'); grid on;
+
+    subplot(1,2,2);
+    bp = bar(1:n, [Pi_RN, Pi_algo2]);
+    bp(1).DisplayName = sprintf('Risk-Neutral (\\SigmaPi=%.0f)', sum(Pi_RN));
+    bp(2).DisplayName = sprintf('Algo 2 unclamped (\\SigmaPi=%.0f)', sum(Pi_algo2));
+    xlabel('Operator'); ylabel('\\Pi_i');
+    title('Profit Comparison');
+    xticklabels(op_labels); legend('Location', 'best'); grid on;
+    style_current_figure();
+    exportgraphics(fig3, fig3_path, 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fig3_path);
+
+    fig4_path = fullfile(fig_out_dir, 'algorithm2_alpha_unclamped.png');
+    fig4 = figure('Position', [120, 120, 1100, 700]);
+    t = 1:beta_iters;
     for i = 1:n
-        legend_str{i} = sprintf('Operator %d', i);
+        subplot(n,1,i);
+        plot(t, alpha2_unc_hist(i,:), '-', 'LineWidth', 1.8); hold on;
+        yline(1, 'k:', 'LineWidth', 1.2);
+        ylabel(sprintf('\\alpha_%d', i));
+        if i == 1
+            title('Algorithm 2: Unclamped One-Shot Bids');
+            legend({'unclamped', 'capacity limit'}, 'Location', 'best');
+        end
+        grid on;
     end
-    legend_str{n+1} = sprintf('\\beta_{sym} = %.4f', beta_prime_sym);
-    legend(legend_str, 'Location', 'best');
-    grid on;
-    
-    % Plot 3: f convergence
-    subplot(2,3,3);
-    plot(1:k, history.f, 'b-', 'LineWidth', 2);
-    hold on;
-    yline(0.5, 'k--', 'LineWidth', 1.5);
-    xlabel('Iteration k');
-    ylabel('f(k)');
-    title('Aggregate Bidding Fraction');
-    legend('f(k)', 'Target = 0.5', 'Location', 'best');
-    grid on;
-    
-    % Plot 4: Individual alpha
-    subplot(2,3,4);
-    plot(1:k, history.alpha', 'LineWidth', 1.5);
-    xlabel('Iteration k');
-    ylabel('\alpha_i(k)');
-    title('Individual Bidding Fractions (Direct Computation - No Oscillations!)');
-    legend_str = cell(n, 1);
-    for i = 1:n
-        legend_str{i} = sprintf('Operator %d', i);
-    end
-    legend(legend_str, 'Location', 'best');
-    grid on;
-    
-    % Plot 5: Error signal |S|
-    subplot(2,3,5);
-    semilogy(1:k, abs(history.S), 'r-', 'LineWidth', 2);
-    hold on;
-    yline(tau, 'k--', 'LineWidth', 1);
-    xlabel('Iteration k');
-    ylabel('|S(k)| = |f - 0.5|');
-    title('Pareto Error Signal (log scale)');
-    legend('|S(k)|', '\tau', 'Location', 'best');
-    grid on;
-    
-    % Plot 6: Aggregate profit and efficiency
-    subplot(2,3,6);
-    g_history = history.f .* (1 - history.f) * xr0^2;
-    plot(1:k, sum(history.Pi, 1), 'b-', 'LineWidth', 2);
-    hold on;
-    plot(1:k, g_history, 'r-', 'LineWidth', 2);
-    yline(0.25*xr0^2, 'r--', 'LineWidth', 1);
-    yline(sum(Pi_sym), 'b--', 'LineWidth', 1);
-    xlabel('Iteration k');
-    ylabel('Value');
-    title('Aggregate Metrics');
-    legend('\Sigma\Pi_i', 'g = f(1-f)x_r^{o2}', 'g_{max}', '\Pi_{Pareto}', ...
-        'Location', 'best');
-    grid on;
-    
-    if save_figs
-        saveas(gcf, 'figs/improved_algorithm_results.png');
-        fprintf('Figure saved to: figs/improved_algorithm_results.png\n');
-    end
-    
-else
-    % === INDIVIDUAL FIGURE MODE ===
-    % (Similar to original, omitted for brevity)
+    xlabel('Outer iteration k');
+    style_current_figure();
+    exportgraphics(fig4, fig4_path, 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fig4_path);
+end
 end
 
 %% ========================================================================
 %                         HELPER FUNCTIONS
 % =========================================================================
 
-function z_bar = run_consensus(z0, L, epsilon, max_iter, tol)
-    % Run consensus protocol until convergence
-    % Returns the average (consensus value)
-    z = z0;
-    for iter = 1:max_iter
-        z_new = z - epsilon * L * z;
-        if norm(z_new - z) < tol
-            break;
-        end
-        z = z_new;
-    end
-    z_bar = mean(z);
-end
-
-function [alpha_star, f, Pi, J] = compute_nash_centralized(beta_prime, ...
-    n, a2, x0, xL0, xr0, eta, gamma, sigma_r2, sigma_L2, sigma_rL)
-    % Compute Nash equilibrium for given beta' using Theorem 1
-    % Inputs:
-    %   beta_prime: n x 1 vector of transformed risk parameters
-    %   Other parameters as defined in main script
-    % Outputs:
-    %   alpha_star: Nash equilibrium bidding fractions
-    %   f: aggregate bidding fraction
-    %   Pi: individual profits
-    %   J: individual objectives
-
-    % Build matrix A and vector B from Theorem 1 (Eq. 3.5)
-    A = zeros(n, n);
-    B = zeros(n, 1);
-
-    for i = 1:n
-        bp_i = beta_prime(i);
-        for j = 1:n
-            if i == j
-                A(i, j) = 2 * (1 + 2*bp_i);
-            else
-                A(i, j) = (1 + 4*bp_i) * gamma(i, j);
-            end
-        end
-        B(i) = (1 + 4*bp_i) * sum(gamma(i, :));
-    end
-
-    % Solve for Nash equilibrium
-    alpha_star = A \ B;
-
-    % Clamp to valid range (should be in [0,1] for valid beta')
+function [alpha_star, f, Pi, J] = nash_eq(beta_prime, n, a2, a1, x0, xL0, xr0, eta, sigma_r2, sigma_L2, sigma_rL)
+    % Nash equilibrium given beta' using closed-form from Theorem 2 proof:
+    %   f* = (n + 4*sum(beta')) / (1 + n + 4*sum(beta'))
+    %   alpha_i* = (1 + 4*beta_i') * (1 - f*) / eta_i
+    %
+    % This matches eq. alpha_equation after substituting the Pareto condition.
+    B_sum = sum(beta_prime);
+    f = (n + 4*B_sum) / (1 + n + 4*B_sum);
+    alpha_star = (1 + 4*beta_prime) .* (1-f) ./ eta;
     alpha_star = max(0, min(1, alpha_star));
-
-    % Compute f
-    f = sum(alpha_star .* eta);
-
-    % Compute profits using Eq. (3.17)
-    Pi = compute_profit(alpha_star, n, 1, 1, x0, xL0, xr0, eta, ...
-        sigma_r2, sigma_L2, sigma_rL);
-    % Scale by a2 (the full formula has 2*a2 coefficient)
-    Pi = 2*a2 * alpha_star .* x0 .* xr0 .* (1 - f) + x0 + ...
-         2*a2 * x0 .* (xL0 - xr0);
-
-    % Add uncertainty terms if nonzero
-    if sigma_r2 > 0 || sigma_L2 > 0 || sigma_rL ~= 0
-        % Simplified: add covariance contribution
-        Pi = Pi + 2*a2 * (sigma_rL - sigma_r2/n) * ones(n,1);
-    end
-
-    % Compute objectives J_i = Pi_i - beta_i' * 4*a2 * (x_r^o)^2 * (1-f)^2
-    % (Simplified formula for E[(lambda - lambda^o)^2])
-    price_var = 4 * a2^2 * (xr0^2 * (1-f)^2 + sigma_L2 + sigma_r2 - 2*sigma_rL);
-    J = Pi - (beta_prime / a2) .* price_var;
+    f = sum(alpha_star .* eta);   % recompute f from (possibly clamped) alpha
+    Pi = profit(alpha_star, a2, a1, x0, xL0, xr0, eta, sigma_r2, sigma_L2, sigma_rL);
+    price_var = 4*a2^2 * (xr0^2*(1-f)^2 + sigma_L2 + sigma_r2 - 2*sigma_rL);
+    J = Pi - (beta_prime/a2) .* price_var;
 end
 
-function Pi = compute_profit(alpha, n, a2, a1, x0, xL0, xr0, eta, ...
-    sigma_r2, sigma_L2, sigma_rL)
-    % Compute individual profits given bidding fractions
-    % Based on Eq. (3.17)
-
-    f = sum(alpha .* eta);
-
-    % Main profit term: 2*a2 * alpha_i * x_i^o * x_r^o * (1-f)
-    Pi = 2*a2 * alpha .* x0 .* xr0 .* (1 - f);
-
-    % Add linear term: a1 * x_i^o
-    Pi = Pi + a1 * x0;
-
-    % Add net load term: 2*a2 * x_i^o * (x_L^o - x_r^o)
-    Pi = Pi + 2*a2 * x0 .* (xL0 - xr0);
-
-    % Uncertainty contribution (if any)
+function Pi = profit(alpha, a2, a1, x0, xL0, xr0, eta, sigma_r2, sigma_L2, sigma_rL)
+    % Individual profits (eq. Pi_exp):
+    %   Pi_i = 2*a2*alpha_i*x_i^o*x_r^o*(1-f) + a1*x_i^o + 2*a2*x_i^o*(xL0-xr0)
+    f  = sum(alpha .* eta);
+    Pi = 2*a2 * alpha .* x0 * xr0 .* (1-f) ...
+       + a1 * x0 ...
+       + 2*a2 * x0 .* (xL0 - xr0);
     if sigma_rL ~= 0 || sigma_r2 > 0
-        % Simplified model: shared equally among operators
-        Pi = Pi + 2*a2 * (sigma_rL - sigma_r2/n) * ones(n, 1);
+        Pi = Pi + 2*a2*(sigma_rL - sigma_r2/length(x0)) * ones(length(x0),1);
     end
+end
+
+function style_current_figure()
+    set(gcf, 'Color', 'w', 'InvertHardcopy', 'off');
+    ax = findall(gcf, 'Type', 'axes');
+    set(ax, 'Color', 'w', 'XColor', 'k', 'YColor', 'k');
+    for i = 1:numel(ax)
+        t = get(ax(i), 'Title');
+        set(t, 'Color', 'k');
+        xl = get(ax(i), 'XLabel');
+        yl = get(ax(i), 'YLabel');
+        set(xl, 'Color', 'k');
+        set(yl, 'Color', 'k');
+    end
+    lgd = findall(gcf, 'Type', 'legend');
+    set(lgd, 'TextColor', 'k', 'Color', 'w', 'EdgeColor', 'k');
+    tx = findall(gcf, 'Type', 'text');
+    set(tx, 'Color', 'k');
 end

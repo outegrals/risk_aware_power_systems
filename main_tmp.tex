@@ -616,7 +616,7 @@ Algorithm \ref{alg:dist_risk_aware_beta_coord} keeps the implementation distribu
 which converges to $B^\star$ for $0<n\epsilon_\beta<2$. Hence, starting from arbitrary non-equal $\beta_i'(0)$, the market can first coordinate the Pareto-optimal aggregate risk and then execute one-shot Nash bidding via \eqref{eq:alpha_optimal_simplified}.
 \end{comment}
 
-When the no-overbidding constraint is active, the distributed implementation requires a minor modification. After consensus convergence, each operator locally checks whether its unconstrained bid $\alpha_i^* = \frac{1}{2n}\eta_i^{-1}$ exceeds unity, which occurs whenever $\eta_i < \frac{1}{2n}$. If so, operator $i$ projects its bid to $\bar{\alpha}_i = 1$ and belongs to the saturated set $\Omega_s^P$ of corollary~6. The key observation is that the constrained bid~\eqref{eq:alpha_clamp} for unsaturated operators depends on the aggregate quantities $\sum_{j\in\Omega_s^P}\eta_j$ and $\sum_{j\not\in\Omega_s^P} w_j$, both of which can be estimated through additional consensus rounds. Specifically, after each operator determines its own saturation status locally, a third consensus protocol initialized with $\phi_i(0) = \eta_i$ if $i\in\Omega_s^P$ and $\phi_i(0) = 0$ otherwise yields the average $\frac{1}{n+1}\sum_{j\in\Omega_s^P}\eta_j$, from which each operator recovers $\sum_{j\in\Omega_s^P}\eta_j$. Combined with the already-available $n$ and $\eta_i$, each unsaturated operator can then compute its constrained bid~\eqref{eq:alpha_clamp} without centralized coordination. The resulting constrained aggregate fraction $\bar{f}^P$ in~\eqref{eq:fbar_P} will generally deviate from $\tfrac{1}{2}$, and the associated profit loss relative to the unconstrained Pareto optimum is quantified by~\eqref{eq:Pi_clamp}.
+\textcolor{red}{Add discussions on distributed algorithm for non-overbidding}
 
 \section{Illustrative Example \label{sec:examples}}
 
@@ -789,15 +789,6 @@ Figures~\ref{fig:algo1_overbid_alpha}--\ref{fig:algo1_overbid_f} quantify the tr
 
 \noindent\textbf{Remark~1.} \textit{For the three-operator system in Table~\ref{tab:example_params}, the capacity shares $\eta_1=\frac{2}{5}$, $\eta_2=\frac{1}{3}$, $\eta_3=\frac{4}{15}$ give per-operator overbidding thresholds $\beta_1'\leq-\frac{1}{20}=-0.05$, $\beta_2'\leq-\frac{1}{12}\approx-0.083$, $\beta_3'\leq-\frac{7}{60}\approx-0.117$ from~\eqref{eq:overbid_bound}. Under a common $\beta'$, operator~3 (smallest share) saturates first at $\beta'>-0.117$, followed by operator~2 at $\beta'>-0.083$ and operator~1 at $\beta'>-0.05$; the count~\eqref{eq:nsat} steps from $N_{\mathrm{sat}}=0$ to $3$ accordingly. The symmetric Pareto allocation $\beta_i'=-\frac{1}{6}\approx-0.167$ lies below all thresholds, so no overbidding occurs at the Pareto-optimal Nash equilibrium. Profit loss grows appreciably only once $N_{\mathrm{sat}}\geq 2$, with the aggregate trajectory diverging sharply from the unconstrained case beyond $\beta'>-0.083$.}
 
-Figure~\ref{fig:algo1_overbidding} provides a consolidated per-operator view of these effects. The top row shows the unclamped and clamped bid trajectories for each operator, with a vertical dotted line marking its individual saturation threshold; the bottom row shows the corresponding individual profit $\Pi_i$ under both policies. The threshold ordering from Remark~1 is clearly visible: operator~3 diverges earliest, and its profit gap between the unclamped and clamped cases is the largest, since clamping it to $\bar\alpha_3=1$ reduces $f(\boldsymbol{\alpha})$ below $\tfrac{1}{2}$ and thereby depresses the payoff of all operators through the shared term $(1-f)$ in~\eqref{eq:Pi_det}.
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=1\linewidth]{figures/algorithm1_overbidding.png}
-    \caption{Per-operator overbidding effects: unclamped vs.\ no-overbidding bids $\alpha_i$ (top row) and individual profits $\Pi_i$ (bottom row) as functions of the common risk parameter $\beta'$. Vertical dotted lines mark each operator's saturation threshold~\eqref{eq:overbid_bound}. Operator~3 (smallest capacity share $\eta_3$) saturates first; the profit divergence between unclamped and clamped policies grows as $N_{\mathrm{sat}}$ increases.}
-    \label{fig:algo1_overbidding}
-\end{figure}
-
 \subsection{Solutions under Distributed Algorithms}
 
 Figures~\ref{fig:algo1_xi}--\ref{fig:algo1_psi} show convergence of the consensus states. The initial conditions follow Algorithm~\ref{alg:dist_risk_aware}: the utility sets $\xi_4(0)=1$, $\psi_4(0)=0$; each operator sets $\xi_i(0)=0$, $\psi_i(0)=x_i^o$. All agents converge to the common average $\xi_i(k)\to\frac{1}{4}$ and $\psi_i(k)\to\frac{x_r^o}{4}=75$\,MW. From these converged values, each operator~$i$ locally computes the quantities shown in Table~\ref{tab:algo1_computed}, confirming that every operator independently recovers the correct $\hat{n}_i=3$, $\eta_i$, and $\beta_i'=-\frac{1}{6}$ without any additional communication.
@@ -837,22 +828,6 @@ Op. & $\xi_i^\infty$ & $\hat{n}_i = 1/\xi_i^\infty - 1$ & $\eta_i = x_i^o\xi_i^\
     \includegraphics[width=0.48\linewidth]{figures/algorithm1_comp_g.png}
     \caption{Aggregate bid fraction $f(\boldsymbol{\alpha})$ (left, target $f=0.5$ dashed) and market efficiency $g(\boldsymbol{\alpha})$ (right, $g_{\max}$ dashed) for all four strategies.}
     \label{fig:algo1_comp_fg}
-\end{figure}
-
-To assess the robustness of the overbidding analysis with respect to initial risk profiles, the outer-loop coordination of $\beta_i'$ is evaluated under six heterogeneous starting points: risk-neutral ($\beta_i'(0)=0$), uniform risk-seeking ($\beta_i'(0)=-1$), uniform risk-averse ($\beta_i'(0)=1$), and three mixed profiles. Figures~\ref{fig:mc_overbid_count} and~\ref{fig:mc_overbid_profit} show the per-operator overbidding indicator and aggregate profit comparison for each case. Operators with smaller capacity shares saturate first in every case, consistent with the threshold ordering of Remark~1. Cases where no operator overbids throughout coordination (e.g., the symmetric Pareto starting point) yield identical unclamped and clamped profit trajectories, while cases with high initial risk-seeking values exhibit a transient profit gap that closes as $\sum\beta_i'$ converges to the Pareto target.
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=1\linewidth]{figures/mc_overbid_count.png}
-    \caption{Per-operator overbidding indicator ($\alpha_i > 1$, shown as 0/1) across six initial risk profiles. Operators with smaller capacity shares ($\eta_i$) saturate earlier in coordination, and the fraction of saturating operators (dashed) confirms the threshold ordering of Remark~1 across all cases.}
-    \label{fig:mc_overbid_count}
-\end{figure}
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=1\linewidth]{figures/mc_overbid_profit.png}
-    \caption{Aggregate profit $\sum_i\Pi_i$ under unclamped versus no-overbidding projection across six initial risk profiles. The profit gap is case-dependent and governed by the number of saturating operators; cases with no overbidding show identical trajectories. All cases converge to the Pareto-optimal profit level as coordination proceeds.}
-    \label{fig:mc_overbid_profit}
 \end{figure}
 
 
