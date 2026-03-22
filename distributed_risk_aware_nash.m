@@ -18,6 +18,7 @@
 % consensus for generality/verification.
 
 clc; clear; close all;
+set(groot, 'defaultFigureWindowStyle', 'docked');
 set(groot, 'defaultFigureColor', 'w');
 set(groot, 'defaultAxesColor', 'w');
 set(groot, 'defaultAxesXColor', 'k');
@@ -70,7 +71,9 @@ run_algo2       = false;                   % set true to re-enable Algorithm 2 s
 % Algorithm 1 overbidding study (beta' sweep)
 beta_sweep      = linspace(-0.24, 0.35, 220);
 
-save_figs = true;
+save_figs  = true;
+plot_figs  = true;   % set false to skip all plotting (just run computations)
+close_figs = true;   % set true to close all figures after saving
 fig_out_dir = 'figures';
 
 %% ========================================================================
@@ -221,60 +224,70 @@ for i = 1:n
 end
 
 %% ========================================================================
-%              PART 3: ALGORITHM 1 OVERBIDDING SENSITIVITY
+%              PART 3: OVERBIDDING SCENARIO STUDY (Corollary 5)
 % =========================================================================
+%
+% Scenario 1 (current params): all eta_i >= 1/(2n), no overbidding at Pareto optimum.
+% Scenario 2: x3_o = 30 MW => eta_3 = 30/250 = 0.12 < 1/6 = 1/(2n).
+%             Op3 overbids at the symmetric Pareto beta' = (1-n)/(4n).
+%             Corollary 5 gives the optimal constrained beta'* that recovers f=0.5.
 
 fprintf('\n----------------------------------------------------------\n');
-fprintf('  PART 3: ALGORITHM 1 OVERBIDDING SENSITIVITY\n');
+fprintf('  PART 3: OVERBIDDING SCENARIO STUDY\n');
 fprintf('----------------------------------------------------------\n\n');
 
-Nb = length(beta_sweep);
-alpha_unc_hist_b = zeros(n, Nb);
-alpha_clp_hist_b = zeros(n, Nb);
-f_unc_b = zeros(1, Nb);
-f_clp_b = zeros(1, Nb);
-g_unc_b = zeros(1, Nb);
-g_clp_b = zeros(1, Nb);
-Pi_unc_b = zeros(1, Nb);
-Pi_clp_b = zeros(1, Nb);
-Pi_unc_i_b = zeros(n, Nb);
-Pi_clp_i_b = zeros(n, Nb);
-sat_b = zeros(1, Nb);
-
-for k = 1:Nb
-    bp = beta_sweep(k);
-    alpha_unc = 0.5 * (1 + 4*bp) ./ eta_dist;
-    alpha_clp = max(0, min(1, alpha_unc));
-
-    alpha_unc_hist_b(:,k) = alpha_unc;
-    alpha_clp_hist_b(:,k) = alpha_clp;
-    sat_b(k) = sum(alpha_unc > 1);
-
-    f_unc_b(k) = sum(alpha_unc .* eta_dist);
-    f_clp_b(k) = sum(alpha_clp .* eta_dist);
-    g_unc_b(k) = f_unc_b(k) * (1 - f_unc_b(k)) * xr0^2;
-    g_clp_b(k) = f_clp_b(k) * (1 - f_clp_b(k)) * xr0^2;
-
-    Pi_unc_i = profit(alpha_unc, a2, a1, x0, xL0, xr0, eta_dist, sigma_r2, sigma_L2, sigma_rL);
-    Pi_clp_i = profit(alpha_clp, a2, a1, x0, xL0, xr0, eta_dist, sigma_r2, sigma_L2, sigma_rL);
-    Pi_unc_i_b(:,k) = Pi_unc_i;
-    Pi_clp_i_b(:,k) = Pi_clp_i;
-    Pi_unc_b(k) = sum(Pi_unc_i);
-    Pi_clp_b(k) = sum(Pi_clp_i);
-end
-
-[Pi_unc_max, idx_unc_max] = max(Pi_unc_b);
-[Pi_clp_max, idx_clp_max] = max(Pi_clp_b);
-fprintf('Unclamped max sum(Pi)=%.2f at beta''=%.4f\n', Pi_unc_max, beta_sweep(idx_unc_max));
-fprintf('No-overbidding max sum(Pi)=%.2f at beta''=%.4f\n', Pi_clp_max, beta_sweep(idx_clp_max));
-fprintf('Pareto-central reference sum(Pi)=%.2f\n', sum(Pi_sym));
-
-% Per-operator overbidding thresholds (eq:overbid_bound): alpha_i > 1 iff beta_i' > (2*eta_i-1)/4
+% Per-operator overbidding thresholds for Scenario 1
 overbid_thresh = (2*eta_dist - 1) / 4;
-fprintf('\nPer-operator saturation thresholds (alpha_i > 1 iff beta'' > threshold):\n');
+fprintf('Scenario 1 (x3=80 MW, xr0=300):\n');
 for i = 1:n
-    fprintf('  Op %d: eta=%.4f => threshold beta'' = %.4f\n', i, eta_dist(i), overbid_thresh(i));
+    fprintf('  Op%d: eta=%.4f  thresh=%.4f  (1/(2n)=%.4f) => %s\n', ...
+        i, eta_dist(i), overbid_thresh(i), 1/(2*n), ...
+        ternary(eta_dist(i) < 1/(2*n), 'OVERBIDS at Pareto', 'OK'));
 end
+fprintf('  Pareto beta''=%+.4f, Omega_s^P = empty, no overbidding.\n\n', beta_prime_sym);
+
+% --- Case V setup (heterogeneous beta, original system) ---
+% beta = [-0.25, 0, 0.20]: Op1 bids zero, Op2 and Op3 overbid under one-shot formula.
+% Note: Corollary 5 (ERS) does not apply here (Omega_s^P={2,3} gives w*<0).
+% Comparison: unclamped overbidding vs no-overbidding (clamped).
+beta_cV  = [-0.25; 0.0; 0.20];   % Case V risk parameters
+% Use same eta_dist from Algorithm 1 (estimated from consensus)
+alpha_cV_unc = 0.5 * (1 + 4*beta_cV) ./ eta_dist;   % one-shot, unclamped
+alpha_cV_clp = max(0, min(1, alpha_cV_unc));          % no-overbidding projection
+Omega_cV = find(alpha_cV_unc > 1);
+
+f_cV_unc  = sum(alpha_cV_unc .* eta_dist);
+g_cV_unc  = f_cV_unc * (1 - f_cV_unc) * xr0^2;
+Pi_cV_unc = profit(alpha_cV_unc, a2, a1, x0, xL0, xr0, eta_dist, sigma_r2, sigma_L2, sigma_rL);
+
+f_cV_clp  = sum(alpha_cV_clp .* eta_dist);
+g_cV_clp  = f_cV_clp * (1 - f_cV_clp) * xr0^2;
+Pi_cV_clp = profit(alpha_cV_clp, a2, a1, x0, xL0, xr0, eta_dist, sigma_r2, sigma_L2, sigma_rL);
+
+fprintf('Case V (beta''=[%s]):\n', num2str(beta_cV', '%.2f '));
+for i = 1:n
+    fprintf('  Op%d: alpha_unc=%.4f  %s\n', i, alpha_cV_unc(i), ...
+        ternary(alpha_cV_unc(i) > 1, '<= OVERBIDS', ''));
+end
+fprintf('  Omega_s = {Op%s}\n', num2str(Omega_cV'));
+fprintf('  Unclamped: f=%.4f  g=%.1f MW^2  sum(Pi)=%.2f\n', f_cV_unc, g_cV_unc, sum(Pi_cV_unc));
+fprintf('  Clamped:   f=%.4f  g=%.1f MW^2  sum(Pi)=%.2f  (g_max=%.1f)\n\n', ...
+    f_cV_clp, g_cV_clp, sum(Pi_cV_clp), 0.25*xr0^2);
+
+% --- Reference table ---
+fprintf('Table values for LaTeX:\n');
+fprintf('%-18s | %6s | %6s | %6s | %6s | %6s | %8s | %8s\n', ...
+    'Scenario', 'al1', 'al2', 'al3', 'f', 'g(MW2)', 'sum(Pi)', 'note');
+fprintf('%s\n', repmat('-',1,80));
+fprintf('%-18s | %6.4f | %6.4f | %6.4f | %6.4f | %8.1f | %8.2f | %s\n', ...
+    'S1 Pareto-NE', alpha_sym(1), alpha_sym(2), alpha_sym(3), f_sym, ...
+    f_sym*(1-f_sym)*xr0^2, sum(Pi_sym), 'no overbid');
+fprintf('%-18s | %6.4f | %6.4f | %6.4f | %6.4f | %8.1f | %8.2f | %s\n', ...
+    'CV unclamped', alpha_cV_unc(1), alpha_cV_unc(2), alpha_cV_unc(3), f_cV_unc, ...
+    g_cV_unc, sum(Pi_cV_unc), sprintf('Op%s overbid', num2str(Omega_cV')));
+fprintf('%-18s | %6.4f | %6.4f | %6.4f | %6.4f | %8.1f | %8.2f | %s\n', ...
+    'CV no-overbid', alpha_cV_clp(1), alpha_cV_clp(2), alpha_cV_clp(3), f_cV_clp, ...
+    g_cV_clp, sum(Pi_cV_clp), 'clamped');
 
 %% ========================================================================
 %              PART 3: DISTRIBUTED ALGORITHM 2 (NON-EQUAL beta_i'(0))
@@ -398,13 +411,18 @@ fprintf('  Improvement vs Risk-Neutral        %-14.2f%% %-14s %-14.2f%% %-14.2f%
 fprintf('  Pareto efficiency (g/g_max)        %-14.2f%% %-14.2f%% %-14.2f%% %-14.2f%%\n', ...
     100*g_coal/(0.25*xr0^2), 100*f_RN*(1-f_RN)*xr0^2/(0.25*xr0^2), ...
     100*f_sym*(1-f_sym)*xr0^2/(0.25*xr0^2), 100*g_dist/(0.25*xr0^2));
-fprintf('\n  Overbidding sweep (Algorithm 1):\n');
-fprintf('    max sum(Pi), unclamped          = %.2f at beta''=%.4f\n', Pi_unc_max, beta_sweep(idx_unc_max));
-fprintf('    max sum(Pi), no-overbidding     = %.2f at beta''=%.4f\n', Pi_clp_max, beta_sweep(idx_clp_max));
+fprintf('\n  Overbidding (Case V, beta''=[%.2f,%.2f,%.2f]):\n', beta_cV(1), beta_cV(2), beta_cV(3));
+fprintf('    unclamped sum(Pi)               = %.2f  (f=%.3f, g=%.1f MW^2)\n', sum(Pi_cV_unc), f_cV_unc, g_cV_unc);
+fprintf('    no-overbidding sum(Pi)          = %.2f  (f=%.3f, g=%.1f MW^2)\n', sum(Pi_cV_clp), f_cV_clp, g_cV_clp);
 
 %% ========================================================================
 %                         VISUALIZATION
 % =========================================================================
+
+if ~plot_figs
+    fprintf('\nplot_figs=false: skipping all figures.\n');
+    return;
+end
 
 op_labels = arrayfun(@(i) sprintf('Op%d', i), 1:n, 'UniformOutput', false);
 node_labels = [op_labels, {'Utility'}];
@@ -562,146 +580,67 @@ if save_figs
     fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_g.png'));
 end
 
-% Plot A5: overbidding bids
-figure('Position', [170, 170, 700, 460]);
-plot(beta_sweep, alpha_unc_hist_b', 'LineWidth', 1.4); hold on;
-yline(1, 'k--', 'LineWidth', 1.2);
-xlabel('\beta'' (common)'); ylabel('\alpha_i (unclamped)');
-title('Unclamped Bids vs \beta''');
-legend([op_labels, {'Capacity limit'}], 'Location', 'best');
+% Plot A5: Case V overbidding — two-panel bar chart
+% Panel 1: unclamped (Op2 and Op3 overbid)
+% Panel 2: no-overbidding projection (clamped)
+op_colors = lines(n);
+op_labels_s2 = arrayfun(@(i) sprintf('Op%d', i), 1:n, 'UniformOutput', false);
+y_top = max(alpha_cV_unc) * 1.1;
+
+figure('Position', [170, 170, 780, 460]);
+tiledlayout(1, 2, 'Padding', 'compact', 'TileSpacing', 'compact');
+
+% Panel 1: unclamped
+nexttile;
+b_unc = bar(1:n, alpha_cV_unc, 'FaceColor', 'flat');
+b_unc.CData = op_colors;
+hold on;
+yline(1, 'k--', 'LineWidth', 1.5);
+xlabel('Operator'); ylabel('\alpha_i^*');
+title(sprintf('Unclamped (Case V \\beta''=[%.2f,%.2f,%.2f])\nf=%.3f, g=%.0f MW^2', ...
+    beta_cV(1), beta_cV(2), beta_cV(3), f_cV_unc, g_cV_unc));
+xticks(1:n); xticklabels(op_labels_s2);
+ylim([0, y_top]); grid on;
+
+% Panel 2: no-overbidding (clamped)
+nexttile;
+b_clp = bar(1:n, alpha_cV_clp, 'FaceColor', 'flat');
+b_clp.CData = op_colors;
+hold on;
+yline(1, 'k--', 'LineWidth', 1.5);
+xlabel('Operator'); ylabel('\alpha_i^*');
+title(sprintf('No-overbidding (clamped)\nf=%.3f, g=%.0f MW^2', f_cV_clp, g_cV_clp));
+xticks(1:n); xticklabels(op_labels_s2);
+ylim([0, y_top]); grid on;
+
+sgt = sgtitle(sprintf('Case V: \\beta''=[%.2f, %.2f, %.2f],  \\Omega_s=\\{Op%s\\}', ...
+    beta_cV(1), beta_cV(2), beta_cV(3), num2str(Omega_cV')));
+set(sgt, 'Color', 'k');
+
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_alpha.png'), 'Resolution', 150);
+    fprintf('\nFigure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_alpha.png'));
+end
+
+% Plot A6: Profit comparison — S1 Pareto-NE, Case V unclamped, Case V no-overbid
+
+figure('Position', [200, 200, 680, 460]);
+scen_labels = {'S1 Pareto-NE', 'Case V unclamped', 'Case V no-overbid'};
+bar_data_Pi = [sum(Pi_sym), sum(Pi_cV_unc), sum(Pi_cV_clp)];
+b_pi_cmp = bar(1:3, bar_data_Pi, 0.5, 'FaceColor', 'flat');
+b_pi_cmp.CData = [0.2 0.6 0.3; 0.85 0.33 0.10; 0.15 0.45 0.75];
+hold on;
+xlabel('Scenario'); ylabel('\Sigma\Pi_i  ($/hr)');
+title('Aggregate Profit: Scenario Comparison');
+xticks(1:3); xticklabels(scen_labels);
 grid on;
 if save_figs
     style_current_figure();
     if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
-    fig1e_path = fullfile(fig_out_dir, 'algorithm1_overbid_alpha.png');
-    exportgraphics(gcf, fig1e_path, 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fig1e_path);
-end
-
-% Plot A6: overbidding count
-figure('Position', [200, 200, 700, 460]);
-plot(beta_sweep, sat_b, 'r', 'LineWidth', 1.8); hold on;
-yline(0, 'k--', 'LineWidth', 1.1);
-xlabel('\beta'' (common)'); ylabel('count');
-title('Number of Overbidding Operators');
-ylim([-0.1, n+0.2]); grid on;
-
-if save_figs
-    style_current_figure();
-    if ~exist(fig_out_dir, 'dir')
-        mkdir(fig_out_dir);
-    end
-    fig1f_path = fullfile(fig_out_dir, 'algorithm1_overbid_count.png');
-    exportgraphics(gcf, fig1f_path, 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fig1f_path);
-end
-
-% Plot A7: overbidding profit impact
-figure('Position', [230, 230, 700, 460]);
-plot(beta_sweep, Pi_unc_b, 'b', 'LineWidth', 1.8); hold on;
-plot(beta_sweep, Pi_clp_b, 'm', 'LineWidth', 1.8);
-yline(sum(Pi_RN), 'k:', 'LineWidth', 1.2);
-yline(sum(Pi_sym), 'g--', 'LineWidth', 1.2);
-xlabel('\beta'' (common)'); ylabel('\Sigma \Pi_i');
-title('Profit Impact: Unclamped vs No-Overbidding');
-legend({'Unclamped', 'No-overbidding', 'RN ref', 'Pareto ref'}, 'Location', 'best');
-grid on;
-
-if save_figs
-    style_current_figure();
-    if ~exist(fig_out_dir, 'dir')
-        mkdir(fig_out_dir);
-    end
-    fig1g_path = fullfile(fig_out_dir, 'algorithm1_overbid_profit.png');
-    exportgraphics(gcf, fig1g_path, 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fig1g_path);
-end
-
-% Plot A8: per-operator overbidding profit impact
-figure('Position', [250, 250, 760, 860]);
-tiledlayout(n, 1, 'Padding', 'compact', 'TileSpacing', 'compact');
-for i = 1:n
-    nexttile;
-    plot(beta_sweep, Pi_unc_i_b(i,:), 'b', 'LineWidth', 1.6); hold on;
-    plot(beta_sweep, Pi_clp_i_b(i,:), 'm', 'LineWidth', 1.6);
-    yline(Pi_RN(i), 'k:', 'LineWidth', 1.1);
-    yline(Pi_sym(i), 'g--', 'LineWidth', 1.1);
-    xline(overbid_thresh(i), 'r:', 'LineWidth', 1.3);
-    ylabel(sprintf('\\Pi_%d', i));
-    title(sprintf('Operator %d Profit vs \\beta'' (sat.thresh=%.3f)', i, overbid_thresh(i)));
-    if i == 1
-        legend({'Unclamped', 'No-overbidding', 'RN ref', 'Pareto ref', 'Sat. threshold'}, 'Location', 'best');
-    end
-    grid on;
-end
-xlabel('\beta'' (common)');
-if save_figs
-    style_current_figure();
-    if ~exist(fig_out_dir, 'dir')
-        mkdir(fig_out_dir);
-    end
-    fig1h_path = fullfile(fig_out_dir, 'algorithm1_overbid_profit_individual.png');
-    exportgraphics(gcf, fig1h_path, 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fig1h_path);
-end
-
-% Plot A9: overbidding aggregate f
-figure('Position', [280, 280, 700, 460]);
-plot(beta_sweep, f_unc_b, 'b', 'LineWidth', 1.6); hold on;
-plot(beta_sweep, f_clp_b, 'm', 'LineWidth', 1.6);
-yline(0.5, 'k--', 'LineWidth', 1.2);
-xlabel('\beta'' (common)'); ylabel('f(\alpha)');
-title('Aggregate Bid Fraction');
-legend({'Unclamped', 'No-overbidding', 'Pareto target'}, 'Location', 'best');
-grid on;
-
-if save_figs
-    style_current_figure();
-    if ~exist(fig_out_dir, 'dir')
-        mkdir(fig_out_dir);
-    end
-    fig1i_path = fullfile(fig_out_dir, 'algorithm1_overbid_f.png');
-    exportgraphics(gcf, fig1i_path, 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fig1i_path);
-end
-
-% Plot A10: Comprehensive per-operator overbidding effects (algorithm1_overbidding.png)
-% Row 1: per-operator alpha_i (unclamped vs clamped) vs beta' with saturation threshold
-% Row 2: per-operator Pi_i (unclamped vs clamped) vs beta' with saturation threshold
-figure('Position', [50, 50, 1200, 820]);
-tiledlayout(2, n, 'Padding', 'compact', 'TileSpacing', 'compact');
-for i = 1:n
-    nexttile;
-    plot(beta_sweep, alpha_unc_hist_b(i,:), 'b', 'LineWidth', 1.6); hold on;
-    plot(beta_sweep, alpha_clp_hist_b(i,:), 'm--', 'LineWidth', 1.6);
-    xline(overbid_thresh(i), 'r:', 'LineWidth', 1.5);
-    yline(1, 'k--', 'LineWidth', 1.2);
-    xlabel('\beta'' (common)'); ylabel(sprintf('\\alpha_%d', i));
-    title(sprintf('Op %d bid (thresh=%.3f)', i, overbid_thresh(i)));
-    if i == 1
-        legend({'Unclamped', 'No-overbid', 'Sat. threshold', 'Cap. limit'}, 'FontSize', 7, 'Location', 'best');
-    end
-    grid on;
-end
-for i = 1:n
-    nexttile;
-    plot(beta_sweep, Pi_unc_i_b(i,:), 'b', 'LineWidth', 1.6); hold on;
-    plot(beta_sweep, Pi_clp_i_b(i,:), 'm--', 'LineWidth', 1.6);
-    xline(overbid_thresh(i), 'r:', 'LineWidth', 1.5);
-    yline(Pi_RN(i), 'k:', 'LineWidth', 1.1);
-    yline(Pi_sym(i), 'g--', 'LineWidth', 1.1);
-    xlabel('\beta'' (common)'); ylabel(sprintf('\\Pi_%d', i));
-    title(sprintf('Op %d profit', i));
-    if i == 1
-        legend({'Unclamped', 'No-overbid', 'Sat. threshold', 'RN ref', 'Pareto ref'}, 'FontSize', 7, 'Location', 'best');
-    end
-    grid on;
-end
-if save_figs
-    style_current_figure();
-    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
-    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbidding.png'), 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbidding.png'));
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_profit.png'), 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_profit.png'));
 end
 
 % Visualization for Algorithm 2 (heterogeneous beta_i'(0))
@@ -805,6 +744,11 @@ if save_figs
 end
 end
 
+if close_figs
+    close all;
+    fprintf('\nAll figures closed (close_figs=true).\n');
+end
+
 %% ========================================================================
 %                         HELPER FUNCTIONS
 % =========================================================================
@@ -853,4 +797,8 @@ function style_current_figure()
     set(lgd, 'TextColor', 'k', 'Color', 'w', 'EdgeColor', 'k');
     tx = findall(gcf, 'Type', 'text');
     set(tx, 'Color', 'k');
+end
+
+function s = ternary(cond, a, b)
+    if cond, s = a; else, s = b; end
 end

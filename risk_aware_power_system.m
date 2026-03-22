@@ -8,6 +8,7 @@
 % Figures are saved to ./figures using names referenced by main.tex.
 
 clc; clear; close all;
+set(groot, 'defaultFigureWindowStyle', 'docked');
 set(groot, 'defaultFigureColor', 'w');
 set(groot, 'defaultAxesColor', 'w');
 set(groot, 'defaultAxesXColor', 'k');
@@ -52,7 +53,9 @@ max_outer_iter = 300;
 % If true: enforce no-overbidding via alpha_i in [0,1]
 enforce_alpha_clamp = false;
 
-save_figs = true;
+save_figs  = true;
+plot_figs  = true;   % set false to skip all plotting
+close_figs = true;   % set true to close all figures after saving
 fig_out_dir = 'figures';
 plot_tail_buffer = 12;     % extra points after first practical convergence
 plot_close_tol = 1e-4;     % closeness to final value for practical convergence
@@ -237,6 +240,11 @@ end
 %                           VISUALIZATION
 % =========================================================================
 
+if ~plot_figs
+    fprintf('\nplot_figs=false: skipping all figures.\n');
+    return;
+end
+
 if save_figs && ~exist(fig_out_dir, 'dir')
     mkdir(fig_out_dir);
 end
@@ -258,23 +266,6 @@ xlim([1, max(2, k_plot_global)]);
 legend('Location', 'best'); grid on;
 style_figure(fig1);
 if save_figs, exportgraphics(fig1, fullfile(fig_out_dir, 'sum_beta_convergence_all_cases.png'), 'Resolution', 150); end
-
-% 2) beta individual
-fig2 = figure('Position', [80 60 1250 820]);
-for tc = 1:num_cases
-    subplot(2,3,tc);
-    r = all_results{tc};
-    kshow = r.k_plot;
-    plot(1:kshow, r.beta(:,1:kshow)', 'LineWidth', 1.4); hold on;
-    yline((1-n)/(4*n), 'k--', 'LineWidth', 1.2);
-    title(sprintf('%s (%s)', case_names{tc}, case_profiles{tc}));
-    xlim([1, max(2, kshow)]);
-    xlabel('k'); ylabel('\beta_i'''); grid on;
-end
-sg2 = sgtitle('Individual \beta_i'' convergence for all test cases');
-set(sg2, 'Color', 'k');
-style_figure(fig2);
-if save_figs, exportgraphics(fig2, fullfile(fig_out_dir, 'beta_individual_all_cases.png'), 'Resolution', 150); end
 
 % 3) alpha individual
 fig3 = figure('Position', [100 70 1250 820]);
@@ -368,53 +359,42 @@ set(sg8, 'Color', 'k');
 style_figure(fig8);
 if save_figs, exportgraphics(fig8, fullfile(fig_out_dir, 'profit_individual_all_cases.png'), 'Resolution', 150); end
 
-% 9) Per-operator overbidding indicator: which operators have alpha_i > 1 at each iteration
+% 9) Overbidding bar chart: final alpha values and # overbidding operators per case
+% Show which cases exhibit overbidding at convergence and what the bids look like.
 op_colors_local = lines(n);
-fig9 = figure('Position', [220 130 1250 820]);
+case_cats = categorical(case_names, case_names);
+
+% Gather final alpha (unclamped) and per-operator overbidding flag for each case
+alpha_final_all  = zeros(n, num_cases);   % unclamped final alpha per case
+sat_final_all    = zeros(n, num_cases);   % 1 = overbidding at final iter
 for tc = 1:num_cases
-    subplot(2,3,tc);
     r = all_results{tc};
-    kshow = r.k_plot;
-    hold on;
-    for op = 1:n
-        stairs(1:kshow, double(r.sat_per_op(op,1:kshow)), '-', 'LineWidth', 1.4, ...
-            'Color', op_colors_local(op,:), 'DisplayName', sprintf('Op%d', op));
-    end
-    plot(1:kshow, r.sat_count(1:kshow)/n, 'k--', 'LineWidth', 1.2, 'DisplayName', 'Frac. sat.');
-    ylim([-0.15, 1.3]);
-    title(sprintf('%s (%s)', case_names{tc}, case_profiles{tc}));
-    xlim([1, max(2, kshow)]);
-    xlabel('k'); ylabel('Overbidding (0/1)'); grid on;
-    if tc == 1, legend('Location', 'best', 'FontSize', 7); end
+    alpha_final_all(:, tc)  = r.alpha_unc(:, end);
+    sat_final_all(:, tc)    = double(r.alpha_unc(:, end) > 1);
 end
-sg9 = sgtitle('Per-operator overbidding indicator (\alpha_i > 1) across test cases');
-set(sg9, 'Color', 'k');
+
+fig9 = figure('Position', [220 130 720 460]);
+b_af = bar(case_cats, alpha_final_all', 'grouped');
+for i = 1:n
+    b_af(i).FaceColor = op_colors_local(i,:);
+    b_af(i).DisplayName = sprintf('Op%d', i);
+end
+hold on;
+hl9 = yline(1, 'k--', 'LineWidth', 1.5, 'DisplayName', 'Capacity limit');
+xlabel('Test Case'); ylabel('\alpha_i (final, unclamped)');
+title('Final Bids at Convergence (Unclamped)');
+legend([b_af, hl9], 'Location', 'best', 'FontSize', 7);
+grid on;
 style_figure(fig9);
 if save_figs, exportgraphics(fig9, fullfile(fig_out_dir, 'mc_overbid_count.png'), 'Resolution', 150); end
 
-% 10) Per-operator profit: unclamped vs no-overbidding across test cases
-fig10 = figure('Position', [240 140 1250 820]);
-for tc = 1:num_cases
-    subplot(2,3,tc);
-    r = all_results{tc};
-    kshow = r.k_plot;
-    hold on;
-    h_unc = plot(1:kshow, sum(r.Pi(:,1:kshow),1), 'b-', 'LineWidth', 1.6, 'DisplayName', 'Unclamped \Sigma\Pi_i');
-    h_clp = plot(1:kshow, sum(r.Pi_clp(:,1:kshow),1), 'm--', 'LineWidth', 1.6, 'DisplayName', 'No-overbid \Sigma\Pi_i');
-    yline(sum(Pi_sym), 'g--', 'LineWidth', 1.1, 'HandleVisibility', 'off');
-    yline(sum(Pi_RN),  'k:',  'LineWidth', 1.1, 'HandleVisibility', 'off');
-    title(sprintf('%s (%s)', case_names{tc}, case_profiles{tc}));
-    xlim([1, max(2, kshow)]);
-    xlabel('k'); ylabel('\Sigma\Pi_i'); grid on;
-    if tc == 1, legend([h_unc, h_clp], 'Location', 'best', 'FontSize', 7); end
-end
-sg10 = sgtitle('Aggregate profit: unclamped vs no-overbidding across test cases');
-set(sg10, 'Color', 'k');
-style_figure(fig10);
-if save_figs, exportgraphics(fig10, fullfile(fig_out_dir, 'mc_overbid_profit.png'), 'Resolution', 150); end
-
 if save_figs
     fprintf('\nSaved figures to %s/\n', fig_out_dir);
+end
+
+if close_figs
+    close all;
+    fprintf('All figures closed (close_figs=true).\n');
 end
 
 %% ========================================================================
