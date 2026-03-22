@@ -613,8 +613,7 @@ title(sprintf('No-overbidding (clamped)\nf=%.3f, g=%.0f MW^2', f_cV_clp, g_cV_cl
 xticks(1:n); xticklabels(op_labels_s2);
 ylim([0, y_top]); grid on;
 
-sgt = sgtitle(sprintf('Case V: \\beta''=[%.2f, %.2f, %.2f],  \\Omega_s=\\{Op%s\\}', ...
-    beta_cV(1), beta_cV(2), beta_cV(3), num2str(Omega_cV')));
+sgt = sgtitle('Overbidding Impact');
 set(sgt, 'Color', 'k');
 
 if save_figs
