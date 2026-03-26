@@ -1,0 +1,177 @@
+{
+  "paper": "Distributed Risk-Aware Bidding Strategy for Incorporating Renewable Generation into Real-Time Electricity Market",
+  "authors": ["Tommy Truong", "Zhihua Qu", "Marwan A. Simaan"],
+  "generated": "2026-03-25",
+  "note": "Critical items (C1-C3) excluded per request. Fix those first.",
+  "todos": [
+    {
+      "id": "M1",
+      "severity": "Major",
+      "title": "No convergence rate analysis for Algorithm 1",
+      "section": "V",
+      "description": "Convergence of consensus protocols (35)-(36) is cited from Lemma 2 but no rate is given. For real-time market implementation, iterations-to-epsilon-convergence matters.",
+      "action": "State convergence rate in terms of algebraic connectivity (second-smallest eigenvalue of graph Laplacian). Discuss how graph topology affects practical speed. Even a remark with the standard O(1/lambda_2) bound suffices.",
+      "status": "open"
+    },
+    {
+      "id": "M2",
+      "severity": "Major",
+      "title": "Communication topology assumptions underspecified",
+      "section": "V",
+      "description": "Paper claims connectivity is guaranteed because every operator talks to utility (star topology). But: directed vs undirected unspecified, static vs switching unaddressed, no robustness to edge drops.",
+      "action": "Formally specify graph type (directed/undirected, static/switching). Discuss star topology's poor algebraic connectivity. Add at least a remark on robustness to communication failure.",
+      "status": "open"
+    },
+    {
+      "id": "M3",
+      "severity": "Major",
+      "title": "Scalability not demonstrated beyond n=3",
+      "section": "VI",
+      "description": "Entire numerical section uses n=3. Theory is general but simulations don't test scaling. Reviewers will flag this.",
+      "action": "Add simulation with n=10-50 operators showing: (1) consensus convergence time vs n, (2) fraction of operators hitting overbid constraint vs n, (3) sensitivity of Pareto condition to perturbations at large n.",
+      "status": "open"
+    },
+    {
+      "id": "M4",
+      "severity": "Major",
+      "title": "Gaussian assumption on renewables is restrictive",
+      "section": "II",
+      "description": "Real wind/solar are Weibull/beta distributed, not Gaussian. Entire analysis depends on covariance structure.",
+      "action": "Add a remark discussing which results survive non-Gaussian distributions (hint: the deterministic bidding strategy is independent of distribution shape since stochastic terms enter Pi as a constant offset) and which require Gaussianity (the specific form of the risk penalty).",
+      "status": "open"
+    },
+    {
+      "id": "M5",
+      "severity": "Major",
+      "title": "Incentive compatibility not formally verified",
+      "section": "IV",
+      "description": "Paper claims incentive compatibility but never proves: (1) individual profit under Pareto NE >= risk-neutral NE for all operators, (2) unilateral deviation in beta_i is unprofitable.",
+      "action": "Either prove individual rationality (each operator prefers Pareto NE to RN NE) or acknowledge the gap. Consider whether the beta allocation itself forms a Nash equilibrium in beta-space.",
+      "status": "open"
+    },
+    {
+      "id": "m1",
+      "severity": "Minor",
+      "title": "Lemma 1 proof: sigma_r notation unclear",
+      "section": "III",
+      "description": "Proof introduces x_r = sum(x_j) and sigma_r^2 = 1^T Sigma 1 without specifying that Sigma here is the n x n renewable subblock, not the full (n+1) x (n+1) matrix.",
+      "action": "Clarify which submatrix of Sigma is used, or define sigma_r^2 explicitly as sum_{i,j} sigma_{ij}.",
+      "status": "open"
+    },
+    {
+      "id": "m2",
+      "severity": "Minor",
+      "title": "Corollary 5 is too long",
+      "section": "IV",
+      "description": "Corollary 5 handles unconstrained ERS, constrained ERS, overbidding threshold, constrained formula, and optimal beta'* all in one statement.",
+      "action": "Consider splitting into two corollaries: (5a) unconstrained ERS, (5b) constrained ERS with overbidding.",
+      "status": "open"
+    },
+    {
+      "id": "m3",
+      "severity": "Minor",
+      "title": "Omega_s vs Omega_s^P notation collision",
+      "section": "III-IV",
+      "description": "Corollary 4 uses Omega_s (risk-neutral constrained set) while Corollary 5 uses Omega_s^P (ERS constrained set). Distinction never explained.",
+      "action": "Add a brief remark when introducing Omega_s^P explaining the notation difference (different beta values yield different saturation sets).",
+      "status": "open"
+    },
+    {
+      "id": "m4",
+      "severity": "Minor",
+      "title": "Figure quality",
+      "section": "VI",
+      "description": "Figures 3 and 8 use MATLAB default styling. Bar charts lack consistent formatting for IEEE publication.",
+      "action": "Standardize axis labels with units, use consistent color scheme, consider combining related subplots more cleanly.",
+      "status": "open"
+    },
+    {
+      "id": "m5",
+      "severity": "Minor",
+      "title": "Section VI title undersells results",
+      "section": "VI",
+      "description": "'Illustrative Example' with 'a single instance' is weak framing for the paper's primary validation section.",
+      "action": "Rename to 'Numerical Validation' or 'Case Study'. Add multiple test scenarios if possible.",
+      "status": "open"
+    },
+    {
+      "id": "S1",
+      "severity": "Suggestion",
+      "title": "Develop the mean-field limit discussion",
+      "section": "IV (after Theorem 2)",
+      "description": "The observation that avg(beta_i) -> -1/(4a2) as n -> infinity has a natural mean-field game connection. Currently mentioned but undeveloped.",
+      "action": "Either explicitly connect to mean-field game theory literature or state as future work direction.",
+      "status": "open"
+    },
+    {
+      "id": "S2",
+      "severity": "Suggestion",
+      "title": "Connect to mechanism design literature",
+      "section": "I or IV",
+      "description": "The core insight (prescribe risk parameters to achieve Pareto efficiency) is essentially a mechanism design result. This connection would broaden appeal.",
+      "action": "Add 1-2 sentences in introduction or after Theorem 2 connecting to mechanism design (e.g., Myerson, Hurwicz).",
+      "status": "open"
+    },
+    {
+      "id": "S3",
+      "severity": "Suggestion",
+      "title": "Leverage Qu's cooperative control convergence rates",
+      "section": "V",
+      "description": "Algorithm 1 applies average consensus from [18] (Qu, 2009). More specific convergence rate results from that text could strengthen the distributed analysis.",
+      "action": "Cite specific convergence rate theorems from [18] to address M1.",
+      "status": "open"
+    },
+    {
+      "id": "S4",
+      "severity": "Suggestion",
+      "title": "Remove TODO comment in LaTeX source",
+      "section": "LaTeX line 727",
+      "description": "Line 727: '% TODO: Generate analytical figures for lemma1.png, f_b.png, g_b.png' is still in the source.",
+      "action": "Delete the TODO comment before submission.",
+      "status": "open"
+    },
+    {
+      "id": "T1",
+      "severity": "Typo",
+      "title": "Broken reference (??) in conclusion",
+      "section": "VII",
+      "description": "eqref{eq:Pi_det} references a label inside a commented-out block. Renders as (??) in compiled PDF.",
+      "action": "Change to eqref{eq:Pi_i} (equation 14) or restore the referenced equation.",
+      "status": "open"
+    },
+    {
+      "id": "T2",
+      "severity": "Typo",
+      "title": "J_i notation overloaded",
+      "section": "II",
+      "description": "J_i used for both the risk-aware objective (5a) and the general objective in Theorem 1. Could confuse reader.",
+      "action": "Consider J_i^{RA} or keep as-is but add a clarifying sentence.",
+      "status": "open"
+    },
+    {
+      "id": "T3",
+      "severity": "Typo",
+      "title": "'biding' -> 'bidding'",
+      "section": "III (Corollaries 3 and 4)",
+      "description": "Typo: 'biding strategy' appears in Corollary 3 and Corollary 4 statements.",
+      "action": "Fix to 'bidding strategy'.",
+      "status": "open"
+    },
+    {
+      "id": "T4",
+      "severity": "Typo",
+      "title": "Table III column misalignment",
+      "section": "VI-C",
+      "description": "Table III headers appear slightly misaligned in PDF rendering.",
+      "action": "Verify LaTeX tabular column alignment and spacing.",
+      "status": "open"
+    }
+  ],
+  "summary": {
+    "major": 5,
+    "minor": 5,
+    "suggestion": 4,
+    "typo": 4,
+    "total": 18
+  }
+}

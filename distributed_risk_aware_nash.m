@@ -246,11 +246,11 @@ for i = 1:n
 end
 fprintf('  Pareto beta''=%+.4f, Omega_s^P = empty, no overbidding.\n\n', beta_prime_sym);
 
-% --- Case V setup (heterogeneous beta, original system) ---
-% beta = [-0.25, 0, 0.20]: Op1 bids zero, Op2 and Op3 overbid under one-shot formula.
-% Note: Corollary 5 (ERS) does not apply here (Omega_s^P={2,3} gives w*<0).
+% --- Overbidding scenario (heterogeneous beta, original system) ---
+% beta = [-0.20, -0.15, -0.05]: Op3 (smallest eta) overbids under one-shot formula.
+% sum(beta) = -0.40 → f_unc = 0.7 < 1, so profits remain positive.
 % Comparison: unclamped overbidding vs no-overbidding (clamped).
-beta_cV  = [-0.25; 0.0; 0.20];   % Case V risk parameters
+beta_cV  = [-0.20; -0.15; -0.05];   % heterogeneous beta scenario
 % Use same eta_dist from Algorithm 1 (estimated from consensus)
 alpha_cV_unc = 0.5 * (1 + 4*beta_cV) ./ eta_dist;   % one-shot, unclamped
 alpha_cV_clp = max(0, min(1, alpha_cV_unc));          % no-overbidding projection
@@ -264,7 +264,7 @@ f_cV_clp  = sum(alpha_cV_clp .* eta_dist);
 g_cV_clp  = f_cV_clp * (1 - f_cV_clp) * xr0^2;
 Pi_cV_clp = profit(alpha_cV_clp, a2, a1, x0, xL0, xr0, eta_dist, sigma_r2, sigma_L2, sigma_rL);
 
-fprintf('Case V (beta''=[%s]):\n', num2str(beta_cV', '%.2f '));
+fprintf('Overbidding scenario (beta''=[%s]):\n', num2str(beta_cV', '%.2f '));
 for i = 1:n
     fprintf('  Op%d: alpha_unc=%.4f  %s\n', i, alpha_cV_unc(i), ...
         ternary(alpha_cV_unc(i) > 1, '<= OVERBIDS', ''));
@@ -283,10 +283,10 @@ fprintf('%-18s | %6.4f | %6.4f | %6.4f | %6.4f | %8.1f | %8.2f | %s\n', ...
     'S1 Pareto-NE', alpha_sym(1), alpha_sym(2), alpha_sym(3), f_sym, ...
     f_sym*(1-f_sym)*xr0^2, sum(Pi_sym), 'no overbid');
 fprintf('%-18s | %6.4f | %6.4f | %6.4f | %6.4f | %8.1f | %8.2f | %s\n', ...
-    'CV unclamped', alpha_cV_unc(1), alpha_cV_unc(2), alpha_cV_unc(3), f_cV_unc, ...
+    'Unc. overbid', alpha_cV_unc(1), alpha_cV_unc(2), alpha_cV_unc(3), f_cV_unc, ...
     g_cV_unc, sum(Pi_cV_unc), sprintf('Op%s overbid', num2str(Omega_cV')));
 fprintf('%-18s | %6.4f | %6.4f | %6.4f | %6.4f | %8.1f | %8.2f | %s\n', ...
-    'CV no-overbid', alpha_cV_clp(1), alpha_cV_clp(2), alpha_cV_clp(3), f_cV_clp, ...
+    'No-overbid', alpha_cV_clp(1), alpha_cV_clp(2), alpha_cV_clp(3), f_cV_clp, ...
     g_cV_clp, sum(Pi_cV_clp), 'clamped');
 
 %% ========================================================================
@@ -411,7 +411,7 @@ fprintf('  Improvement vs Risk-Neutral        %-14.2f%% %-14s %-14.2f%% %-14.2f%
 fprintf('  Pareto efficiency (g/g_max)        %-14.2f%% %-14.2f%% %-14.2f%% %-14.2f%%\n', ...
     100*g_coal/(0.25*xr0^2), 100*f_RN*(1-f_RN)*xr0^2/(0.25*xr0^2), ...
     100*f_sym*(1-f_sym)*xr0^2/(0.25*xr0^2), 100*g_dist/(0.25*xr0^2));
-fprintf('\n  Overbidding (Case V, beta''=[%.2f,%.2f,%.2f]):\n', beta_cV(1), beta_cV(2), beta_cV(3));
+fprintf('\n  Overbidding scenario (beta''=[%.2f,%.2f,%.2f]):\n', beta_cV(1), beta_cV(2), beta_cV(3));
 fprintf('    unclamped sum(Pi)               = %.2f  (f=%.3f, g=%.1f MW^2)\n', sum(Pi_cV_unc), f_cV_unc, g_cV_unc);
 fprintf('    no-overbidding sum(Pi)          = %.2f  (f=%.3f, g=%.1f MW^2)\n', sum(Pi_cV_clp), f_cV_clp, g_cV_clp);
 
@@ -580,8 +580,8 @@ if save_figs
     fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_g.png'));
 end
 
-% Plot A5: Case V overbidding — two-panel bar chart
-% Panel 1: unclamped (Op2 and Op3 overbid)
+% Plot A5: Overbidding — two-panel bar chart
+% Panel 1: unclamped (Op3 overbids)
 % Panel 2: no-overbidding projection (clamped)
 op_colors = lines(n);
 op_labels_s2 = arrayfun(@(i) sprintf('Op%d', i), 1:n, 'UniformOutput', false);
@@ -597,8 +597,7 @@ b_unc.CData = op_colors;
 hold on;
 yline(1, 'k--', 'LineWidth', 1.5);
 xlabel('Operator'); ylabel('\alpha_i^*');
-title(sprintf('Unclamped (Case V \\beta''=[%.2f,%.2f,%.2f])\nf=%.3f, g=%.0f MW^2', ...
-    beta_cV(1), beta_cV(2), beta_cV(3), f_cV_unc, g_cV_unc));
+title(sprintf('Unclamped\nf=%.3f, g=%.0f MW^2', f_cV_unc, g_cV_unc));
 xticks(1:n); xticklabels(op_labels_s2);
 ylim([0, y_top]); grid on;
 
@@ -623,14 +622,28 @@ if save_figs
     fprintf('\nFigure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_alpha.png'));
 end
 
-% Plot A6: Profit comparison — S1 Pareto-NE, Case V unclamped, Case V no-overbid
+% Plot A6: Profit comparison — ERS Pareto, unclamped overbid, no-overbid
 
 figure('Position', [200, 200, 680, 460]);
-scen_labels = {'S1 Pareto-NE', 'Case V unclamped', 'Case V no-overbid'};
+scen_labels = {'ERS Pareto', 'Unclamped', 'No-overbid'};
 bar_data_Pi = [sum(Pi_sym), sum(Pi_cV_unc), sum(Pi_cV_clp)];
 b_pi_cmp = bar(1:3, bar_data_Pi, 0.5, 'FaceColor', 'flat');
 b_pi_cmp.CData = [0.2 0.6 0.3; 0.85 0.33 0.10; 0.15 0.45 0.75];
 hold on;
+% Add absolute value labels above each bar
+for idx = 1:3
+    text(idx, bar_data_Pi(idx) + 0.003 * max(bar_data_Pi), ...
+        sprintf('\\$%.0f', bar_data_Pi(idx)), ...
+        'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom', 'FontSize', 8);
+end
+% Add percentage-loss annotations relative to ERS Pareto
+ref_Pi = bar_data_Pi(1);
+for idx = 2:3
+    pct = 100 * (bar_data_Pi(idx) - ref_Pi) / abs(ref_Pi);
+    text(idx, bar_data_Pi(idx) * 0.5, sprintf('%.1f%%', pct), ...
+        'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', ...
+        'FontSize', 8, 'Color', 'w', 'FontWeight', 'bold');
+end
 xlabel('Scenario'); ylabel('\Sigma\Pi_i  ($/hr)');
 title('Aggregate Profit: Scenario Comparison');
 xticks(1:3); xticklabels(scen_labels);
@@ -640,6 +653,25 @@ if save_figs
     if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
     exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_profit.png'), 'Resolution', 150);
     fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_profit.png'));
+end
+
+% Plot A7: Per-operator profit breakdown for overbidding scenarios
+figure('Position', [230, 230, 680, 460]);
+Pi_breakdown = [Pi_sym, Pi_cV_unc, Pi_cV_clp];  % n×3 matrix (col = scenario)
+b_pi_ind = bar(1:n, Pi_breakdown, 0.7);
+b_pi_ind(1).FaceColor = [0.2 0.6 0.3];   % ERS Pareto
+b_pi_ind(2).FaceColor = [0.85 0.33 0.10]; % Unclamped
+b_pi_ind(3).FaceColor = [0.15 0.45 0.75]; % No-overbid
+xlabel('Operator'); ylabel('\Pi_i  ($/hr)');
+title('Per-Operator Profit: Scenario Comparison');
+xticklabels(op_labels);
+legend({'ERS Pareto', 'Unclamped', 'No-overbid'}, 'Location', 'best', 'FontSize', 7);
+grid on;
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_profit_individual.png'), 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_profit_individual.png'));
 end
 
 % Visualization for Algorithm 2 (heterogeneous beta_i'(0))

@@ -1,0 +1,136 @@
+{
+  "figure_audit": {
+    "fig_1_comp_alpha": {
+      "file": "algorithm1_comp_alpha.png",
+      "validates": "Table 2 — per-operator alpha_i across 4 strategies",
+      "status": "keep",
+      "notes": "Unchanged from last upload. Clean."
+    },
+    "fig_2_comp_f": {
+      "file": "algorithm1_comp_f.png",
+      "validates": "Pareto condition f=0.5",
+      "status": "keep",
+      "notes": "Unchanged. Consider combining with fig_3."
+    },
+    "fig_3_comp_g": {
+      "file": "algorithm1_comp_g.png",
+      "validates": "g^max = 22500, RN-NE gap",
+      "status": "keep",
+      "notes": "Unchanged. Consider combining with fig_2."
+    },
+    "fig_4_comp_profit": {
+      "file": "algorithm1_comp_profit.png",
+      "validates": "Individual profit across 4 strategies",
+      "status": "keep",
+      "notes": "Unchanged. Good."
+    },
+    "fig_5_nhat_estimate": {
+      "file": "algorithm1_nhat_estimate.png",
+      "validates": "Distributed n recovery",
+      "status": "keep",
+      "notes": "Unchanged. Good."
+    },
+    "fig_6_overbid_alpha": {
+      "file": "algorithm1_overbid_alpha.png",
+      "validates": "Corollary 5 constrained branch",
+      "status": "keep — significantly improved",
+      "notes": "Now shows a realistic scenario: Op3 overbids to 1.5, Op1 and Op2 stay below 1. Clamped panel shows f=0.567, g=22100. The scenario is less extreme and directly validates Corollary 5."
+    },
+    "fig_7_overbid_profit": {
+      "file": "algorithm1_overbid_profit.png",
+      "validates": "Aggregate profit impact of overbidding",
+      "status": "keep — significantly improved",
+      "notes": "Three scenarios now show a tight but meaningful spread: Pareto-NE ~10800, Unclamped ~10100 (6.5% loss), No-overbid ~10750 (0.5% loss). Much more realistic than the previous negative-profit version."
+    },
+    "fig_8_psi_consensus": {
+      "file": "algorithm1_psi_consensus.png",
+      "validates": "psi_i -> x_r^o/(n+1) = 75",
+      "status": "keep",
+      "notes": "Unchanged. Good."
+    },
+    "fig_9_xi_consensus": {
+      "file": "algorithm1_xi_consensus.png",
+      "validates": "xi_i -> 1/(n+1) = 0.25",
+      "status": "keep",
+      "notes": "Unchanged. Good."
+    },
+    "fig_10_xr0_estimate": {
+      "file": "algorithm1_xr0_estimate.png",
+      "validates": "Distributed x_r^o recovery",
+      "status": "keep",
+      "notes": "Unchanged. Good."
+    },
+    "fig_11_risk_seek_sol": {
+      "file": "risk_seek_sol.png",
+      "validates": "Theorem 2 — beta solution family",
+      "status": "keep",
+      "notes": "Unchanged. Good."
+    }
+  },
+  "comments_and_improvements": [
+    {
+      "id": 1,
+      "type": "verification",
+      "priority": "high",
+      "figures": ["fig_6_overbid_alpha"],
+      "issue": "Need to verify the overbidding scenario parameters. From the figure: Op1 alpha=0.25, Op2 alpha=0.60, Op3 alpha=1.50 (unclamped). Under ERS with common beta', alpha_i = w/(2*eta_i). If these are from the original n=3 system (eta = [2/5, 1/3, 4/15]), then w/(2*eta_3) = 1.50 gives w = 2*1.50*(4/15) = 0.80, so beta' = (0.80-1)/4 = -0.05. Check: w/(2*eta_1) = 0.80/(2*0.4) = 1.0, w/(2*eta_2) = 0.80/(2*0.333) = 1.20. But the figure shows Op2 = 0.60, not 1.20. So this is NOT from the original system with common beta'. Either the scenario uses different x_i^o values (different eta_i) or heterogeneous beta'. The text should clearly state what parameters produce this scenario.",
+      "suggestion": "Add a sentence or small table in the overbidding subsection specifying the exact scenario parameters (either modified x_i^o or the beta' values used)."
+    },
+    {
+      "id": 2,
+      "type": "missing_figure",
+      "priority": "medium",
+      "figures": ["needs_generation"],
+      "issue": "Image 7 shows aggregate profit only. The conclusion claims overbidding impact is collective. A per-operator profit breakdown for the overbidding scenario (3 groups of 3 bars: Op1/Op2/Op3 under Pareto-NE, Unclamped, No-overbid) would directly validate this.",
+      "suggestion": "Generate a companion bar chart to Image 7 showing Pi_1, Pi_2, Pi_3 for the three scenarios."
+    },
+    {
+      "id": 3,
+      "type": "space_optimization",
+      "priority": "medium",
+      "figures": ["fig_2_comp_f", "fig_3_comp_g"],
+      "issue": "Each is a single-scalar bar chart. In IEEE two-column these consume significant space for data already in Table 2.",
+      "suggestion": "Combine into one 2-panel figure, or drop both and rely on Table 2."
+    },
+    {
+      "id": 4,
+      "type": "space_optimization",
+      "priority": "low",
+      "figures": ["fig_5_nhat_estimate", "fig_10_xr0_estimate"],
+      "issue": "Both show derived-quantity convergence with nearly identical dynamics.",
+      "suggestion": "Combine into one 2-panel figure."
+    },
+    {
+      "id": 5,
+      "type": "space_optimization",
+      "priority": "low",
+      "figures": ["fig_9_xi_consensus", "fig_8_psi_consensus"],
+      "issue": "Two separate figures for raw consensus states.",
+      "suggestion": "Combine into one 2-panel figure."
+    },
+    {
+      "id": 6,
+      "type": "annotation",
+      "priority": "medium",
+      "figures": ["fig_7_overbid_profit"],
+      "issue": "The bars are close together (~10100 vs ~10750 vs ~10800). At IEEE figure size the differences may be hard to read without annotations.",
+      "suggestion": "Add value labels above each bar, or add percentage-loss annotations relative to S1 Pareto-NE (e.g., -6.5%, -0.5%)."
+    },
+    {
+      "id": 7,
+      "type": "observation",
+      "priority": "medium",
+      "figures": ["fig_6_overbid_alpha", "fig_7_overbid_profit"],
+      "issue": "Interesting result: the no-overbid (clamped) scenario actually RECOVERS most of the profit (10750 vs 10800 = 99.5% recovery) while the unclamped scenario loses 6.5%. This means clamping is beneficial here — it pushes f from 0.700 closer to 0.5 (lands at 0.567). This is the opposite of what happens at the ERS optimum (where clamping pushes f below 0.5 and hurts). This distinction should be discussed in the text — it depends on whether the unclamped f is above or below 0.5.",
+      "suggestion": "Add a sentence noting that when f_unclamped > 0.5, clamping can improve profit by moving f toward 0.5, paralleling the risk-neutral clamping behavior in Corollary 4. The harmful case (clamping pushes f below 0.5) only occurs when the unclamped equilibrium is already at or near f=0.5."
+    },
+    {
+      "id": 8,
+      "type": "labeling",
+      "priority": "low",
+      "figures": ["fig_7_overbid_profit"],
+      "issue": "The x-axis label 'S1 Pareto-NE' references a scenario numbering that may not appear in the revised text.",
+      "suggestion": "Relabel to 'ERS Pareto' or 'Pareto-NE (optimal)' for consistency with the paper's terminology."
+    }
+  ]
+}
