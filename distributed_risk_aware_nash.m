@@ -459,7 +459,7 @@ figure('Position', [80, 80, 620, 460]);
 plot(1:K, psi_hist(1:n,1:K)', 'LineWidth', 1.5); hold on;
 plot(1:K, psi_hist(n+1,1:K)', 'k--', 'LineWidth', 1.5);
 yline(xr0/N_total, 'r:', 'LineWidth', 1.5);
-xlabel('Iteration k'); ylabel('\psi_i(k)');
+xlabel('Iteration k'); ylabel('\psi_i(k)  (MW)');
 title('Consensus \psi (forecast diffusion)');
 legend([node_labels, {sprintf('x_r^o/(n+1)=%.1f',xr0/N_total)}], 'Location','best','FontSize',7);
 grid on;
@@ -501,7 +501,7 @@ xr0_hist_plot(~isfinite(xr0_hist_plot)) = NaN;
 figure('Position', [140, 140, 620, 460]);
 plot(1:K, xr0_hist_plot', 'LineWidth', 1.5);
 yline(xr0, 'k--', 'LineWidth', 1.5);
-xlabel('Iteration k'); ylabel('\hat{x}_r^o estimate');
+xlabel('Iteration k'); ylabel('\hat{x}_r^o  (MW)');
 title('Distributed Estimate of x_r^o');
 legend([op_labels, {sprintf('True=%.0f',xr0)}], 'Location','best','FontSize',7);
 ylim([0, xr0 * 2]); grid on;  % fixed ylim: clips large transient, shows convergence
@@ -524,7 +524,7 @@ g_all     = [g_coal, f_RN*(1-f_RN)*xr0^2, f_sym*(1-f_sym)*xr0^2, g_dist];
 % A_comp_1: Bidding strategies alpha_i
 figure('Position', [50, 50, 620, 460]);
 bar(1:n, alpha_all);
-xlabel('Operator'); ylabel('\alpha_i^*');
+xlabel('Operator'); ylabel('\alpha_i^*  (bid fraction)');
 title('Bidding Strategies: All Four Methods');
 xticklabels(op_labels);
 yline(1, 'k--', 'LineWidth', 1, 'HandleVisibility', 'off');
@@ -540,7 +540,7 @@ end
 % A_comp_2: Individual profits Pi_i
 figure('Position', [80, 80, 620, 460]);
 bar(1:n, Pi_all);
-xlabel('Operator'); ylabel('\Pi_i');
+xlabel('Operator'); ylabel('\Pi_i  ($/hr)');
 title('Individual Profit: All Four Methods');
 xticklabels(op_labels);
 legend(strat_labels, 'Location', 'best', 'FontSize', 7);
@@ -580,46 +580,43 @@ if save_figs
     fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_g.png'));
 end
 
-% Plot A5: Overbidding — two-panel bar chart
-% Panel 1: unclamped (Op3 overbids)
-% Panel 2: no-overbidding projection (clamped)
+% Plot A5a: Overbidding — unclamped bids
 op_colors = lines(n);
 op_labels_s2 = arrayfun(@(i) sprintf('Op%d', i), 1:n, 'UniformOutput', false);
 y_top = max(alpha_cV_unc) * 1.1;
 
-figure('Position', [170, 170, 780, 460]);
-tiledlayout(1, 2, 'Padding', 'compact', 'TileSpacing', 'compact');
-
-% Panel 1: unclamped
-nexttile;
+figure('Position', [170, 170, 620, 460]);
 b_unc = bar(1:n, alpha_cV_unc, 'FaceColor', 'flat');
 b_unc.CData = op_colors;
 hold on;
 yline(1, 'k--', 'LineWidth', 1.5);
-xlabel('Operator'); ylabel('\alpha_i^*');
-title(sprintf('Unclamped\nf=%.3f, g=%.0f MW^2', f_cV_unc, g_cV_unc));
+xlabel('Operator'); ylabel('\alpha_i^*  (bid fraction)');
+title(sprintf('Unclamped overbidding  (f=%.3f, g=%.0f MW^2)', f_cV_unc, g_cV_unc));
 xticks(1:n); xticklabels(op_labels_s2);
 ylim([0, y_top]); grid on;
-
-% Panel 2: no-overbidding (clamped)
-nexttile;
-b_clp = bar(1:n, alpha_cV_clp, 'FaceColor', 'flat');
-b_clp.CData = op_colors;
-hold on;
-yline(1, 'k--', 'LineWidth', 1.5);
-xlabel('Operator'); ylabel('\alpha_i^*');
-title(sprintf('No-overbidding (clamped)\nf=%.3f, g=%.0f MW^2', f_cV_clp, g_cV_clp));
-xticks(1:n); xticklabels(op_labels_s2);
-ylim([0, y_top]); grid on;
-
-sgt = sgtitle('Overbidding Impact');
-set(sgt, 'Color', 'k');
 
 if save_figs
     style_current_figure();
     if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
-    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_alpha.png'), 'Resolution', 150);
-    fprintf('\nFigure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_alpha.png'));
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_alpha_unc.png'), 'Resolution', 150);
+    fprintf('\nFigure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_alpha_unc.png'));
+end
+
+% Plot A5b: Overbidding — no-overbidding projection (clamped)
+figure('Position', [200, 200, 620, 460]);
+b_clp = bar(1:n, alpha_cV_clp, 'FaceColor', 'flat');
+b_clp.CData = op_colors;
+hold on;
+yline(1, 'k--', 'LineWidth', 1.5);
+xlabel('Operator'); ylabel('\alpha_i^*  (bid fraction)');
+title(sprintf('No-overbidding projection  (f=%.3f, g=%.0f MW^2)', f_cV_clp, g_cV_clp));
+xticks(1:n); xticklabels(op_labels_s2);
+ylim([0, y_top]); grid on;
+
+if save_figs
+    style_current_figure();
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_alpha_clp.png'), 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_alpha_clp.png'));
 end
 
 % Plot A6: Profit comparison — ERS Pareto, unclamped overbid, no-overbid
