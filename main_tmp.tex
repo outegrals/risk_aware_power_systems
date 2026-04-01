@@ -133,9 +133,7 @@ where  $x^o=\mathbb{E}[x]$ is the vector of forecast (for the day-ahead market),
 is the covariance matrix with $\sigma_{ij}=\sigma_{ji}$. In the covariance matrix, the last row and column correspond to covariances between the renewable generations and the load while $\sigma_{LL}=\sigma_L^2>0$ is the variance of the load. It is known that
 $\sigma_{ii}=\sigma_i^2>0$, $\sigma_{ij}=\rho_{ij}\sigma_i\sigma_j$, $\sigma_{iL}=\rho_{iL}\sigma_i\sigma_L$, where $\rho_{ij},\rho_{iL}\in[0,1]$. Typically, $\rho_{ij},\rho_{iL}\not=0$ because renewable generations and load are correlated through the projected weather condition.
 
-\begin{remark}[Scope of the Gaussian Assumption]
 The Gaussian model is adopted for notational consistency with standard stochastic Cournot frameworks, but the key results of this paper require only that $x$ have finite mean $x^o$ and covariance $\Sigma$. The risk penalty $\mathbb{E}[(\lambda-\lambda^o)^2]$ and total profit $\Pi$ both expand as polynomials in the bidding coefficients with moment-based coefficients determined entirely by $x^o$ and $\Sigma$ (see~\eqref{eq:Pi_j_exp} and~\eqref{eq:sigma_lambda}), so Theorems~1--2 and Corollaries~1--5b hold for any joint distribution with finite second moments, including Weibull wind and beta solar distributions common in practice. Gaussianity would be needed only for distributional risk measures beyond variance (e.g., CVaR) or for characterizing higher moments of individual profits, which are deferred to future work.
-\end{remark}
 
 The day ahead market clears the projected aggregated power generation $P_g^o$ and its associated price $\lambda^o$ by minimizing $J(P_g^o)$ under the following power balance constraint:
 \begin{equation} 
@@ -236,7 +234,7 @@ which yields the optimal bidding strategy \eqref{eq:optimal_1}. This completes t
 
 It follows from \eqref{eq:alpha_1} that
 \[ \lim_{\beta\rightarrow-1/(4a_2)} \alpha = 0, \quad  \lim_{\beta\rightarrow0} \alpha = 0.5, \quad \lim_{\beta\rightarrow +\infty} \alpha = 1. \]
-Since $\alpha\in[0,1]$, the parameter $\beta$ translates an operator's risk tolerance into a specific bid $\alpha$. This translation applies to both cooperative coalition games and noncooperative games, though the risk-neutral value of $\alpha$ differs between the two settings. 
+Since $\alpha\in[0,1]$, the design parameter $\beta$ translates an operator's risk tolerance level into a specific choice of $\alpha$ value. Although the specific value corresponding to the risk-neutral choice may differ, this translation is applicable to not only cooperative coalition game but also noncooperative games. 
 
 The following theorem provides the solution to non-cooperative optimization in which each agent devises its strategy according to its own objective function $J_i$. 
 
@@ -497,13 +495,11 @@ n + 4a_2\sum_{i=1}^n \beta_i = 1,
 which yields \eqref{eq:beta_sum_condition}. Substituting the results in \eqref{eq:beta_sum_condition} and \eqref{eq:pareto_condition} into \eqref{eq:alpha_equation} yields the bidding strategy \eqref{eq:alpha_optimal}.
 \hfill$\Box$
 
-\begin{remark}[Individual Rationality]
 Under the symmetric ERS allocation of Corollary~5a, every operator strictly prefers the Pareto-optimal Nash equilibrium to the risk-neutral Nash equilibrium. From~\eqref{eq:Pi_j_exp}, the deterministic profit of operator~$i$ satisfies $\Pi_i = 2a_2\,\alpha_i(1-f)(x_r^o)^2\eta_i + a_1 x_i^o + C_i$, where $C_i$ collects stochastic terms identical across strategies. Under ERS, $\alpha_i^{RS}(1-f^{RS}) = (1/2n)\eta_i^{-1}\cdot\tfrac{1}{2} = \tfrac{1}{4n}\eta_i^{-1}$; under risk-neutral Nash, $\alpha_i^{RN}(1-f^{RN}) = \tfrac{1}{n+1}\eta_i^{-1}\cdot\tfrac{1}{n+1} = \tfrac{1}{(n+1)^2}\eta_i^{-1}$. Hence
 \[
 \Pi_i^{RS} - \Pi_i^{RN} = 2a_2\!\left[\frac{1}{4n} - \frac{1}{(n+1)^2}\right](x_r^o)^2 > 0 \quad \forall\, n \geq 2,
 \]
 since $(n+1)^2 - 4n = (n-1)^2 > 0$. All operators gain equally from moving to the Pareto equilibrium, confirming that the proposed coordination mechanism is individually rational. Whether the ERS allocation also forms a Nash equilibrium in the $\beta$-parameter space (i.e., no operator benefits from unilateral deviation of $\beta_i$) is deferred to future work.
-\end{remark}
 
 The Pareto optimal condition \eqref{eq:pareto_condition} is a constraint only on the aggregate risk tolerance level; therefore, infinitely many heterogeneous risk allocations $\{\beta_i\}$ yield Pareto-optimal Nash equilibria.
 If there is only one renewable generator ($n=1$ or one coalition of all the operators), condition \eqref{eq:beta_sum_condition} reduces to $\beta_1 = 0$,
@@ -524,58 +520,104 @@ This connection is reminiscent of mean-field game theory~\cite{huang2006large,la
 
 Should all the renewable entities adopt 
 the same risk tolerance level, constraint \eqref{eq:beta_sum_condition} is satisfied by choosing 
-\[  \beta_0= \frac{1-n}{4a_2n}; \;\;\; \beta_i=\beta_0\;\;\; \forall i\in\{1,\cdots,n\}. \]
+\begin{equation}
+    \beta_i=\beta_0, \;\;\; \beta_0= \frac{1-n}{4a_2n}; \;\;\; \forall i\in\{1,\cdots,n\}. \label{eq:final_beta}
+\end{equation}   
 Note that all the entities employing a common risk seeking level is a fair policy enforceable by the utility and is also supported by the Nash equilibria formed by all the operators. In this special case, theorem 2 reduces to the following corollary. 
 
-\noindent  {\bf Corollary 5a} (Unconstrained ERS){\bf :} {\it In the general case of $n>2$ with equal risk-seeking (ERS), the optimal unconstrained bidding strategy is
+\noindent {\bf Corollary 5} (Equal Risk-Seeking Bidding Strategies){\bf :}
+{\it Under ERS \eqref{eq:final_beta}, the common scaled risk parameter and
+its associated weight are fixed by $\beta_0$ as
 \begin{equation}
-\alpha_i^* = \frac{1}{2n}\eta_i^{-1}, \label{eq:alpha_optimal_simplified}
+    \beta' = a_2\beta_0 = \frac{1-n}{4n}, \qquad w = 1+4\beta' = \frac{1}{n}.
+    \label{eq:ERS_w}
 \end{equation}
-and the total profit $\Pi$ in \eqref{eq:Pi_exp} is optimized with
-\[ g^{ERS}(\boldsymbol{\alpha}^*)=\frac{1}{4} (x_r^o)^2 = g^{\max}. \]
-}
 
-\noindent {\bf Proof:} Follows directly from theorem~2 with $\beta_i = \beta_0 = (1-n)/(4a_2 n)$. \hfill $\Box$
-
-\noindent  {\bf Corollary 5b} (Constrained ERS with overbidding){\bf :} {\it Under the ERS allocation of Corollary~5a, if overbidding is not permitted, operator $i$ overbids whenever $\eta_i < \frac{1}{2n}$. Define $\beta' = a_2\beta_0$ and $w = 1+4\beta'$ as the common scaled risk parameter. Let
-\begin{equation} \Omega_s^P=\left\{j \in\Omega: \; \eta_j < \frac{w\left(1-\sum_{l\in\Omega_s^P}\eta_l\right)}{1+(n-|\Omega_s^P|)\, w}\right\}  \label{eq:overbid_bound}\end{equation}
-be the ERS saturation set. [Note: $\Omega_s^P$ is distinct from the risk-neutral saturation set $\Omega_s$ of Corollary~4; the superscript $P$ reflects that operators saturate at different capacity thresholds under ERS versus risk-neutral strategies, since the saturation condition depends on $w = 1+4\beta'$.]
-For the initial check with $\Omega_s^P=\varnothing$, condition~\eqref{eq:overbid_bound} reduces to $\eta_j < \frac{w}{1+nw}$, which at the ERS optimum $w=1/n$ gives $\eta_j < \frac{1}{2n}$.
-Then the constrained ERS bidding strategy is
+\noindent {\bf (a) Unconstrained ERS.} The optimal unconstrained bidding
+strategy is
 \begin{equation}
- \hspace*{-0.2in}    \alpha_i^* = \left\{ \begin{array}{ll} \displaystyle \frac{w}{\eta_i} \cdot \frac{1- \sum_{j\in\Omega_s^P} \eta_j}{1+(n-|\Omega_s^P|) w}  & i\not \in\Omega_s^P \\[6pt]
-    1 & i\in\Omega_s^P \end{array} \right. \label{eq:alpha_clamp}
+    \alpha_i^* = \frac{1}{2n}\eta_i^{-1}, \label{eq:alpha_optimal_simplified}
 \end{equation}
-and the total profit $\Pi$ in \eqref{eq:Pi_exp} is optimized with
-\begin{eqnarray}
-    g^{ERS}(\boldsymbol{\alpha}^*) & = & \frac{\left(\sum_{j\in\Omega_s^P}\eta_j + (n-|\Omega_s^P|)\, w\right)\left(1-\sum_{j\in\Omega_s^P}\eta_j\right)}{\left(1+(n-|\Omega_s^P|) w\right)^2} \nonumber \\
-    && \times \; (x_r^o)^2.
-    \label{eq:g_ERS_clamp}
-\end{eqnarray}
-The optimal common risk parameter $\beta'^*$ that maximizes $g^{ERS}(\boldsymbol{\alpha}^*)$ is:
-\begin{itemize}
-\item If $\eta_i \geq \frac{1}{2n}$ for all $i$ (i.e., $\Omega_s^P=\varnothing$), then $\beta'^* = \frac{1-n}{4n}$ achieves $g^{ERS}(\boldsymbol{\alpha}^*) = g^{\max}$.
-\item If $\Omega_s^P\neq\varnothing$, the maximum $g^{ERS}(\boldsymbol{\alpha}^*) = g^{\max}$ requires
-\begin{equation}
-\beta'^* = \frac{1}{4}\left(\frac{1-2\sum_{j\in\Omega_s^P}\eta_j}{n-|\Omega_s^P|} - 1 \right),
-\label{eq:beta_opt_clamp}
-\end{equation}
-provided that $\beta'^*$ does not enlarge $\Omega_s^P$ beyond the assumed set; otherwise, the saturation set and $\beta'^*$ must be jointly determined.
-\end{itemize}
-}
+and the total profit $\Pi$ in \eqref{eq:Pi_exp} is maximized with
+\[
+    g^{ERS}(\boldsymbol{\alpha}^*) = \tfrac{1}{4}(x_r^o)^2 = g^{\max}.
+\]
 
-\noindent {\bf Proof:} For $i\not\in\Omega_s^P$, it follows from \eqref{eq:p1Ji=0} that, since $\beta_i = \beta$ for all $i$ (so $w_i = w$),
-\[  w\sum_{j=1}^n(1-\alpha_j^*)\eta_j = \alpha_i^* \eta_i. \]
-Since $\alpha_j^*=1$ for $j\in\Omega_s^P$, this becomes
-\[ w\left(1- \sum_{j\in\Omega_s^P} \eta_j\right) = \alpha_i^* \eta_i +  w\sum_{j\not\in\Omega_s^P} \alpha_j^* \eta_j, \;\;\; \forall i\not\in\Omega_s^P,  \]
-whose solution is \eqref{eq:alpha_clamp}. Substituting into \eqref{eq:F} yields
-\[ f(\boldsymbol{\alpha}^*) = \sum_{j\in\Omega_s^P}\eta_j
-+
-\frac{(n-|\Omega_s^P|)\, w\left(1-\sum_{j\in\Omega_s^P}\eta_j\right)}
-{1+(n-|\Omega_s^P|) w}, \]
-and the expression for $g^{ERS}(\boldsymbol{\alpha}^*)$ follows from \eqref{eq:G}. Setting $f(\boldsymbol{\alpha}^*) = \frac{1}{2}$ and solving for $w$ yields
-\[ w = \frac{1-2\sum_{j\in\Omega_s^P}\eta_j}{n-|\Omega_s^P|}, \]
-from which \eqref{eq:beta_opt_clamp} follows via $\beta' = (w-1)/4$. \hfill $\Box$
+\noindent {\bf (b) Constrained ERS (overbidding not permitted).}
+Under the ERS allocation of part~(a), operator $i$ overbids whenever
+$\eta_i < \frac{1}{2n}$. With $w = \frac{1}{n}$, the ERS saturation set
+\begin{equation}
+    \Omega_s^P = \left\{j \in \Omega : \;
+    \eta_j 
+    \frac{1 - \sum_{l \in \Omega_s^P} \eta_l}
+         {n\left(1 + \frac{n - |\Omega_s^P|}{n}\right)}
+    \right\} \label{eq:overbid_bound}
+\end{equation}
+is distinct from the risk-neutral saturation set $\Omega_s$ of
+Corollary~4, and reduces to $\eta_j < \frac{1}{2n}$ for the initial
+check $\Omega_s^P = \varnothing$.
+
+The constrained ERS bidding strategy is
+\begin{equation}
+    \alpha_i^* = \begin{cases}
+        \displaystyle
+        \frac{1}{n\,\eta_i}
+        \cdot\frac{1 - \sum_{j \in \Omega_s^P}\eta_j}
+               {1 + \frac{n - |\Omega_s^P|}{n}}
+        & i \notin \Omega_s^P, \\[10pt]
+        1 & i \in \Omega_s^P,
+    \end{cases} \label{eq:alpha_clamp}
+\end{equation}
+or equivalently,
+\begin{equation}
+    \alpha_i^* = \frac{n}{2n - |\Omega_s^P|} \cdot
+    \frac{1 - \sum_{j \in \Omega_s^P}\eta_j}{\eta_i},
+    \quad i \notin \Omega_s^P, \label{eq:alpha_clamp_simple}
+\end{equation}
+and the resulting objective value is
+\begin{equation}
+    g^{ERS}(\boldsymbol{\alpha}^*) =
+    \frac{\left(\sum_{j \in \Omega_s^P}\!\eta_j
+          + \frac{n - |\Omega_s^P|}{n}\right)
+         \!\left(1 - \sum_{j \in \Omega_s^P}\!\eta_j\right)}
+    {\left(1 + \frac{n - |\Omega_s^P|}{n}\right)^2}
+    (x_r^o)^2. \label{eq:g_ERS_clamp}
+\end{equation}
+The optimal common risk parameter $\beta'^*$ maximizing
+$g^{ERS}(\boldsymbol{\alpha}^*)$ is given by \eqref{eq:ERS_w} when
+$\Omega_s^P = \varnothing$, and by
+\begin{equation}
+    \beta'^* = \frac{1}{4}\!\left(
+    \frac{1 - 2\sum_{j \in \Omega_s^P}\eta_j}{n - |\Omega_s^P|}
+    - 1\right) \label{eq:beta_opt_clamp}
+\end{equation}
+when $\Omega_s^P \neq \varnothing$, provided $\beta'^*$ does not enlarge
+$\Omega_s^P$ beyond the assumed set; otherwise $\Omega_s^P$ and $\beta'^*$
+must be determined jointly.
+
+\noindent {\bf Proof:}
+Part~(a) follows directly from Theorem~2 with $\beta_i = \beta_0 =
+(1-n)/(4a_2 n)$, giving $w = 1/n$.
+
+For part~(b), substituting $w = 1/n$ into \eqref{eq:p1Ji=0} with
+$\alpha_j^* = 1$ for $j \in \Omega_s^P$ gives
+\[
+    \frac{1 - \sum_{j \in \Omega_s^P}\!\eta_j}{n}
+    = \alpha_i^*\,\eta_i
+    + \frac{1}{n}\!\sum_{j \notin \Omega_s^P}\!\alpha_j^*\,\eta_j,
+    \quad \forall\, i \notin \Omega_s^P,
+\]
+whose solution is \eqref{eq:alpha_clamp_simple}. Substituting into
+\eqref{eq:F} and \eqref{eq:G} yields \eqref{eq:g_ERS_clamp}.
+Setting $f(\boldsymbol{\alpha}^*) = \tfrac{1}{2}$ and solving for the
+required $w$ gives
+\[
+    w^* = \frac{1 - 2\sum_{j \in \Omega_s^P}\!\eta_j}{n - |\Omega_s^P|},
+\]
+from which \eqref{eq:beta_opt_clamp} follows via $\beta' = (w^*-1)/4$.
+Since $w^* \neq 1/n$ whenever $\Omega_s^P \neq \varnothing$, the
+constrained optimum requires adjusting $\beta'$ away from the ERS
+value \eqref{eq:ERS_w}. \hfill $\Box$
 
 In what follows, the Pareto-optimal bidding strategy is cast into a distributed optimization algorithm so that {\it minimum} information sharing is needed and privacy is protected.   
 
@@ -638,13 +680,9 @@ and
 
 The proposed distributed algorithm is given by algorithm \ref{alg:dist_risk_aware}. Since every participating renewable operator must communicate with the utility, the communication topology among all the participating operators and the utility is guaranteed to be connected. It follows from lemma 2, initial conditions $\xi_i(0)$ and $\psi_i(0)$, and protocols \eqref{eq:xi} and \eqref{eq:psi} that $\xi_i(k)\rightarrow \frac{1}{n+1}$ and $\psi_i(k)\rightarrow \frac{1}{n+1}x_r^o$. Therefore, the estimate of $n$, $\eta_i$ and $\beta_i$ can be computed distributively. There is no explicit sharing of private information, and required information is generated through diffusion of the consensus protocols \eqref{eq:xi} and \eqref{eq:psi}.
 
-\begin{remark}[Communication Topology]
 Algorithm~1 operates over an \emph{undirected, static} communication graph in which every renewable operator maintains a direct link with the utility, forming a star topology $K_{1,n}$. This structure guarantees connectivity for any $n \geq 1$: since every operator communicates with the utility, the graph is connected by construction and requires no additional peer-to-peer links. The analysis assumes synchronous updates and lossless communication links. Robustness to asynchronous operation, link failures, and dynamic operator participation are important extensions beyond the scope of this paper and are noted as future work.
-\end{remark}
 
-\begin{remark}[Convergence Rate]
 The consensus protocols~\eqref{eq:xi}--\eqref{eq:psi} converge geometrically at a rate determined by the algebraic connectivity $\lambda_2(L)$, the second-smallest eigenvalue of the graph Laplacian $L$. By Theorem~3.3 of~\cite{qu}, the convergence error satisfies $\|z(k) - z^\infty\mathbf{1}\| \leq (1-\epsilon\lambda_2)^k \|z(0) - z^\infty\mathbf{1}\|$, so the number of iterations to reach $\varepsilon$-accuracy scales as $O\!\left(\log(1/\varepsilon)/\lambda_2\right)$. For the star graph $K_{1,n}$, the Laplacian eigenvalues are $0$, $1$ (with multiplicity $n-1$), and $n+1$ (with multiplicity $1$), giving $\lambda_2 = 1$ independently of $n$. Consequently, Algorithm~1 converges at a rate that does not degrade as the number of operators increases, making it well-suited for large-scale markets. With step size $\epsilon < 1/n$, the per-iteration contraction factor is $\rho = 1 - \epsilon < 1$.
-\end{remark}
 
 When the no-overbidding constraint is active, the distributed implementation requires a minor modification. After consensus convergence, each operator locally checks whether its unconstrained bid $\alpha_i^* = \frac{1}{2n}\eta_i^{-1}$ exceeds unity, which occurs whenever $\eta_i < \frac{1}{2n}$. If so, operator $i$ projects its bid to $\bar{\alpha}_i = 1$ and belongs to the saturated set $\Omega_s^P$ of corollary~5b. The key observation is that the constrained bid~\eqref{eq:alpha_clamp} for unsaturated operators depends on the aggregate quantity $\sum_{j\in\Omega_s^P}\eta_j$, which can be estimated through an additional consensus round. Specifically, after each operator determines its own saturation status locally, a third consensus protocol initialized with $\phi_i(0) = \eta_i$ if $i\in\Omega_s^P$ and $\phi_i(0) = 0$ otherwise yields the average $\frac{1}{n+1}\sum_{j\in\Omega_s^P}\eta_j$, from which each operator recovers $\sum_{j\in\Omega_s^P}\eta_j$. Combined with the already-available $n$ and $\eta_i$, each unsaturated operator can then compute its constrained bid~\eqref{eq:alpha_clamp} without centralized coordination. The resulting constrained aggregate fraction will generally deviate from $\tfrac{1}{2}$, and the associated constrained performance is characterized by~\eqref{eq:g_ERS_clamp}.
 \begin{comment}
@@ -686,7 +724,7 @@ Algorithm \ref{alg:dist_risk_aware_beta_coord} keeps the implementation distribu
 which converges to $B^\star$ for $0<n\epsilon_\beta<2$. Hence, starting from arbitrary non-equal $\beta_i'(0)$, the market can first coordinate the Pareto-optimal aggregate risk and then execute one-shot Nash bidding via \eqref{eq:alpha_optimal_simplified}.
 \end{comment}
 
-\section{Numerical Validation \label{sec:examples}}
+\section{Illustrative Example \label{sec:examples}}
 
 To demonstrate the proposed analytical and algorithmic results, a three-operator case study is used in which both the centralized solution and the distributed solution are computed and compared across multiple scenarios.
 
