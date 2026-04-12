@@ -824,12 +824,16 @@ Algo.~1 (Dist.)     & $(0.42,\;0.50,\;0.63)$ & $0.50$ & 22{,}500 & 10{,}800 \\
     \label{fig:algo1_comp_alpha}
 \end{figure}
 
+Figure~\ref{fig:algo1_comp_alpha} shows that the risk-neutral Nash bids are noticeably more aggressive — particularly for Op~3, whose small capacity share ($\eta_3=0.267$) drives $\alpha_3^*$ close to~1. Risk-seeking Pareto coordination uniformly lowers and rebalances the bids toward the coalition optimum, with Algorithm~1 exactly reproducing the centralized result.
+
 \begin{figure}[hbt!]
     \centering
     \includegraphics[width=1\linewidth]{figures/algorithm1_comp_profit.png}
     \caption{Individual profits $\Pi_i$ for all four strategies.}
     \label{fig:algo1_comp_profit}
 \end{figure}
+
+Figure~\ref{fig:algo1_comp_profit} confirms that the profit improvement under Pareto coordination is shared across all operators: each $\Pi_i$ rises relative to the risk-neutral Nash case, so the move from RN to RS is a Pareto improvement in the game-theoretic sense — no operator is made worse off by adopting the risk-seeking strategy.
 
 \subsection{Overbidding Impact}
 
@@ -886,6 +890,13 @@ Figure~\ref{fig:algo1_overbid_profit} shows aggregate profit across three scenar
     \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_profit.png}
     \caption{Aggregate profit across three overbidding scenarios.}
     \label{fig:algo1_overbid_profit}
+\end{figure}
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_profit_individual.png}
+    \caption{Individual profits $\Pi_i$ across three overbidding scenarios. Under unclamped overbidding, Op~3 gains at the expense of Ops~1 and~2; the no-overbidding projection restores a more balanced allocation while recovering near-optimal aggregate profit.}
+    \label{fig:algo1_overbid_profit_individual}
 \end{figure}
 
 \noindent\textbf{Remark~1.} \textit{Overbidding at the ERS optimum is not an artifact of deviating from $\beta'^*$, but a structural consequence of small renewable share: operator~$i$ overbids whenever $\eta_i < \frac{1}{2n}$, regardless of the chosen common $\beta'$. In such cases, the constrained formula~\eqref{eq:beta_opt_clamp} reallocates bids so that the capacity-limited operator is fully dispatched ($\alpha_i^*=1$) while the remaining operators adjust their risk parameter to restore $f=\frac{1}{2}$, recovering $g^{\max}$ with no efficiency penalty.}
