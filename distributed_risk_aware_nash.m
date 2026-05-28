@@ -383,6 +383,357 @@ fprintf('  f = %.6f,  g = %.2f,  sum(Pi) = %.2f\n', f_algo2, g_algo2, sum(Pi_alg
 end
 
 %% ========================================================================
+%         PART 4: CONSTRAINED RISK-NEUTRAL NASH (Corollary 4)
+%
+% With modified capacities (x3=30 MW, xr0=250), eta_3=0.12 < 1/(n+1)=0.25.
+% Operator 3 would overbid under unconstrained RN. Corollary 4 gives the
+% constrained RN solution by clamping Op3 to alpha_3=1 and re-solving.
+% Compare against: (a) unconstrained RN, (b) Cor-4 clamped RN,
+%                  (c) ERS Pareto via heterogeneous-beta partition (Cor. 5b).
+% =========================================================================
+
+fprintf('\n----------------------------------------------------------\n');
+fprintf('  PART 4: CONSTRAINED RN NASH — COROLLARY 4\n');
+fprintf('----------------------------------------------------------\n\n');
+
+x0_s2   = [120; 100; 30];          % Scenario 2 capacities
+xr0_s2  = sum(x0_s2);              % 250 MW
+eta_s2  = x0_s2 / xr0_s2;         % [0.48, 0.40, 0.12]
+
+fprintf('Scenario 2 params: x0=[%s] MW,  xr0=%.0f MW\n', num2str(x0_s2'), xr0_s2);
+fprintf('eta=[%s],  RN threshold 1/(n+1)=%.4f\n\n', num2str(eta_s2', '%.4f '), 1/(n+1));
+
+% (a) Unconstrained RN (beta=0, overbidding allowed)
+[alpha_RN_s2, f_RN_s2, Pi_RN_s2, ~] = nash_eq(zeros(n,1), n, a2, a1, x0_s2, xL0, xr0_s2, eta_s2, 0,0,0);
+g_RN_s2 = f_RN_s2 * (1-f_RN_s2) * xr0_s2^2;
+fprintf('(a) Unconstrained RN (beta=0):\n');
+fprintf('    alpha=[%s]\n', num2str(alpha_RN_s2', '%.4f '));
+fprintf('    f=%.4f  g=%.1f MW^2  sum(Pi)=%.2f  (g_max=%.0f)\n\n', ...
+    f_RN_s2, g_RN_s2, sum(Pi_RN_s2), 0.25*xr0_s2^2);
+
+% (b) Corollary 4: constrained RN (beta=0, no overbidding)
+Omega_RN_s2 = find(eta_s2 < 1/(n+1));          % operators forced to clamp
+S_RN_s2     = sum(eta_s2(Omega_RN_s2));         % sum of clamped etas
+n_eff_RN    = n + 1 - length(Omega_RN_s2);      % effective n+1-|Omega|
+alpha_Cor4  = zeros(n, 1);
+for i = 1:n
+    if ismember(i, Omega_RN_s2)
+        alpha_Cor4(i) = 1;
+    else
+        alpha_Cor4(i) = (1/n_eff_RN) * (1/eta_s2(i)) * (1 - S_RN_s2);
+    end
+end
+f_Cor4  = sum(alpha_Cor4 .* eta_s2);
+g_Cor4  = f_Cor4 * (1-f_Cor4) * xr0_s2^2;
+Pi_Cor4 = profit(alpha_Cor4, a2, a1, x0_s2, xL0, xr0_s2, eta_s2, 0,0,0);
+fprintf('(b) Corollary 4 — constrained RN (Omega_RN={Op%s}):\n', num2str(Omega_RN_s2'));
+fprintf('    alpha=[%s]\n', num2str(alpha_Cor4', '%.4f '));
+fprintf('    f=%.4f  g=%.1f MW^2  sum(Pi)=%.2f\n\n', f_Cor4, g_Cor4, sum(Pi_Cor4));
+
+% (c) Corollary 5b — Heterogeneous-beta partition (Scenario 2)
+%   eta_c = (eta_max + eta_min)/2; Omega={i: eta_i>=eta_c}; Omega^c={i: eta_i<eta_c}
+%   For i in Omega^c: alpha_i*=1.  For i in Omega: alpha_i*=D/(2*|Omega|*eta_i)
+%   NOTE: For S2 this gives numerically identical result to old "Remark 1"
+%         (the partitions coincide: Omega^c = Omega_ERS).
+eta_max_s2   = max(eta_s2);
+eta_min_s2   = min(eta_s2);
+eta_c_s2     = (eta_max_s2 + eta_min_s2) / 2;
+Omega_ERS_s2  = find(eta_s2 >= eta_c_s2);     % large operators (in Omega)
+OmegaC_ERS_s2 = find(eta_s2 <  eta_c_s2);    % small operators (in Omega^c, alpha=1)
+S_ERS_s2     = sum(eta_s2(Omega_ERS_s2));
+S_ERS_C_s2   = sum(eta_s2(OmegaC_ERS_s2));
+D_s2         = S_ERS_s2 - S_ERS_C_s2;
+nOmega_s2    = length(Omega_ERS_s2);
+alpha_Rem1   = zeros(n, 1);     % kept as "alpha_Rem1" for downstream compatibility
+for i = 1:n
+    if ismember(i, OmegaC_ERS_s2)
+        alpha_Rem1(i) = 1;
+    else
+        alpha_Rem1(i) = D_s2 / (2 * nOmega_s2 * eta_s2(i));
+    end
+end
+f_Rem1  = sum(alpha_Rem1 .* eta_s2);
+g_Rem1  = f_Rem1 * (1-f_Rem1) * xr0_s2^2;
+Pi_Rem1 = profit(alpha_Rem1, a2, a1, x0_s2, xL0, xr0_s2, eta_s2, 0,0,0);
+fprintf('(c) Corollary 5b — Heterogeneous-beta partition (eta_c=%.3f, Omega={Op%s}, Omega^c={Op%s}):\n', ...
+    eta_c_s2, num2str(Omega_ERS_s2'), num2str(OmegaC_ERS_s2'));
+fprintf('    D=%.4f  |Omega|=%d\n', D_s2, nOmega_s2);
+fprintf('    alpha=[%s]\n', num2str(alpha_Rem1', '%.4f '));
+fprintf('    f=%.4f  g=%.1f MW^2  sum(Pi)=%.2f  (g_max=%.0f)\n\n', ...
+    f_Rem1, g_Rem1, sum(Pi_Rem1), 0.25*xr0_s2^2);
+
+%% ========================================================================
+%         PART 5: HETEROGENEOUS PARETO ALLOCATIONS (Theorem 2)
+%
+% Theorem 2 states that *any* beta with sum(beta') = (1-n)/4 achieves Pareto
+% optimality. Here we demonstrate three distinct allocations for n=3
+% (original capacities) that all yield f=0.5, g=g_max, but distribute
+% individual profits differently. This illustrates the degrees of freedom
+% available to a regulator or cooperative agreement.
+%   Target: sum(beta') = (1-3)/4 = -0.5
+% =========================================================================
+
+fprintf('----------------------------------------------------------\n');
+fprintf('  PART 5: HETEROGENEOUS PARETO ALLOCATIONS — THEOREM 2\n');
+fprintf('----------------------------------------------------------\n\n');
+
+% Three valid heterogeneous risk allocations (all sum to -0.5)
+beta_het = [ ...
+    -1/6,  -1/6,  -1/6;   % Row 1: symmetric ERS (baseline)
+    -0.10, -0.17, -0.23;  % Row 2: Op1 least risk-seeking (larger share)
+    -0.23, -0.17, -0.10;  % Row 3: Op1 most risk-seeking
+];
+het_labels = {'Symmetric ERS', 'Hetero A (\beta''=[-.10,-.17,-.23])', ...
+              'Hetero B (\beta''=[-.23,-.17,-.10])'};
+
+n_het = size(beta_het, 1);
+alpha_het = zeros(n, n_het);
+f_het     = zeros(1, n_het);
+g_het     = zeros(1, n_het);
+Pi_het    = zeros(n, n_het);
+
+for k = 1:n_het
+    bk = beta_het(k, :)';
+    % Theorem 2 closed-form: alpha_i* = 0.5*(1+4*beta_i')/eta_i
+    alpha_k = 0.5 * (1 + 4*bk) ./ eta;
+    % Clamp to [0,1] (should not bind for these allocations with original x0)
+    alpha_k = max(0, min(1, alpha_k));
+    f_k     = sum(alpha_k .* eta);
+    g_k     = f_k * (1-f_k) * xr0^2;
+    Pi_k    = profit(alpha_k, a2, a1, x0, xL0, xr0, eta, 0,0,0);
+    alpha_het(:,k) = alpha_k;
+    f_het(k)       = f_k;
+    g_het(k)       = g_k;
+    Pi_het(:,k)    = Pi_k;
+    fprintf('Allocation %d — %s:\n', k, het_labels{k});
+    fprintf('  beta''=[%s]  sum=%.4f\n', num2str(bk', '%.4f '), sum(bk));
+    fprintf('  alpha=[%s]\n', num2str(alpha_k', '%.4f '));
+    fprintf('  f=%.4f  g=%.1f MW^2  sum(Pi)=%.2f\n', f_k, g_k, sum(Pi_k));
+    fprintf('  Per-op Pi=[%s]\n\n', num2str(Pi_k', '%.2f '));
+end
+fprintf('Key insight: all three achieve f=0.5, g=g_max=%.0f MW^2,\n', 0.25*xr0^2);
+fprintf('but individual profits differ — regulator flexibility.\n\n');
+
+%% ========================================================================
+%         PART 6: MULTIPLE SATURATION — COROLLARY 5b (|Omega_ERS|=2)
+%
+% To test generality of Corollary 5b beyond the single-operator case,
+% we set x1=200, x2=50, x3=50 MW. Both Op2 and Op3 have
+% eta_2=eta_3=50/300=0.167 = 1/(2n), sitting at the overbid boundary.
+% We use slightly smaller values to ensure saturation: x2=x3=45 => eta=0.15.
+% =========================================================================
+
+fprintf('----------------------------------------------------------\n');
+fprintf('  PART 6: MULTIPLE SATURATION — COROLLARY 5b (HETEROGENEOUS-BETA PARTITION)\n');
+fprintf('----------------------------------------------------------\n\n');
+
+x0_s6   = [210; 45; 45];
+xr0_s6  = sum(x0_s6);              % 300 MW (same xr0 for comparability)
+eta_s6  = x0_s6 / xr0_s6;         % [0.70, 0.15, 0.15]
+thresh_s6 = 1/(2*n);               % 0.1667
+
+fprintf('Params: x0=[%s] MW,  xr0=%.0f MW\n', num2str(x0_s6'), xr0_s6);
+fprintf('eta=[%s],  ERS threshold 1/(2n)=%.4f\n', num2str(eta_s6', '%.4f '), thresh_s6);
+fprintf('Omega_ERS = {');
+Omega_s6 = find(eta_s6 < thresh_s6);
+fprintf('Op%d ', Omega_s6); fprintf('}  (|Omega|=%d)\n\n', length(Omega_s6));
+
+S_s6     = sum(eta_s6(Omega_s6));
+n_eff_s6 = 2*n - length(Omega_s6);
+
+% Unconstrained ERS (symmetric Pareto beta, no clamp)
+beta_sym_s6  = (1-n)/(4*n);
+alpha_unc_s6 = 0.5 * (1 + 4*beta_sym_s6) ./ eta_s6;
+f_unc_s6     = sum(alpha_unc_s6 .* eta_s6);
+g_unc_s6     = f_unc_s6 * (1-f_unc_s6) * xr0_s6^2;
+Pi_unc_s6    = profit(alpha_unc_s6, a2, a1, x0_s6, xL0, xr0_s6, eta_s6, 0,0,0);
+fprintf('Unconstrained ERS (beta''=%.4f, allows overbidding):\n', beta_sym_s6);
+fprintf('  alpha=[%s]\n', num2str(alpha_unc_s6', '%.4f '));
+fprintf('  f=%.4f  g=%.1f MW^2  sum(Pi)=%.2f\n\n', f_unc_s6, g_unc_s6, sum(Pi_unc_s6));
+
+% Corollary 5b — Heterogeneous-beta partition construction
+%   eta_c = (eta_max + eta_min)/2
+%   Omega  = {i : eta_i >= eta_c}   (large-capacity operators)
+%   Omega^c = {i : eta_i <  eta_c}  (small-capacity, alpha_i*=1)
+%   For i in Omega: alpha_i* = D / (2*|Omega|*eta_i), D = S_Omega - S_OmegaC
+eta_max_s6   = max(eta_s6);
+eta_min_s6   = min(eta_s6);
+eta_c_s6     = (eta_max_s6 + eta_min_s6) / 2;
+Omega_het_s6  = find(eta_s6 >= eta_c_s6);   % {1}
+OmegaC_het_s6 = find(eta_s6 <  eta_c_s6);  % {2, 3}
+S_Omega_s6    = sum(eta_s6(Omega_het_s6));
+S_OmegaC_s6  = sum(eta_s6(OmegaC_het_s6));
+D_s6         = S_Omega_s6 - S_OmegaC_s6;
+nOmega_s6    = length(Omega_het_s6);
+
+alpha_het_s6 = zeros(n, 1);
+for i = 1:n
+    if ismember(i, OmegaC_het_s6)
+        alpha_het_s6(i) = 1;
+    else
+        alpha_het_s6(i) = D_s6 / (2 * nOmega_s6 * eta_s6(i));
+    end
+end
+f_het_s6  = sum(alpha_het_s6 .* eta_s6);
+g_het_s6  = f_het_s6 * (1-f_het_s6) * xr0_s6^2;
+Pi_het_s6 = profit(alpha_het_s6, a2, a1, x0_s6, xL0, xr0_s6, eta_s6, 0,0,0);
+fprintf('Corollary 5b — Heterogeneous-beta partition (eta_c=%.3f, Omega={Op%s}):\n', ...
+    eta_c_s6, num2str(Omega_het_s6'));
+fprintf('  D = S_Omega-S_OmegaC = %.4f-%.4f = %.4f,  |Omega|=%d\n', ...
+    S_Omega_s6, S_OmegaC_s6, D_s6, nOmega_s6);
+fprintf('  alpha=[%s]\n', num2str(alpha_het_s6', '%.4f '));
+fprintf('  f=%.4f  g=%.1f MW^2  sum(Pi)=%.2f  (g_max=%.0f)\n\n', ...
+    f_het_s6, g_het_s6, sum(Pi_het_s6), 0.25*xr0_s6^2);
+
+%% ========================================================================
+%    PART 7: DISTRIBUTED IMPLEMENTATIONS OF NEW SCENARIOS
+%
+%  7a: Hetero A — Algorithm 1 consensus + regulator-assigned beta_i'
+%  7b: Constrained ERS Scenario 2 (|Omega|=1) — third phi consensus
+%  7c: Multiple saturation Scenario 3 (|Omega|=2) — third phi consensus
+% =========================================================================
+
+fprintf('\n----------------------------------------------------------\n');
+fprintf('  PART 7: DISTRIBUTED IMPLEMENTATIONS\n');
+fprintf('----------------------------------------------------------\n\n');
+
+% ---- 7a: Distributed Heterogeneous Pareto (Hetero A) --------------------
+% Algorithm 1 Phase 1+2 already ran (eta_dist, n_hat from base x0).
+% Each operator uses a regulator-assigned beta_i' rather than the symmetric
+% formula in Phase 2; everything else in Algorithm 1 is unchanged.
+fprintf('7a — Distributed Hetero A  (beta''=[%.2f,%.2f,%.2f]):\n', ...
+    beta_het(2,1), beta_het(2,2), beta_het(2,3));
+beta_hetA_dist   = beta_het(2,:)';               % regulator-assigned
+alpha_hetA_dist  = 0.5*(1+4*beta_hetA_dist)./eta_dist;
+alpha_hetA_dist  = max(0, min(1, alpha_hetA_dist));
+f_hetA_dist      = sum(alpha_hetA_dist.*eta_dist);
+g_hetA_dist      = f_hetA_dist*(1-f_hetA_dist)*xr0^2;
+Pi_hetA_dist     = profit(alpha_hetA_dist,a2,a1,x0,xL0,xr0,eta_dist,0,0,0);
+fprintf('  alpha=[%s]  f=%.4f  g=%.1f  sum(Pi)=%.2f\n', ...
+    num2str(alpha_hetA_dist','%.4f '), f_hetA_dist, g_hetA_dist, sum(Pi_hetA_dist));
+fprintf('  Centralized error: %.2e\n\n', norm(alpha_hetA_dist - alpha_het(:,2)));
+
+% ---- 7b: Distributed Constrained ERS — Scenario 2 (Omega^c={3}) ----------
+fprintf('7b — Distributed Cor5b (hetero-beta), Scenario 2  (x3=30 MW):\n');
+
+% Phase 1: xi / psi consensus with x0_s2
+xi_init_s2  = zeros(N_total,1);  xi_init_s2(n+1)  = 1;
+psi_init_s2 = zeros(N_total,1);  psi_init_s2(1:n) = x0_s2;
+[xi_f_s2,  xi_hist_s2,  ~] = run_cons(xi_init_s2,  L_full, epsilon_c, max_cons_iter, cons_tol);
+[psi_f_s2, psi_hist_s2, ~] = run_cons(psi_init_s2, L_full, epsilon_c, max_cons_iter, cons_tol);
+
+% Phase 2: each operator locally estimates n and eta
+n_hat_s2d = zeros(n,1);  eta_d_s2 = zeros(n,1);
+for i = 1:n
+    n_hat_s2d(i) = 1/xi_f_s2(i) - 1;
+    eta_d_s2(i)  = x0_s2(i) / (psi_f_s2(i)/xi_f_s2(i));
+end
+n_est_s2 = round(mean(n_hat_s2d));
+
+% Phase 3a: max-/min-consensus on eta (exact in 2 hops on star K_{1,n})
+%   Each operator knows its own eta; utility collects all and broadcasts
+%   max/min back.  Simulated here by global max/min of converged estimates.
+eta_max_d_s2 = max(eta_d_s2);
+eta_min_d_s2 = min(eta_d_s2);
+eta_c_d_s2   = (eta_max_d_s2 + eta_min_d_s2) / 2;
+% in_OmegaERS_d_s2: true = in Omega_ERS (small, eta < eta_c), gets alpha=1
+% not_in_OmegaERS_d_s2: true = NOT in Omega_ERS (large, eta >= eta_c), gets formula
+in_OmegaERS_d_s2     = eta_d_s2 <  eta_c_d_s2;
+not_in_OmegaERS_d_s2 = ~in_OmegaERS_d_s2;
+
+% Phase 4: xi2-consensus to recover (n - |Omega_ERS|)
+%   Seed: xi2_i(0) = 1 if NOT in Omega_ERS, 0 if in Omega_ERS; utility seeds 0
+%   After convergence: (n - |Omega_ERS|) = xi2_f / xi_f  (ratio trick)
+xi2_init_s2 = zeros(N_total,1);
+xi2_init_s2(1:n) = double(not_in_OmegaERS_d_s2);
+[xi2_f_s2, ~, ~] = run_cons(xi2_init_s2, L_full, epsilon_c, max_cons_iter, cons_tol);
+n_minus_nERS_s2 = round(xi2_f_s2(1) / xi_f_s2(1));
+
+% Phase 4: psi2-consensus to recover sum_{j not in Omega_ERS} eta_j
+%   Seed: psi2_i(0) = eta_i if NOT in Omega_ERS, 0 if in Omega_ERS; utility seeds 0
+%   After convergence: sum_notERS = psi2_f / xi_f  (ratio trick)
+psi2_init_s2 = zeros(N_total,1);
+psi2_init_s2(1:n) = eta_d_s2 .* double(not_in_OmegaERS_d_s2);
+[psi2_f_s2, ~, ~] = run_cons(psi2_init_s2, L_full, epsilon_c, max_cons_iter, cons_tol);
+sum_notERS_s2 = psi2_f_s2(1) / xi_f_s2(1);
+
+% Corollary 5b bids (distributed, Phase 4)
+alpha_opt_s2d = zeros(n,1);
+for i = 1:n
+    if in_OmegaERS_d_s2(i)
+        alpha_opt_s2d(i) = 1;
+    else
+        alpha_opt_s2d(i) = (2*sum_notERS_s2 - 1) / (2 * n_minus_nERS_s2 * eta_d_s2(i));
+    end
+end
+
+fprintf('  eta_c=%.4f  not-Omega_ERS={Op%s}  Omega_ERS={Op%s}\n', ...
+    eta_c_d_s2, num2str(find(not_in_OmegaERS_d_s2)'), num2str(find(in_OmegaERS_d_s2)'));
+fprintf('  sum_notERS_hat=%.4f (true=%.4f)  (n-|OmegaERS|)_hat=%d (true=%d)\n', ...
+    sum_notERS_s2, S_ERS_s2, n_minus_nERS_s2, nOmega_s2);
+fprintf('  Cor5b dist: alpha=[%s]  err vs central=%.2e\n\n', ...
+    num2str(alpha_opt_s2d','%.4f '), norm(alpha_opt_s2d - alpha_Rem1));
+
+% ---- 7c: Distributed Constrained ERS — Scenario 3 (Omega^c={2,3}) -------
+fprintf('7c — Distributed Cor5b (hetero-beta), Scenario 3  (x=[210,45,45] MW):\n');
+
+% Phase 1
+xi_init_s6  = zeros(N_total,1);  xi_init_s6(n+1)  = 1;
+psi_init_s6 = zeros(N_total,1);  psi_init_s6(1:n) = x0_s6;
+[xi_f_s6,  xi_hist_s6,  ~] = run_cons(xi_init_s6,  L_full, epsilon_c, max_cons_iter, cons_tol);
+[psi_f_s6, psi_hist_s6, ~] = run_cons(psi_init_s6, L_full, epsilon_c, max_cons_iter, cons_tol);
+
+% Phase 2: estimate n and eta
+n_hat_s6d = zeros(n,1);  eta_d_s6 = zeros(n,1);
+for i = 1:n
+    n_hat_s6d(i) = 1/xi_f_s6(i) - 1;
+    eta_d_s6(i)  = x0_s6(i) / (psi_f_s6(i)/xi_f_s6(i));
+end
+n_est_s6 = round(mean(n_hat_s6d));
+
+% Phase 3a: max-/min-consensus on eta (exact in 2 hops on star K_{1,n})
+eta_max_d_s6 = max(eta_d_s6);
+eta_min_d_s6 = min(eta_d_s6);
+eta_c_d_s6   = (eta_max_d_s6 + eta_min_d_s6) / 2;
+% in_OmegaERS_d_s6: true = in Omega_ERS (small, eta < eta_c), gets alpha=1
+% not_in_OmegaERS_d_s6: true = NOT in Omega_ERS (large, eta >= eta_c), gets formula
+in_OmegaERS_d_s6     = eta_d_s6 <  eta_c_d_s6;
+not_in_OmegaERS_d_s6 = ~in_OmegaERS_d_s6;
+
+% Phase 4: xi2-consensus to recover (n - |Omega_ERS|)
+%   Seed: xi2_i(0) = 1 if NOT in Omega_ERS, 0 if in Omega_ERS; utility seeds 0
+%   After convergence: (n - |Omega_ERS|) = xi2_f / xi_f  (ratio trick)
+xi2_init_s6 = zeros(N_total,1);
+xi2_init_s6(1:n) = double(not_in_OmegaERS_d_s6);
+[xi2_f_s6, ~, ~] = run_cons(xi2_init_s6, L_full, epsilon_c, max_cons_iter, cons_tol);
+n_minus_nERS_s6 = round(xi2_f_s6(1) / xi_f_s6(1));
+
+% Phase 4: psi2-consensus to recover sum_{j not in Omega_ERS} eta_j
+%   Seed: psi2_i(0) = eta_i if NOT in Omega_ERS, 0 if in Omega_ERS; utility seeds 0
+%   After convergence: sum_notERS = psi2_f / xi_f  (ratio trick)
+psi2_init_s6 = zeros(N_total,1);
+psi2_init_s6(1:n) = eta_d_s6 .* double(not_in_OmegaERS_d_s6);
+[psi2_f_s6, ~, ~] = run_cons(psi2_init_s6, L_full, epsilon_c, max_cons_iter, cons_tol);
+sum_notERS_s6 = psi2_f_s6(1) / xi_f_s6(1);
+
+% Corollary 5b bids (distributed, Phase 4)
+alpha_opt_s6d = zeros(n,1);
+for i = 1:n
+    if in_OmegaERS_d_s6(i)
+        alpha_opt_s6d(i) = 1;
+    else
+        alpha_opt_s6d(i) = (2*sum_notERS_s6 - 1) / (2 * n_minus_nERS_s6 * eta_d_s6(i));
+    end
+end
+
+fprintf('  eta_c=%.4f  not-Omega_ERS={Op%s}  Omega_ERS={Op%s}\n', ...
+    eta_c_d_s6, num2str(find(not_in_OmegaERS_d_s6)'), num2str(find(in_OmegaERS_d_s6)'));
+fprintf('  sum_notERS_hat=%.4f (true=%.4f)  (n-|OmegaERS|)_hat=%d (true=%d)\n', ...
+    sum_notERS_s6, S_Omega_s6, n_minus_nERS_s6, nOmega_s6);
+fprintf('  Cor5b dist: alpha=[%s]  err vs central=%.2e\n\n', ...
+    num2str(alpha_opt_s6d','%.4f '), norm(alpha_opt_s6d - alpha_het_s6));
+
+%% ========================================================================
 %                         FINAL SUMMARY
 % =========================================================================
 
@@ -475,43 +826,6 @@ end
 % Note: xi_i(0)=0 for operators, so 1/xi_i(0)-1 = Inf at k=1.
 % Replace non-finite values with NaN so MATLAB skips those points.
 n_hat_hist = 1./xi_hist(1:n,:) - 1;
-n_hat_plot = n_hat_hist(:,1:K);
-n_hat_plot(~isfinite(n_hat_plot)) = NaN;
-figure('Position', [110, 110, 620, 460]);
-plot(1:K, n_hat_plot', 'LineWidth', 1.5);
-yline(n, 'k--', 'LineWidth', 1.5);
-xlabel('Iteration k'); ylabel('\hat{n}_i(k)');
-title('Distributed Estimate of n');
-legend([op_labels, {sprintf('True n=%d',n)}], 'Location','best','FontSize',7);
-ylim([0, n + 3]); grid on;   % fixed ylim: transient overshoots n, but converges to n
-if save_figs
-    style_current_figure();
-    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
-    fig1c_path = fullfile(fig_out_dir, 'algorithm1_nhat_estimate.png');
-    exportgraphics(gcf, fig1c_path, 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fig1c_path);
-end
-
-% Plot A4: Estimated x_r^o as ratio psi/xi evolves
-% Note: xi_i(0)=0, so psi_i(0)/xi_i(0) = Inf at k=1; early iterates are very large.
-% Replace non-finite values with NaN and fix ylim so convergence is visible.
-xr0_hist_ops = psi_hist(1:n,:) ./ xi_hist(1:n,:);
-xr0_hist_plot = xr0_hist_ops(:,1:K);
-xr0_hist_plot(~isfinite(xr0_hist_plot)) = NaN;
-figure('Position', [140, 140, 620, 460]);
-plot(1:K, xr0_hist_plot', 'LineWidth', 1.5);
-yline(xr0, 'k--', 'LineWidth', 1.5);
-xlabel('Iteration k'); ylabel('\hat{x}_r^o  (MW)');
-title('Distributed Estimate of x_r^o');
-legend([op_labels, {sprintf('True=%.0f',xr0)}], 'Location','best','FontSize',7);
-ylim([0, xr0 * 2]); grid on;  % fixed ylim: clips large transient, shows convergence
-if save_figs
-    style_current_figure();
-    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
-    fig1d_path = fullfile(fig_out_dir, 'algorithm1_xr0_estimate.png');
-    exportgraphics(gcf, fig1d_path, 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fig1d_path);
-end
 
 % Plot A_comp: Comparative results — four individual figures, one per metric
 strat_labels = {'Coalition', 'RN-NE', 'Pareto-NE', 'Algo1'};
@@ -533,142 +847,153 @@ grid on;
 if save_figs
     style_current_figure();
     if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
-    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_comp_alpha.png'), 'Resolution', 150);
-    fprintf('\nFigure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_alpha.png'));
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_comp_alpha_s1.png'), 'Resolution', 150);
+    fprintf('\nFigure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_alpha_s1.png'));
 end
 
-% A_comp_2: Individual profits Pi_i
+% A_comp_2: Individual profits Pi_i (S1)
 figure('Position', [80, 80, 620, 460]);
 bar(1:n, Pi_all);
 xlabel('Operator'); ylabel('\Pi_i  ($/hr)');
-title('Individual Profit: All Four Methods');
+title('Individual Profit: All Four Methods (S1)');
 xticklabels(op_labels);
 legend(strat_labels, 'Location', 'best', 'FontSize', 7);
 grid on;
 if save_figs
     style_current_figure();
     if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
-    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_comp_profit.png'), 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_profit.png'));
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_comp_profit_s1.png'), 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_profit_s1.png'));
 end
 
-% A_comp_3: Aggregate bid fraction f
-figure('Position', [110, 110, 620, 460]);
-bar(strat_cats, f_all);
-yline(0.5, 'r--', 'LineWidth', 1.5);
-xlabel('Strategy'); ylabel('f(\alpha)');
-title('Aggregate Bid Fraction (target f = 0.5)');
-ylim([0, 1]); grid on;
-if save_figs
-    style_current_figure();
-    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
-    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_comp_f.png'), 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_f.png'));
-end
-
-% A_comp_4: Market efficiency g
-figure('Position', [140, 140, 620, 460]);
-bar(strat_cats, g_all);
-yline(0.25*xr0^2, 'r--', 'LineWidth', 1.5);
-xlabel('Strategy'); ylabel('g(\alpha)  [MW^2]');
-title(sprintf('Market Efficiency g  (g_{max} = %.0f MW^2)', 0.25*xr0^2));
-grid on;
-if save_figs
-    style_current_figure();
-    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
-    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_comp_g.png'), 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_g.png'));
-end
-
-% Plot A5a: Overbidding — unclamped bids
-op_colors = lines(n);
-op_labels_s2 = arrayfun(@(i) sprintf('Op%d', i), 1:n, 'UniformOutput', false);
-y_top = max(alpha_cV_unc) * 1.1;
-
-figure('Position', [170, 170, 620, 460]);
-b_unc = bar(1:n, alpha_cV_unc, 'FaceColor', 'flat');
-b_unc.CData = op_colors;
-hold on;
-yline(1, 'k--', 'LineWidth', 1.5);
-xlabel('Operator'); ylabel('\alpha_i^*  (bid fraction)');
-title(sprintf('Unclamped overbidding  (f=%.3f, g=%.0f MW^2)', f_cV_unc, g_cV_unc));
-xticks(1:n); xticklabels(op_labels_s2);
-ylim([0, y_top]); grid on;
-
-if save_figs
-    style_current_figure();
-    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
-    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_alpha_unc.png'), 'Resolution', 150);
-    fprintf('\nFigure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_alpha_unc.png'));
-end
-
-% Plot A5b: Overbidding — no-overbidding projection (clamped)
-figure('Position', [200, 200, 620, 460]);
-b_clp = bar(1:n, alpha_cV_clp, 'FaceColor', 'flat');
-b_clp.CData = op_colors;
-hold on;
-yline(1, 'k--', 'LineWidth', 1.5);
-xlabel('Operator'); ylabel('\alpha_i^*  (bid fraction)');
-title(sprintf('No-overbidding projection  (f=%.3f, g=%.0f MW^2)', f_cV_clp, g_cV_clp));
-xticks(1:n); xticklabels(op_labels_s2);
-ylim([0, y_top]); grid on;
-
-if save_figs
-    style_current_figure();
-    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_alpha_clp.png'), 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_alpha_clp.png'));
-end
-
-% Plot A6: Profit comparison — ERS Pareto, unclamped overbid, no-overbid
-
-figure('Position', [200, 200, 680, 460]);
-scen_labels = {'ERS Pareto', 'Unclamped', 'No-overbid'};
-bar_data_Pi = [sum(Pi_sym), sum(Pi_cV_unc), sum(Pi_cV_clp)];
-b_pi_cmp = bar(1:3, bar_data_Pi, 0.5, 'FaceColor', 'flat');
-b_pi_cmp.CData = [0.2 0.6 0.3; 0.85 0.33 0.10; 0.15 0.45 0.75];
-hold on;
-% Add absolute value labels above each bar
-for idx = 1:3
-    text(idx, bar_data_Pi(idx) + 0.003 * max(bar_data_Pi), ...
-        sprintf('\\$%.0f', bar_data_Pi(idx)), ...
-        'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom', 'FontSize', 8);
-end
-% Add percentage-loss annotations relative to ERS Pareto
-ref_Pi = bar_data_Pi(1);
-for idx = 2:3
-    pct = 100 * (bar_data_Pi(idx) - ref_Pi) / abs(ref_Pi);
-    text(idx, bar_data_Pi(idx) * 0.5, sprintf('%.1f%%', pct), ...
-        'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', ...
-        'FontSize', 8, 'Color', 'w', 'FontWeight', 'bold');
-end
-xlabel('Scenario'); ylabel('\Sigma\Pi_i  ($/hr)');
-title('Aggregate Profit: Scenario Comparison');
-xticks(1:3); xticklabels(scen_labels);
-grid on;
-if save_figs
-    style_current_figure();
-    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
-    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_profit.png'), 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_profit.png'));
-end
-
-% Plot A7: Per-operator profit breakdown for overbidding scenarios
-figure('Position', [230, 230, 680, 460]);
-Pi_breakdown = [Pi_sym, Pi_cV_unc, Pi_cV_clp];  % n×3 matrix (col = scenario)
-b_pi_ind = bar(1:n, Pi_breakdown, 0.7);
-b_pi_ind(1).FaceColor = [0.2 0.6 0.3];   % ERS Pareto
-b_pi_ind(2).FaceColor = [0.85 0.33 0.10]; % Unclamped
-b_pi_ind(3).FaceColor = [0.15 0.45 0.75]; % No-overbid
-xlabel('Operator'); ylabel('\Pi_i  ($/hr)');
-title('Per-Operator Profit: Scenario Comparison');
+% A_comp_2b: Per-unit profit Pi_i / x_i^o (S1)
+Pipu_all_s1 = Pi_all ./ x0;   % $/hr per MW of installed capacity
+figure('Position', [95, 95, 620, 460]);
+bar(1:n, Pipu_all_s1);
+xlabel('Operator'); ylabel('\Pi_i / x_i^o  ($/hr/MW)');
+title('Per-Unit Profit: All Four Methods (S1, x^o=[120,100,80] MW)');
 xticklabels(op_labels);
-legend({'ERS Pareto', 'Unclamped', 'No-overbid'}, 'Location', 'best', 'FontSize', 7);
+legend(strat_labels, 'Location', 'best', 'FontSize', 7);
+grid on;
+if save_figs
+    style_current_figure();
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_comp_profit_perunit_s1.png'), 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_comp_profit_perunit_s1.png'));
+end
+
+
+% =========================================================================
+%  OVERBIDDING COMPARISON PLOTS — Scenario 2 params (x3^o = 30 MW)
+%  Under S2: eta_3 = 0.12 < 1/(2n) = 1/6, so Pareto-NE and RN-NE both
+%  overbid. Algorithm 1 detects saturation (if-else branch) and clamps
+%  Op3 to alpha_3*=1 while re-optimising beta' for the remaining operators
+%  via sigma/mu consensus (Corollary 5b hetero-beta), recovering f=0.5 exactly.
+% =========================================================================
+
+% --- Coalition under S2 ---
+alpha_coal_s2 = 0.5 * ones(n, 1);
+Pi_coal_s2    = profit(alpha_coal_s2, a2, a1, x0_s2, xL0, xr0_s2, eta_s2, 0,0,0);
+
+% --- RN-NE under S2 (unclamped) ---
+% nash_eq() clamps alpha, so compute the unclamped RN bid directly:
+%   f_RN = n/(n+1) = 0.75,  alpha_i* = (1-f_RN)/eta_i = 0.25/eta_i
+f_RN_s2_unc      = n / (n + 1);                          % = 0.75
+alpha_RN_s2_unc  = (1 - f_RN_s2_unc) ./ eta_s2;         % [0.52, 0.63, 2.08]
+Pi_RN_s2_unc     = profit(alpha_RN_s2_unc, a2, a1, x0_s2, xL0, xr0_s2, eta_s2, 0,0,0);
+
+% --- Pareto-NE under S2 (unclamped symmetric Pareto, beta'=-1/6) ---
+%     eta_3=0.12 => alpha_3* = 1/(6*0.12) = 1.39 > 1 => overbids
+beta_sym_s2    = (1-n)/(4*n);                                    % = -1/6
+f_sym_s2_unc   = (n + 4*n*beta_sym_s2)/(1 + n + 4*n*beta_sym_s2); % = 0.5 analytically
+alpha_sym_s2_unc = (1 + 4*beta_sym_s2) * (1-f_sym_s2_unc) ./ eta_s2; % unclamped
+Pi_sym_s2_unc  = profit(alpha_sym_s2_unc, a2, a1, x0_s2, xL0, xr0_s2, eta_s2, 0,0,0);
+
+% --- Algo1 under S2 (Cor5b hetero-beta saturation branch) ---
+%     alpha_opt_s2d = [0.396, 0.475, 1.000]: Op3 in Omega^c (alpha=1), f=0.5
+Pi_dist_s2 = profit(alpha_opt_s2d, a2, a1, x0_s2, xL0, xr0_s2, eta_s2, 0,0,0);
+
+% --- Unclamped OB under S2 (heterogeneous beta_cV, S2 params) ---
+alpha_cV_unc_s2 = 0.5 * (1 + 4*beta_cV) ./ eta_s2;
+Pi_cV_unc_s2    = profit(alpha_cV_unc_s2, a2, a1, x0_s2, xL0, xr0_s2, eta_s2, 0,0,0);
+
+% --- No-overbid under S2 (clamp unclamped OB to [0,1]) ---
+alpha_cV_clp_s2 = max(0, min(1, alpha_cV_unc_s2));
+Pi_cV_clp_s2    = profit(alpha_cV_clp_s2, a2, a1, x0_s2, xL0, xr0_s2, eta_s2, 0,0,0);
+
+% Assemble combined arrays — all evaluated at Scenario 2 params
+ob_strat_labels = {'Coalition', 'RN-NE', 'Pareto-NE', 'Algo1 (Cor.5b)', 'Unclamped OB', 'No-overbid'};
+n_ob = numel(ob_strat_labels);
+ob_colors = lines(n_ob);
+op_labels_ob = {sprintf('Op1 (%d MW)', x0_s2(1)), ...
+                sprintf('Op2 (%d MW)', x0_s2(2)), ...
+                sprintf('Op3 (%d MW)', x0_s2(3))};
+
+alpha_combined = [alpha_coal_s2, alpha_RN_s2_unc, alpha_sym_s2_unc, alpha_opt_s2d, ...
+                  alpha_cV_unc_s2, alpha_cV_clp_s2];               % n×6
+Pi_combined    = [Pi_coal_s2, Pi_RN_s2_unc, Pi_sym_s2_unc, Pi_dist_s2, ...
+                  Pi_cV_unc_s2, Pi_cV_clp_s2];                     % n×6
+Pipu_combined  = Pi_combined ./ x0_s2;                             % per-unit ($/hr/MW)
+
+% Plot A5: Bidding strategies — Scenario 2, all six strategies
+% Pareto-NE and RN-NE bars for Op3 cross the alpha=1 boundary;
+% Algo1 lands exactly at 1 (saturation branch activated).
+figure('Position', [170, 170, 720, 480]);
+b_al = bar(1:n, alpha_combined, 0.85);
+for s = 1:n_ob, b_al(s).FaceColor = ob_colors(s,:); end
+yline(1, 'k--', 'LineWidth', 1.5, 'HandleVisibility', 'off');
+% Cap y-axis at 1.6 for readability; annotate clipped RN-NE bar
+ylim([0, 1.65]);
+% Annotate Op3 bars that exceed the clipping limit
+alpha_op3 = alpha_combined(3, :);
+for s = 1:n_ob
+    if alpha_op3(s) > 1.55
+        text(3 + (s - (n_ob+1)/2)*0.14, 1.58, sprintf('%.2f', alpha_op3(s)), ...
+            'HorizontalAlignment','center', 'FontSize', 6.5, 'Color', ob_colors(s,:), ...
+            'FontWeight','bold');
+    end
+end
+xlabel('Operator'); ylabel('\alpha_i^*  (bid fraction)');
+title({'Bidding Strategies: Scenario 2 (x_3^o = 30 MW)'; ...
+       'Algo.1 saturates Op3 \rightarrow \alpha_3^* = 1 (Corollary 5b)'});
+xticks(1:n); xticklabels(op_labels_ob);
+legend(ob_strat_labels, 'Location', 'northwest', 'FontSize', 7);
 grid on;
 if save_figs
     style_current_figure();
     if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
-    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_profit_individual.png'), 'Resolution', 150);
-    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_profit_individual.png'));
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_alpha_s2.png'), 'Resolution', 150);
+    fprintf('\nFigure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_alpha_s2.png'));
+end
+
+% Plot A6: Per-operator absolute profit — Scenario 2, all six strategies
+figure('Position', [200, 200, 720, 460]);
+b_abs = bar(1:n, Pi_combined, 0.85);
+for s = 1:n_ob, b_abs(s).FaceColor = ob_colors(s,:); end
+xlabel('Operator'); ylabel('\Pi_i  ($/hr)');
+title('Per-Operator Profit: Scenario 2 (x_3^o = 30 MW)');
+xticks(1:n); xticklabels(op_labels_ob);
+legend(ob_strat_labels, 'Location', 'northwest', 'FontSize', 7);
+grid on;
+if save_figs
+    style_current_figure();
+    if ~exist(fig_out_dir, 'dir'), mkdir(fig_out_dir); end
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_profit_s2.png'), 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_profit_s2.png'));
+end
+
+% Plot A7: Per-unit profit — Scenario 2, all six strategies
+figure('Position', [230, 230, 720, 460]);
+b_pu = bar(1:n, Pipu_combined, 0.85);
+for s = 1:n_ob, b_pu(s).FaceColor = ob_colors(s,:); end
+xlabel('Operator'); ylabel('\Pi_i / x_i^o  ($/hr/MW)');
+title('Per-Unit Profit: Scenario 2 (x_3^o = 30 MW)');
+xticks(1:n); xticklabels(op_labels_ob);
+legend(ob_strat_labels, 'Location', 'northwest', 'FontSize', 7);
+grid on;
+if save_figs
+    style_current_figure();
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_profit_perunit_s2.png'), 'Resolution', 150);
+    fprintf('Figure saved to: %s\n', fullfile(fig_out_dir, 'algorithm1_overbid_profit_perunit_s2.png'));
 end
 
 % Visualization for Algorithm 2 (heterogeneous beta_i'(0))
@@ -772,6 +1097,143 @@ if save_figs
 end
 end
 
+% -------------------------------------------------------------------------
+% Part 4 figures: Constrained RN vs Constrained ERS vs Cor5b hetero-beta (Scenario 2)
+% -------------------------------------------------------------------------
+op_labels_s2 = arrayfun(@(i) sprintf('Op%d',i), 1:n, 'UniformOutput', false);
+scen4_labels = {'RN Unconstrained', 'Cor4 RN Clamped', 'Cor5b ERS Pareto'};
+alpha_s4 = [alpha_RN_s2, alpha_Cor4, alpha_Rem1];
+Pi_s4    = [Pi_RN_s2,    Pi_Cor4,   Pi_Rem1];
+f_s4     = [f_RN_s2, f_Cor4, f_Rem1];
+g_s4     = [g_RN_s2, g_Cor4, g_Rem1];
+
+figure('Position', [50,50,680,460]);
+bar(1:n, alpha_s4);
+hold on; yline(1,'k--','LineWidth',1.5,'HandleVisibility','off');
+xlabel('Operator'); ylabel('\alpha_i^*  (bid fraction)');
+title('Corollary 4: Constrained RN vs ERS Pareto  (x_3^o=30 MW)');
+xticklabels(op_labels_s2); legend(scen4_labels,'Location','best','FontSize',7);
+grid on;
+if save_figs
+    style_current_figure();
+    exportgraphics(gcf, fullfile(fig_out_dir, 'cor4_constrained_rn_alpha.png'), 'Resolution', 150);
+    fprintf('Figure saved: cor4_constrained_rn_alpha.png\n');
+end
+
+% -------------------------------------------------------------------------
+% Part 5 figures: (removed — Theorem 2 heterogeneous allocations not in paper)
+% -------------------------------------------------------------------------
+
+% -------------------------------------------------------------------------
+% Part 6 figures: Scenario 3 — six-strategy overbidding comparison
+%   (analogous to Scenario 2 plots; Omega^c = {2,3})
+% -------------------------------------------------------------------------
+op_labels_s6 = arrayfun(@(i) sprintf('Op%d',i), 1:n, 'UniformOutput', false);
+
+% --- Coalition under S3 ---
+alpha_coal_s3 = 0.5 * ones(n, 1);
+Pi_coal_s3    = profit(alpha_coal_s3, a2, a1, x0_s6, xL0, xr0_s6, eta_s6, 0,0,0);
+
+% --- RN-NE under S3 (unclamped): f=n/(n+1)=0.75, alpha_i=0.25/eta_i ---
+f_RN_s3_unc     = n / (n + 1);
+alpha_RN_s3_unc = (1 - f_RN_s3_unc) ./ eta_s6;     % [0.357, 1.667, 1.667]
+Pi_RN_s3_unc    = profit(alpha_RN_s3_unc, a2, a1, x0_s6, xL0, xr0_s6, eta_s6, 0,0,0);
+
+% --- Pareto-NE under S3 (unclamped symmetric, already in alpha_unc_s6) ---
+Pi_sym_s3_unc   = profit(alpha_unc_s6, a2, a1, x0_s6, xL0, xr0_s6, eta_s6, 0,0,0);
+
+% --- Algo1 / Cor5b under S3 (alpha_opt_s6d = [0.286, 1, 1]) ---
+Pi_dist_s3      = profit(alpha_opt_s6d, a2, a1, x0_s6, xL0, xr0_s6, eta_s6, 0,0,0);
+
+% --- Unclamped OB under S3: heterogeneous beta, same as S2 deviator ---
+beta_cV_s3      = [-0.20; -0.15; -0.05];
+alpha_cV_unc_s3 = 0.5 * (1 + 4*beta_cV_s3) ./ eta_s6;
+Pi_cV_unc_s3    = profit(alpha_cV_unc_s3, a2, a1, x0_s6, xL0, xr0_s6, eta_s6, 0,0,0);
+
+% --- No-overbid under S3: naive per-operator clamp of Pareto-NE ---
+alpha_cV_clp_s3 = max(0, min(1, alpha_unc_s6));
+Pi_cV_clp_s3    = profit(alpha_cV_clp_s3, a2, a1, x0_s6, xL0, xr0_s6, eta_s6, 0,0,0);
+
+ob_strat_labels_s3 = {'Coalition','RN-NE','Pareto-NE','Algo1 (Cor.5b)','Unclamped OB','No-overbid'};
+n_ob_s3 = numel(ob_strat_labels_s3);
+ob_colors_s3 = lines(n_ob_s3);
+op_labels_s3 = {sprintf('Op1 (%d MW)', x0_s6(1)), ...
+                sprintf('Op2 (%d MW)', x0_s6(2)), ...
+                sprintf('Op3 (%d MW)', x0_s6(3))};
+
+alpha_combined_s3 = [alpha_coal_s3, alpha_RN_s3_unc, alpha_unc_s6, alpha_opt_s6d, ...
+                     alpha_cV_unc_s3, alpha_cV_clp_s3];
+Pi_combined_s3    = [Pi_coal_s3, Pi_RN_s3_unc, Pi_sym_s3_unc, Pi_dist_s3, ...
+                     Pi_cV_unc_s3, Pi_cV_clp_s3];
+Pipu_combined_s3  = Pi_combined_s3 ./ x0_s6;
+
+% Plot S3-A: Bidding strategies — all six strategies
+figure('Position', [170, 170, 720, 480]);
+b_al3 = bar(1:n, alpha_combined_s3, 0.85);
+for s = 1:n_ob_s3, b_al3(s).FaceColor = ob_colors_s3(s,:); end
+hold on; yline(1, 'k--', 'LineWidth', 1.5, 'HandleVisibility', 'off');
+ylim([0, 2.0]);
+% Annotate bars that exceed axis clip
+for s = 1:n_ob_s3
+    for op = 1:n
+        if alpha_combined_s3(op,s) > 1.85
+            text(op + (s-(n_ob_s3+1)/2)*0.14, 1.88, ...
+                sprintf('%.2f', alpha_combined_s3(op,s)), ...
+                'HorizontalAlignment','center','FontSize',6.5, ...
+                'Color',ob_colors_s3(s,:),'FontWeight','bold');
+        end
+    end
+end
+xlabel('Operator'); ylabel('\alpha_i^*  (bid fraction)');
+title({'Bidding Strategies: Scenario 3  (x^o=[210,45,45] MW)', ...
+       'Algo.1 saturates Ops 2,3 \rightarrow \alpha_{2,3}^* = 1  (Corollary 5b)'});
+xticks(1:n); xticklabels(op_labels_s3);
+legend(ob_strat_labels_s3, 'Location', 'northwest', 'FontSize', 7);
+grid on;
+if save_figs
+    style_current_figure();
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_alpha_s3.png'), 'Resolution', 150);
+    fprintf('Figure saved: algorithm1_overbid_alpha_s3.png\n');
+end
+
+% Plot S3-B: Per-operator profit — all six strategies
+figure('Position', [200, 200, 720, 460]);
+b_abs3 = bar(1:n, Pi_combined_s3, 0.85);
+for s = 1:n_ob_s3, b_abs3(s).FaceColor = ob_colors_s3(s,:); end
+xlabel('Operator'); ylabel('\Pi_i  ($/hr)');
+title('Per-Operator Profit: Scenario 3  (x^o=[210,45,45] MW)');
+xticks(1:n); xticklabels(op_labels_s3);
+legend(ob_strat_labels_s3, 'Location', 'northwest', 'FontSize', 7);
+grid on;
+if save_figs
+    style_current_figure();
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_profit_s3.png'), 'Resolution', 150);
+    fprintf('Figure saved: algorithm1_overbid_profit_s3.png\n');
+end
+
+% Plot S3-C: Per-unit profit — all six strategies
+figure('Position', [230, 230, 720, 460]);
+b_pu3 = bar(1:n, Pipu_combined_s3, 0.85);
+for s = 1:n_ob_s3, b_pu3(s).FaceColor = ob_colors_s3(s,:); end
+xlabel('Operator'); ylabel('\Pi_i / x_i^o  ($/hr/MW)');
+title('Per-Unit Profit: Scenario 3  (x^o=[210,45,45] MW)');
+xticks(1:n); xticklabels(op_labels_s3);
+legend(ob_strat_labels_s3, 'Location', 'northwest', 'FontSize', 7);
+grid on;
+if save_figs
+    style_current_figure();
+    exportgraphics(gcf, fullfile(fig_out_dir, 'algorithm1_overbid_profit_perunit_s3.png'), 'Resolution', 150);
+    fprintf('Figure saved: algorithm1_overbid_profit_perunit_s3.png\n');
+end
+
+% -------------------------------------------------------------------------
+% Part 7 figures: Phase 4 xi2/psi2 consensus trajectories (Cor. 5b branch)
+% -------------------------------------------------------------------------
+% Note: Phase 4 uses the same xi/psi ratio trick as Phase 1, seeded only by
+% operators NOT in Omega_ERS.  Figures are omitted here; the xi/psi consensus
+% plots for Phase 1 (above) already illustrate the protocol mechanics.
+
+
 if close_figs
     close all;
     fprintf('\nAll figures closed (close_figs=true).\n');
@@ -829,4 +1291,16 @@ end
 
 function s = ternary(cond, a, b)
     if cond, s = a; else, s = b; end
+end
+
+function [z_final, z_hist, n_iters] = run_cons(z_init, L, eps_c, max_iter, tol)
+    % Run a consensus protocol z(k+1) = z(k) - eps*L*z(k) to convergence.
+    z = z_init;  z_hist = zeros(length(z_init), max_iter);  n_iters = max_iter;
+    for k = 1:max_iter
+        z_hist(:,k) = z;
+        z_new = z - eps_c * L * z;
+        if k>1 && norm(z_new-z) < tol,  n_iters=k;  z=z_new;  break;  end
+        z = z_new;
+    end
+    z_final = z;
 end

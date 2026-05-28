@@ -1,5 +1,6 @@
 \documentclass[conference]{IEEEtran}
 \usepackage{amsmath, amssymb, xcolor, graphicx, comment, algorithm, algpseudocode}
+\usepackage{multirow}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta, positioning}
 \usepackage{soul}
@@ -13,7 +14,7 @@
 
 \usepackage{hyperref} 
 
-\title{Distributed Risk-Aware Bidding Strategy for Incorporating Renewable Generation into Real-Time Electricity Market}
+\title{A Distributed Risk-Aware Bidding Strategy for Incorporating Renewable Generation into Real-Time Electricity Market}
 \author{\IEEEauthorblockN{Tommy Truong, Zhihua Qu, and Marwan A. Simaan}
 \IEEEauthorblockA{University of Central Florida}}
 
@@ -77,7 +78,7 @@ Numerical results are provided in Section~VI, followed by concluding remarks in 
 
 \section{Problem Formulation}
 
-In this paper, we consider the simple case that all traditional generation assets are owned by a single utility company\footnote{The proposed results apply to the general case of multiple utility companies of individual cost functions except for notational complexity.} while renewable generation are operated by individual entities (one of which could be the utility company). And, the utility company and the renewable generation operators are the participants in both day-ahead and real-time electricity markets for profit. 
+In this paper, we consider the simple case that all traditional generation assets are owned by a single utility company\footnote{The proposed results apply to the general case of multiple utility companies of individual cost functions except for notational complexity.} while renewable generation is operated by individual entities (one of which could be the utility company). And, the utility company and the renewable generation operators are the participants in both day-ahead and real-time electricity markets for profit. 
 
 \begin{figure}[hbt!]
 \centering
@@ -103,7 +104,7 @@ In this paper, we consider the simple case that all traditional generation asset
 \draw[arr, bend right=10] (util) to
       node[right, font=\scriptsize]{$\lambda^o\!,\lambda$} (op2);
 % Consensus communication graph
-\draw[comm] (op1) -- node[below, font=\scriptsize]{consensus} (op2);
+\draw[comm] (op1) -- node[below, font=\scriptsize]{$\beta$} (op2);
 \draw[comm] (op2) -- (op3);
 \draw[comm, bend left=28]  (op1) to (util);
 \draw[comm, bend right=28] (op3) to (util);
@@ -118,7 +119,7 @@ J(P_g) = a_2 P_g^2 + a_1 P_g + a_0, \label{eq:Jm}
 \end{equation}
 where $a_i$ are cost coefficients, and $P_g$ is the aggregated power of traditional generation. For simplicity, marginal costs of operating renewables and battery storage sites are modeled as zero, and hence they need not to be included explicitly in objective function \eqref{eq:Jm}. 
 
-Let $\Omega$ be the set of renewable generation operators, with $n=|\Omega|$ being its cardinal. For the day-ahead market, their renewable generations, $P_j$ for $j\in\Omega$, are modeled as stochastic variables, and similarly the grid total load $P_L$ is also modeled as a stochastic variable. Let us form the whole vector of random variables as 
+Let $n$ denote the total number of renewable generation operators and $\Omega=\{1,\cdots,n\}$ be the index set. For the day-ahead market, their renewable generations, $P_j$ for $j\in\Omega$, are modeled as stochastic variables, and similarly the grid total load $P_L$ is also modeled as a stochastic variable. Let us form the whole vector of random variables as 
 \begin{equation} 
 x = \begin{bmatrix} P_1 & \cdots & P_n & P_L \end{bmatrix}^T.  \label{eq:x}
 \end{equation}
@@ -137,11 +138,11 @@ The Gaussian model is adopted for notational consistency with standard stochasti
 
 The day ahead market clears the projected aggregated power generation $P_g^o$ and its associated price $\lambda^o$ by minimizing $J(P_g^o)$ under the following power balance constraint:
 \begin{equation} 
-P_g^o + \sum_{j=1}^n \alpha_j x_j^o  = x_{n+1}^o, \label{eq:DA_power}
+P_g^o + \sum_{j\in\Omega} \alpha_j x_j^o  = x_{n+1}^o, \label{eq:DA_power}
 \end{equation}
 where $x_{n+1}^o=P_L^o$, $\alpha_j\in[0,1]$ if no overbidding is allowed or $\alpha_j\in[0,\infty)$ if overbidding is permitted, and $\alpha_j x_j^o =\alpha_j P_j^o$ represent the bids by the renewable generation operators into the day-ahead market. Similarly, the real-time market clears the aggregated power generation $P_g$ and its associated price $\lambda$ by minimizing $J(P_g)$ under the following real-time power balance constraint:
 \begin{equation} 
-P_g + \sum_{j=1}^n x_j   = x_{n+1}. \label{eq:RT_power}
+P_g + \sum_{j\in\Omega} x_j   = x_{n+1}. \label{eq:RT_power}
 \end{equation}
 It is well known that, with global information, day-ahead price $\lambda^o$ and real-time $\lambda$ are the dual variables associated with constraints \eqref{eq:DA_power} and \eqref{eq:RT_power}, respectively. 
 
@@ -158,7 +159,7 @@ where $\beta_i\in\mathbb{R}$,
 \end{subequations}
 and the pair $\{\alpha_i, \; \beta_i\}$ represents the bidding strategy of the $i$-th operator into the electricity markets. Throughout this paper, $J_i$ exclusively denotes the risk-aware objective defined in~\eqref{eq:J_i}; the special case $\beta_i=0$ reduces $J_i$ to pure expected profit maximization and is referred to as the risk-neutral strategy. If $\beta_i=0$ is chosen, the $i$-th entity aims to maximize its average profit from the total revenues from participating in the day ahead and real time markets. By selecting $\beta_i>0$, the $i$-th entity also attempts to reduce its profit variation by suppressing variations of real time price $\lambda$ around day ahead price $\lambda^o$.  By choosing $\beta_i<0$, the $i$th entity tries to maximize its profit by encouraging more variations of real time price $\lambda$ around day ahead price $\lambda^o$. In other words, the $i$-th entity is risk averse if $\beta_i>0$ and risk seeking if $\beta_i<0$.
 
-The objective of this paper is to show the following advantages by introducing the risk aware bidding strategy of $\{\alpha_i, \; \beta_i\}$: (i) achieving Pareto-optimal Nash equilibria that maximize the total profit $\sum_{i=1}^n \Pi_i$; 
+The risk-aware bidding strategy $\{\alpha_i,\beta_i\}$ offers four advantages: (i) achieving Pareto-optimal Nash equilibria that maximize the total profit $\sum_{i\in\Omega} \Pi_i$; 
 % (equivalently, maximizing $g(\alpha_1^*,\ldots,\alpha_n^*)$ as defined in \eqref{eq:G});
 (ii) enabling distributed implementation without centralized coordination; (iii) maintaining incentive compatibility as firms remain self-interested; and (iv) preserving privacy through minimal information exchange. Power grid congestion is not considered in the paper but can be considered.
 
@@ -167,25 +168,25 @@ The objective of this paper is to show the following advantages by introducing t
 The electricity markets are bi-level optimization problems linked together by dual variables. At the upper level, they are quadratic optimization problems with equality constraints, that is, the markets perform their economic dispatch with the following Lagrangians: 
 \begin{subequations}
 \begin{equation} 
-L^o = a_2(P_g^o)^2+a_1P_g^o+a_0 + \lambda^o\left(x_{n+1}^o- P_g^o-\sum_{j=1}^n \alpha_j x_j^o \right), \label{eq:L*}
+L^o = a_2(P_g^o)^2+a_1P_g^o+a_0 + \lambda^o\left(x_{n+1}^o- P_g^o-\sum_{j\in\Omega} \alpha_j x_j^o \right), \label{eq:L*}
 \end{equation}
 \begin{equation} 
-L = a_2P_g^2+a_1P_g+a_0 + \lambda\left(x_{n+1}-P_g-\sum_{j=1}^n x_j\right). \label{eq:L}
+L = a_2P_g^2+a_1P_g+a_0 + \lambda\left(x_{n+1}-P_g-\sum_{j\in\Omega} x_j\right). \label{eq:L}
 \end{equation}
 \end{subequations}
 Applying the first-order optimality condition to the Lagrangians yields the following solutions for the prices:
 \begin{subequations}
 \begin{equation} 
-\lambda^o = 2a_2P_g^o +a_1 = 2a_2\left(x_{n+1}^o-\sum_{j=1}^n \alpha_j x_j^o \right) +a_1 , \label{eq:lambda*}
+\lambda^o = 2a_2P_g^o +a_1 = 2a_2\left(x_{n+1}^o-\sum_{j\in\Omega} \alpha_j x_j^o \right) +a_1 , \label{eq:lambda*}
 \end{equation}
 \begin{equation} 
-\lambda = 2a_2P_g+a_1=2a_2\left(x_{n+1}-\sum_{j=1}^n x_j \right) + a_1. \label{eq:lambda}
+\lambda = 2a_2P_g+a_1=2a_2\left(x_{n+1}-\sum_{j\in\Omega} x_j \right) + a_1. \label{eq:lambda}
 \end{equation}
 \end{subequations}
 
 The lower level optimization problems are also quadratic, and the centralized solutions under global information are summarized into the following lemma and theorem. Lemma 1 provides the solution of cooperative optimization when all the entities bind themselves together and act as one. In this case, the best outcome for the group is achieved under the risk neutral strategy.
 
-\noindent {\bf Lemma 1:} {\it Consider the case that all renewable generation entities form a coalition by sharing all the information and setting $\alpha_i=\alpha$ and $\beta_i=\frac{1}{n}\beta$, respectively. Then, for any choice of $\beta\in[-(4a_2)^{-1},\; +\infty)$, the optimal bidding strategy to optimize objective function $\sum_i J_i$ with $J_i$ in \eqref{eq:J_i} is
+\noindent \textbf{Lemma 1:} {\it Consider the case that all renewable generation entities form a coalition by sharing all the information and setting $\alpha_i=\alpha$ and $\beta_i=\frac{1}{n}\beta$, respectively. Then, for any choice of $\beta\in[-(4a_2)^{-1},\; +\infty)$, the optimal bidding strategy to optimize objective function $\sum_i J_i$ with $J_i$ in \eqref{eq:J_i} is
 \begin{equation}
 \alpha^* = \frac{1 + 4a_2 \beta}{2(1 + 2a_2\beta)}.
 \label{eq:alpha_1}
@@ -197,12 +198,12 @@ In addition, by further choosing $\beta_i$ to optimize $\sum_i \Pi_i$ with $\Pi_
 \label{eq:optimal_1}
 \end{equation}
 
-\noindent {\bf Proof:} It follows from \eqref{eq:Pi_i} and \eqref{eq:lambda*} that, if $\alpha_i=\alpha$, 
+\noindent \textbf{Proof:} It follows from \eqref{eq:Pi_i} and \eqref{eq:lambda*} that, if $\alpha_i=\alpha$, 
 \begin{eqnarray*}
-\Pi_r & = & \sum_{j=1}^n \Pi_j = \lambda^o \alpha x_r^o +  \mathbb{E}[\lambda (x_r-\alpha x_r^o)] \\
+\Pi_r & = & \sum_{j\in\Omega} \Pi_j = \lambda^o \alpha x_r^o +  \mathbb{E}[\lambda (x_r-\alpha x_r^o)] \\
  \lambda^o   & = & 2a_2\left(x_{n+1}^o-\alpha x_r^o \right) +a_1,
 \end{eqnarray*}
-where $x_r = \sum_{j=1}^n x_j$ is the total renewable generation, and $x_r^o = \sum_{j=1}^n x_j^o$. Substituting \eqref{eq:lambda} into the above equations yields
+where $x_r = \sum_{j\in\Omega} x_j$ is the total renewable generation, and $x_r^o = \sum_{j\in\Omega} x_j^o$. Substituting \eqref{eq:lambda} into the above equations yields
 \begin{eqnarray}
 \Pi_r & = &  [2a_2\left(x_{n+1}^o-\alpha x_r^o \right) +a_1] \alpha x_r^o \nonumber \\
 && + \mathbb{E}[(2a_2\left(x_{n+1}-x_r \right) + a_1)(x_r-\alpha x_r^o)] \nonumber \\
@@ -210,11 +211,11 @@ where $x_r = \sum_{j=1}^n x_j$ is the total renewable generation, and $x_r^o = \
    & = & 2a_2\alpha(1-\alpha)(x_r^o)^2 +a_1x_r^o \nonumber \\
    && + 2a_2\left(x_{n+1}^ox_r^o+\sigma_{rL}-(x_r^o)^2-\sigma_r^2 \right), \label{eq:Pi_r_exp}
 \end{eqnarray}
-where $\one$ is the $n$-dimensional column vector of $1$s and
+where $\sigma_{rL}\triangleq\sum_{i\in\Omega}\sigma_{iL}$ is the total renewable-load cross-covariance, $\one$ is the $n$-dimensional column vector of $1$s, and
 \begin{eqnarray*}
     \sigma_r^2 & = & \mathbb{E}[(x_1+\cdots+x_n-(x_1^o+\cdots+x_n^o))^2] \\
     & = & \mathbb{E}[ \one^T (x_r-x_r^o)(x_r-x_r^o)^T\one] \\
-    & = & \one^T \Sigma_r \one \;=\; \sum_{i=1}^n\sum_{j=1}^n \sigma_{ij},
+    & = & \one^T \Sigma_r \one \;=\; \sum_{i\in\Omega}\sum_{j\in\Omega} \sigma_{ij},
 \end{eqnarray*}
 where $x_r = [x_1,\ldots,x_n]^T$ is the $n$-vector of renewable generations and $\Sigma_r$ is the upper-left $n\times n$ subblock of $\Sigma$ containing only the renewable-to-renewable covariances $\sigma_{ij}$, $i,j\in\{1,\ldots,n\}$.
 On the other hand, it follows from \eqref{eq:J_i}, \eqref{eq:lambda*}, and \eqref{eq:lambda} that, if $\beta_i = \frac{1}{n}\beta$,
@@ -238,60 +239,60 @@ Since $\alpha\in[0,1]$, the design parameter $\beta$ translates an operator's ri
 
 The following theorem provides the solution to non-cooperative optimization in which each agent devises its strategy according to its own objective function $J_i$. 
 
-\noindent {\bf Theorem 1:} {\it For renewable energy generation operators, their oligopoly game always has a Nash equilibrium. Specifically,
+\noindent \textbf{Theorem 1:} {\it For renewable energy generation operators, their oligopoly game always has a Nash equilibrium. Specifically,
 for any choice of $\beta_i\in[-(4a_2)^{-1},+\infty)$, the optimal bidding strategy $\alpha_i^*$ to optimize objective $J_i$ in \eqref{eq:J_i} forms a Nash equilibrium corresponding to the solution to the linear algebraic equation:
 denoting $\boldsymbol{\alpha}^*=[\alpha_1^* \; \cdots \; \alpha_n^*]^T$,
 \begin{equation}
 A \boldsymbol{\alpha}^* = B,
 \label{eq:alpha_i}
 \end{equation}
-where $x_r^o = \sum_{j=1}^n x_j^o$, $\eta_i = x_i^o/x_r^o\geq0$ with $\sum_{i=1}^n \eta_i=1$, and
+where $x_r^o = \sum_{j\in\Omega} x_j^o$, $\eta_i = x_i^o/x_r^o\geq0$ with $\sum_{i\in\Omega} \eta_i=1$, and
 \[ A=[A_{ij}], \quad A_{ij} = \left\{ \begin{array}{ll} 2(1+2a_2\beta_i)\eta_i & \mbox{if $i=j$} \\
 (1+4a_2\beta_i)\eta_j & \mbox{if $i\not=j$}\end{array} \right., \]
 and
 \[ B=[B_i], \quad B_i = (1+4a_2\beta_i). \]
-In addition,  the total profit $\Pi=\sum_{i=1}^n\Pi_i$ can be maximized by choosing $\beta_j$ to maximize the following function: 
+In addition,  the total profit $\Pi=\sum_{i\in\Omega}\Pi_i$ can be maximized by choosing $\beta_j$ to maximize the following function: 
 \begin{equation} 
 g(\boldsymbol{\alpha}^*) = f(\boldsymbol{\alpha}^*) \left[ 1 - f(\boldsymbol{\alpha}^*)  \right](x_r^o)^2,
 \label{eq:G}
 \end{equation} 
 where  
 \begin{equation} 
-f(\boldsymbol{\alpha}) \stackrel{\triangle}{=} \sum_{i=1}^n  \alpha_i \eta_i.  
+f(\boldsymbol{\alpha}) \stackrel{\triangle}{=} \sum_{i\in\Omega}  \alpha_i \eta_i.  
 \label{eq:F}
 \end{equation} 
 }
 
-\noindent {\bf Proof:} It follows from \eqref{eq:Pi_i},  \eqref{eq:lambda*}, and \eqref{eq:lambda} that 
+\noindent \textbf{Proof:} It follows from \eqref{eq:Pi_i},  \eqref{eq:lambda*}, and \eqref{eq:lambda} that 
 \begin{eqnarray}
-\Pi_i & = & \left[ 2a_2\left(x_{n+1}^o-\sum_{j=1}^n \alpha_j x_j^o 
+\Pi_i & = & \left[ 2a_2\left(x_{n+1}^o-\sum_{j\in\Omega} \alpha_j x_j^o 
   \right) +a_1 \right] \alpha_i x_i^o \nonumber \\ && 
-  + \mathbb{E}\left[\left(2a_2\left(x_{n+1}-\sum_{j=1}^n x_j \right) + a_1\right) (x_i - \alpha_i x_i^o)\right] \nonumber \\
-  & = & 2a_2\sum_{j=1}^n\alpha_i(1-\alpha_j)x_j^o x_i^o +a_1 x_i^o  \nonumber \\ 
-  && + 2a_2\mathbb{E}\left[\left(x_{n+1}-\sum_{j=1}^n x_j \right) x_i\right] \nonumber\\
-   & = & 2a_2\sum_{j=1}^n\alpha_i(1-\alpha_j)x_j^o x_i^o +a_1 x_i^o  \nonumber \\ 
-  && + 2a_2\left(x_{n+1}^o x_i^o + \sigma_{iL}- \sum_{j=1}^n (x_j^o  x_i^o+ \sigma_{ij})\right), \label{eq:Pi_j_exp}
+  + \mathbb{E}\left[\left(2a_2\left(x_{n+1}-\sum_{j\in\Omega} x_j \right) + a_1\right) (x_i - \alpha_i x_i^o)\right] \nonumber \\
+  & = & 2a_2\sum_{j\in\Omega}\alpha_i(1-\alpha_j)x_j^o x_i^o +a_1 x_i^o  \nonumber \\ 
+  && + 2a_2\mathbb{E}\left[\left(x_{n+1}-\sum_{j\in\Omega} x_j \right) x_i\right] \nonumber\\
+   & = & 2a_2\sum_{j\in\Omega}\alpha_i(1-\alpha_j)x_j^o x_i^o +a_1 x_i^o  \nonumber \\ 
+  && + 2a_2\left(x_{n+1}^o x_i^o + \sigma_{iL}- \sum_{j\in\Omega} (x_j^o  x_i^o+ \sigma_{ij})\right), \label{eq:Pi_j_exp}
 \end{eqnarray}
 where the identity $\mathbb{E}[x_ix_j]=x_i^ox_j^o+\sigma_{ij}$ is used. On the other hand, it follows from \eqref{eq:lambda*} and \eqref{eq:lambda} that 
 \begin{eqnarray} 
 && \mathbb{E}[(\lambda - \lambda^o)^2] \nonumber \\
 & = & 
-4a_2^2  \mathbb{E}\left[\left(x_{n+1}-x_{n+1}^0 -\sum_{j=1}^n (x_j-\alpha_j x_j^o)\right)^2\right] \nonumber \\
-& = & 4a_2^2\left[\sigma_{LL} + 2\sum_{j=1}^n \sigma_{jL} + 2 \sum_{j=1}^n \sum_{l=1}^n \sigma_{jl} \right. \nonumber \\
-&& \left.+ \left(\sum_{j=1}^n (1-\alpha_j) x_j^o\right)^2 \right]
+4a_2^2  \mathbb{E}\left[\left(x_{n+1}-x_{n+1}^o -\sum_{j\in\Omega} (x_j-\alpha_j x_j^o)\right)^2\right] \nonumber \\
+& = & 4a_2^2\left[\sigma_{LL} + 2\sum_{j\in\Omega} \sigma_{jL} + 2 \sum_{j\in\Omega} \sum_{l\in\Omega} \sigma_{jl} \right. \nonumber \\
+&& \left.+ \left(\sum_{j\in\Omega} (1-\alpha_j) x_j^o\right)^2 \right]
 , \label{eq:sigma_lambda}
 \end{eqnarray}
 The expression of $J_i$ defined in \eqref{eq:J_i} becomes explicit in terms of $\alpha_i$ by combining \eqref{eq:Pi_j_exp} and \eqref{eq:sigma_lambda}. Taking the partial derivatives of $J_i$ with respect to $\alpha_i$ yields
 \begin{subequations}
 \begin{eqnarray} 
-\frac{\partial J_i}{\partial \alpha_i} & = &  2a_2(1+4a_2\beta_i) \sum_{j=1}^n(1-\alpha_j)x_j^o x_i^o \nonumber \\&& 
+\frac{\partial J_i}{\partial \alpha_i} & = &  2a_2(1+4a_2\beta_i) \sum_{j\in\Omega}(1-\alpha_j)x_j^o x_i^o \nonumber \\&& 
 - 2a_2 \alpha_i (x_i^o)^2, \label{eq:p1_Ji} \\
 \frac{\partial J^2_i}{\partial \alpha_i^2} & = & - 4a_2(1+2a_2\beta_i) (x_i^o)^2 <0 \;\;\; \forall \beta_i\geq-\frac{1}{4a_2}. \hspace*{.3in} \label{eq:p2_Ji}
 \end{eqnarray}
 \end{subequations}
 Equation \eqref{eq:p2_Ji} shows that, for each fixed choice of the other players' bids, $J_i$ is strictly concave in $\alpha_i$. Hence the first-order condition characterizes the unique best response of operator $i$. Setting \eqref{eq:p1_Ji} to zero yields
 \begin{equation}
-   (1+4a_2\beta_i) \sum_{j=1}^n(1-\alpha_j)x_j^o 
+   (1+4a_2\beta_i) \sum_{j\in\Omega}(1-\alpha_j)x_j^o 
 - \alpha_i x_i^o=0, \label{eq:p1Ji=0}
 \end{equation}  
 and collecting these best-response equations for all $i$ yields matrix equation \eqref{eq:alpha_i}, whose solution gives the Nash equilibrium.
@@ -300,22 +301,22 @@ It follows from \eqref{eq:alpha_i} that $\alpha_i^*$ are functions of $\beta_j$.
 \begin{eqnarray}
     \Pi & = & \sum_i \Pi_i \nonumber \\
      & = & 2a_2\left[ g(\boldsymbol{\alpha}) - \left(x_r^o\right)^2 + x_{n+1}^o x_r^o\right]  +a_1 x_r^o  \nonumber \\ 
-     && + 2a_2 \left[ \sum_{i=1}^n \sigma_{iL} -\sum_{i=1}^n\sum_{j=1}^n\sigma_{ij}\right], \label{eq:Pi_exp}
+     && + 2a_2 \left[ \sum_{i\in\Omega} \sigma_{iL} -\sum_{i\in\Omega}\sum_{j\in\Omega}\sigma_{ij}\right], \label{eq:Pi_exp}
 \end{eqnarray}
 where
-\[ g(\boldsymbol{\alpha}) \stackrel{\triangle}{=} \sum_{i=1}^n  \alpha_i x_i^o  \sum_{j=1}^n (1-\alpha_j ) x_j^o. \]
+\[ g(\boldsymbol{\alpha}) \stackrel{\triangle}{=} \sum_{i\in\Omega}  \alpha_i x_i^o  \sum_{j\in\Omega} (1-\alpha_j ) x_j^o. \]
 Hence, $\Pi$ is maximized if function $g(\cdot)$ is maximized by choosing $\beta_j$.
 Simplifying the above expression of $g(\cdot)$ yields \eqref{eq:G}. This completes the proof. \hfill $\Box$
 
 Theorem 1 extends the results in \cite{Chow2017} in several ways. First, load uncertainties and correlations among the renewable generations are considered.  As a result, we know from \eqref{eq:Pi_exp} that the degradation of total profit function $\Pi$ due to uncertainties is 
-\[ \Delta \Pi = 2a_2 \left[ \sum_{i=1}^n\sum_{j=1}^n\sigma_{ij}- \sum_{i=1}^n \sigma_{iL}\right], \]
+\[ \Delta \Pi = 2a_2 \left[ \sum_{i\in\Omega}\sum_{j\in\Omega}\sigma_{ij}- \sum_{i\in\Omega} \sigma_{iL}\right], \]
 is less as long as there is some correlation (e.g., due to weather) between renewable generation and load variation. Second, risk aware bidding strategies are considered, specifically, theorem 1 allows us to study and compare three classes of bidding strategies: risk neutral, risk adverse, and risk seeking. The latter two correspond to optimization of design parameters $\beta_j$. 
 
 Theorem 1 shows that the Nash equilibrium in terms of design parameters $\beta_j$ can be further optimized, and the optimal choices of $\beta_j$ are the main subject of this paper. To illustrate some of the specifics, let us first consider the two simple cases: $n=1$ and $n=2$. And the corresponding results are provided by the subsequent corollaries, followed by the risk neutral strategy for the general case of $n$ operators. 
 
-\noindent  {\bf Corollary 1:} {\it If $n=1$, the optimal coalition (C) bidding strategy becomes the same as that in lemma 1 and with $g^C(\alpha^*)=\frac{1}{4} (x_r^o)^2$.}
+\noindent  \textbf{Corollary 1:} {\it If $n=1$, the optimal coalition (C) bidding strategy becomes the same as that in lemma 1 and with $g^C(\alpha^*)=\frac{1}{4} (x_r^o)^2$.}
 
-\noindent  {\bf Corollary 2:} {\it In the case of duopoly ($n=2$), the Nash bidding strategies with respect to $J_i$ are:
+\noindent  \textbf{Corollary 2:} {\it In the case of duopoly ($n=2$), the Nash bidding strategies with respect to $J_i$ are:
 \begin{subequations}
 \label{eq:2p-alpha}
 \begin{equation}
@@ -348,7 +349,7 @@ g^{RS}(\alpha_1^*,\alpha_2^*) = \frac{1}{4}(x_r^o)^2 = g^C(\alpha^*)   > g^{RN}(
 \end{subequations}
 \end{itemize} }
 
- \noindent {\bf Proof:} It follows from \eqref{eq:alpha_i} that 
+ \noindent \textbf{Proof:} It follows from \eqref{eq:alpha_i} that 
  \begin{eqnarray*}
   && \begin{bmatrix} 2(1+2a_2 \beta_1)\eta_1 & (1+4a_2\beta_1)\eta_2  \\ (1+4a_2\beta_2)\eta_1  & 2(1+2a_2 \beta_2)\eta_2  \end{bmatrix}   
   \begin{bmatrix}  \alpha_1^* \\ \alpha_2^* \end{bmatrix}  \\
@@ -374,14 +375,14 @@ which is maximized to be that in \eqref{eq:2p-RS-g} if
 \[ \theta_1+\theta_2=\frac{1}{2}. \]
 Invoking \eqref{eq:theta} and solving for the optimal values of $\beta_i$ yields $\beta_i^{RS}$ in \eqref{eq:2p-RS-beta}. This completes the proof. \hfill $\Box$
 
-\noindent  {\bf Corollary 3:} {\it In the general case of $n>2$, the optimal risk-neutral bidding strategy is
+\noindent  \textbf{Corollary 3:} {\it In the general case of $n>2$, the optimal risk-neutral bidding strategy is
 \begin{equation}
     \alpha_i^* = \frac{1}{n+1}\eta_i^{-1},\label{eq:alpha_i_0} 
 \end{equation} 
 and the total profit $\Pi$ in \eqref{eq:Pi_exp} is optimized with 
 \[ g^{RN}(\boldsymbol{\alpha}^*)=\frac{n}{(n+1)^2} (x_r^o)^2. \]}
 
-\noindent {\bf Proof:} When $\beta_i=0$, the matrix equation \eqref{eq:alpha_i} reduces to 
+\noindent \textbf{Proof:} When $\beta_i=0$, the matrix equation \eqref{eq:alpha_i} reduces to 
 \[ \left[\mbox{diag}\{\eta_1,\cdots,\eta_n\} + \one \boldsymbol{\eta}^T \right] \boldsymbol{\alpha}=\one, \]
 where $\boldsymbol{\eta}=[\eta_1 \; \cdots \; \eta_n]^T$ and $\one=[1 \; \cdots \; 1]^T$. It is simple to verify that the solution is given by \eqref{eq:alpha_i_0}. And, the corresponding total profit can be calculated in terms of \eqref{eq:G} and \eqref{eq:F}.  \hfill $\Box$
 
@@ -396,37 +397,48 @@ Since $\sum_i \eta_i =1$, we know that
     \max_i \eta_i \leq \frac{2}{n+1},
     \label{eq:eta_0}
 \end{equation}
-which implies that the maximum capacity difference among the renewable operators is limited to $1/(n+1)$. Should overbidding be forbidden while condition~\eqref{eq:eta_0} fail, the bidding strategy is given by the following corollary instead of corollary 3. 
+which implies that the maximum capacity difference among the renewable operators is limited to $1/(n+1)$. Should overbidding be forbidden while condition~\eqref{eq:eta_0} fails, the bidding strategy is given by the following corollary instead of that in corollary 3. In corollary 4, set $\Omega_{RN}$ prescribes the set of renewable operators whose bids are saturated, and the set is defined through recursion \eqref{eq:Omega_RN_iter} and with initial set value \eqref{eq:Omega_RN_1}, in which the bid-saturating threshold on $\eta_i$ is increased at each step until $\eta_i\geq\dfrac{\sum_{l\notin\Omega_{\rm RN}}\eta_l}{n+1-|\Omega_{\rm RN}|}$ holds for all $i\not\in\Omega_{RN}$. This ensures that $\alpha_i^*\leq 1$ for all $i$.  
 
-\noindent  {\bf Corollary 4:} {\it In the case that overbidding is not permitted, the optimal risk-neutral bidding strategy is
+\noindent  \textbf{Corollary 4:} {\it In the case that overbidding is prohibited, the optimal risk-neutral bidding strategy is
 \begin{equation}
- \hspace*{-0.2in}    \alpha_i^* = \left\{ \begin{array}{ll} \displaystyle \frac{1}{n+1-|\Omega_{\rm RN}|}\eta_i^{-1} \left[ 1- \sum_{j\in\Omega_{\rm RN}} \eta_j\right]  & i\not \in\Omega_{\rm RN} \\
-    1 & i\in\Omega_{\rm RN} \end{array} \right. \label{eq:alpha_i_1} 
-\end{equation} 
-where $\Omega_{\rm RN}$ is the set of operators who are constrained to overbid, $|\Omega_{\rm RN}|$ denotes its cardinality, and
-\[ \Omega_{\rm RN}=\left\{j \in\Omega: \; \eta_j<\tfrac{1}{n+1}\right\}.  \]
-Furthermore, the total profit $\Pi$ in \eqref{eq:Pi_exp} is optimized with} 
-\begin{eqnarray*}
-    g^{RN}(\boldsymbol{\alpha}^*) &= & \frac{1}{(n+1-|\Omega_{\rm RN}|)^2} \left[ n-|\Omega_{\rm RN}| +\sum_{j\in\Omega_{\rm RN}} \eta_j \right] \\
-    && \times \left[ 1 -\sum_{j\in\Omega_{\rm RN}} \eta_j \right](x_r^o)^2
-\end{eqnarray*}
+ \hspace*{-0.2in}    \alpha_i^* = \left\{ \begin{array}{ll} \displaystyle \frac{\sum_{l\not\in\Omega_{\rm RN}} \eta_l}{n+1-|\Omega_{\rm RN}|}\,\eta_i^{-1}  & i\not \in\Omega_{\rm RN}, \\[8pt]
+    1 & i\in\Omega_{\rm RN},
+    \end{array} \right. \label{eq:alpha_i_1}
+\end{equation}
+where $\Omega_{\rm RN}$ is the bid-saturated set defined by $\Omega_{\rm RN}^{(n)}$, with initial value 
+\begin{equation}
+    \Omega_{\rm RN}^{(1)} = \Bigl\{j\in\Omega:\eta_j<\tfrac{1}{n+1}\Bigr\}, \label{eq:Omega_RN_1}
+\end{equation}
+and the $k$th recursion
+\begin{equation}
+    \Omega_{\rm RN}^{(k+1)} = \Omega_{\rm RN}^{(k)} 
+    \cup\left\{j\notin\Omega_{\rm RN}^{(k)}:\eta_j<\frac{\sum_{l\notin\Omega_{\rm RN}^{(k)}}\eta_l}{n+1-|\Omega_{\rm RN}^{(k)}|}\right\}.
+    \label{eq:Omega_RN_iter}
+\end{equation}
+Furthermore, the total profit $\Pi$ in \eqref{eq:Pi_exp} is optimized with}
+\[
+    g^{RN}(\boldsymbol{\alpha}^*) =  \frac{\sum_{j\not\in\Omega_{\rm RN}} \eta_j}{(n+1-|\Omega_{\rm RN}|)^2}
+    \Biggl[ n-|\Omega_{\rm RN}| +\sum_{j\in\Omega_{\rm RN}} \eta_j \Biggr]
+    (x_r^o)^2.
+\]
 
-\noindent {\bf Proof:} For $i\not\in\Omega_{\rm RN}$, it follows from \eqref{eq:p1Ji=0} that, with $\beta_i=0$,
+\noindent \textbf{Proof:} It follows from \eqref{eq:p1Ji=0} with $\beta_i=0$ and from $\sum_i\eta_i=1$ that, for all $i$,
 \begin{equation*}
-  \sum_{j=1}^n(1-\alpha_j)\eta_j - \alpha_i \eta_i=0.
-\end{equation*} 
+  \sum_{j\in\Omega} \alpha_j\eta_j + \alpha_i \eta_i=1.
+\end{equation*}
 Since $\alpha_j=1$ for $j\in\Omega_{\rm RN}$, the above equation becomes
-\[ \sum_{j\not\in\Omega_{\rm RN}} \alpha_j \eta_j + \alpha_i \eta_i= 1- \sum_{j\in\Omega_{\rm RN}} \eta_j, \;\;\; \forall i\not\in\Omega_{\rm RN}.  \]
-Solving these equations yields \eqref{eq:alpha_i_1}. 
-Next, it follows from \eqref{eq:F} that 
-\begin{eqnarray*} 
+\[ \sum_{j\not\in\Omega_{\rm RN}} \alpha_j \eta_j + \alpha_i \eta_i
+   = \sum_{l\not\in\Omega_{\rm RN}} \eta_l, \qquad \forall\, i\notin\Omega_{\rm RN},  \]
+which implies $\alpha_i \eta_i$ is invariant for $i\notin\Omega_{\rm RN}$. Summing up the above equation for all $i\notin\Omega_{\rm RN}$, we have 
+\[  \sum_{j\not\in\Omega_{\rm RN}} \alpha_j \eta_j = \frac{n - |\Omega_{\rm RN}|}{n+1 - |\Omega_{\rm RN}|} \sum_{l\not\in\Omega_{\rm RN}} \eta_l. \]
+Combining the above two equations yield solution \eqref{eq:alpha_i_1}.
+
+It follows from \eqref{eq:F} that
+\begin{eqnarray*}
 f(\boldsymbol{\alpha}^*) & = & \sum_{i\not\in\Omega_{\rm RN}} \alpha_i \eta_i + \sum_{j\in\Omega_{\rm RN}} \eta_j \\
-& = & \frac{n-|\Omega_{\rm RN}|}{n+1-|\Omega_{\rm RN}|} +\frac{1}{n+1-|\Omega_{\rm RN}|}\sum_{j\in\Omega_{\rm RN}} \eta_j,
-\label{eq:F_1}
-\end{eqnarray*} 
-and
-\[ g(\boldsymbol{\alpha}^*) = f(\boldsymbol{\alpha}^*) \left[ 1 - f(\boldsymbol{\alpha}^*)  \right](x_r^o)^2, \]
-which gives the result in the statement. \hfill $\Box$
+& = & \frac{n-|\Omega_{\rm RN}|}{n+1-|\Omega_{\rm RN}|} +\frac{\sum_{j\in\Omega_{\rm RN}} \eta_j}{n+1-|\Omega_{\rm RN}|},
+\end{eqnarray*}
+and $g(\boldsymbol{\alpha}^*)=f(\boldsymbol{\alpha}^*)\bigl[1-f(\boldsymbol{\alpha}^*)\bigr](x_r^o)^2$, which gives the result in the statement.\hfill $\Box$
 
 The significant outcome of theorem 1 and its corollaries is that, while the total profit under noncooperative risk neutral Nash equilibrium is typically worse than that of cooperative coalition solution, risk aware Nash strategies
 could be employed to recover the same profit as the cooperative coalition's. Indeed, corollary 2 provides an infinite number of combinations in risk tolerance levels as long as the aggregate risk tolerance of $(\beta_1+\beta_2)$ assumes an optimal risk seeking value. In the next section, this result is extended to a centralized solution to the general case of $n$ market participants. 
@@ -456,7 +468,7 @@ f(\boldsymbol{\alpha}^*(\boldsymbol{\beta})) = \frac{1}{2}, \label{eq:pareto_con
 \end{equation}
 will result in a Pareto-optimal Nash equilibrium. Furthermore, the Pareto optimal total profit is reached if and only if the aggregate risk tolerance satisfies the following condition:
 \begin{equation}
-\sum_{i=1}^n \beta_i = \frac{1-n}{4a_2},
+\sum_{i\in\Omega} \beta_i = \frac{1-n}{4a_2},
 \label{eq:beta_sum_condition}
 \end{equation}
 and the corresponding bidding strategy is 
@@ -480,139 +492,133 @@ Dividing both sides of \eqref{eq:p1Ji=0} by $x_r^o$ and using $\eta_i = x_i^o/x_
 Summing both sides over all $i$ yields
 \[ f(\boldsymbol{\alpha}^\ast)
 = \bigl(1-f(\boldsymbol{\alpha}^\ast)\bigr)
-\left(n + 4a_2\sum_{i=1}^n \beta_i\right),
+\left(n + 4a_2\sum_{i\in\Omega} \beta_i\right),
 \]
 which renders the following result:
 \[
 f(\boldsymbol{\alpha}^\ast)
-= \frac{n + 4a_2\sum_{i=1}^n \beta_i}{1 + n + 4a_2\sum_{i=1}^n \beta_i}.
+= \frac{n + 4a_2\sum_{i\in\Omega} \beta_i}{1 + n + 4a_2\sum_{i\in\Omega} \beta_i}.
 \]
 Therefore, we know that the Pareto optimality condition \eqref{eq:pareto_condition} holds if and
 only if
 \[
-n + 4a_2\sum_{i=1}^n \beta_i = 1,
+n + 4a_2\sum_{i\in\Omega} \beta_i = 1,
 \]
 which yields \eqref{eq:beta_sum_condition}. Substituting the results in \eqref{eq:beta_sum_condition} and \eqref{eq:pareto_condition} into \eqref{eq:alpha_equation} yields the bidding strategy \eqref{eq:alpha_optimal}.
-\hfill$\Box$
-
-Under the symmetric ERS allocation of Corollary~5a, every operator strictly prefers the Pareto-optimal Nash equilibrium to the risk-neutral Nash equilibrium. From~\eqref{eq:Pi_j_exp}, the deterministic profit of operator~$i$ satisfies $\Pi_i = 2a_2\,\alpha_i(1-f)(x_r^o)^2\eta_i + a_1 x_i^o + C_i$, where $C_i$ collects stochastic terms identical across strategies. Under ERS, $\alpha_i^{RS}(1-f^{RS}) = (1/2n)\eta_i^{-1}\cdot\tfrac{1}{2} = \tfrac{1}{4n}\eta_i^{-1}$; under risk-neutral Nash, $\alpha_i^{RN}(1-f^{RN}) = \tfrac{1}{n+1}\eta_i^{-1}\cdot\tfrac{1}{n+1} = \tfrac{1}{(n+1)^2}\eta_i^{-1}$. Hence
-\[
-\Pi_i^{RS} - \Pi_i^{RN} = 2a_2\!\left[\frac{1}{4n} - \frac{1}{(n+1)^2}\right](x_r^o)^2 > 0 \quad \forall\, n \geq 2,
-\]
-since $(n+1)^2 - 4n = (n-1)^2 > 0$. All operators gain equally from moving to the Pareto equilibrium, confirming that the proposed coordination mechanism is individually rational. Whether the ERS allocation also forms a Nash equilibrium in the $\beta$-parameter space (i.e., no operator benefits from unilateral deviation of $\beta_i$) is deferred to future work.
+\hfill $\Box$
 
 The Pareto optimal condition \eqref{eq:pareto_condition} is a constraint only on the aggregate risk tolerance level; therefore, infinitely many heterogeneous risk allocations $\{\beta_i\}$ yield Pareto-optimal Nash equilibria.
 If there is only one renewable generator ($n=1$ or one coalition of all the operators), condition \eqref{eq:beta_sum_condition} reduces to $\beta_1 = 0$,
-which confirms, as in corollary~1, that, in the absence of competition, risk-seeking or risk-averse behavior provides no strategic advantage. In the case of duopoly, condition \eqref{eq:beta_sum_condition} reduces to \eqref{eq:2p-RS-beta} in corollary 2. As the number of renewable operators increases, the aggregate risk tolerance $\sum_{i=1}^n \beta_i$ decreases monotonically. In the limit of $n\to\infty$, it is better to restate condition \eqref{eq:beta_sum_condition} on a per-agent basis, that is, 
+which confirms, as in corollary~1, that, in the absence of competition, risk-seeking or risk-averse behavior provides no strategic advantage. In the case of duopoly, condition \eqref{eq:beta_sum_condition} reduces to \eqref{eq:2p-RS-beta} in corollary 2. As the number of renewable operators increases, the aggregate risk tolerance $\sum_{i\in\Omega} \beta_i$ decreases monotonically. In the limit of $n\to\infty$, it is better to restate condition \eqref{eq:beta_sum_condition} on a per-agent basis, that is, 
 \[
-\frac{1}{n}\sum_{i=1}^n \beta_i
+\frac{1}{n}\sum_{i\in\Omega} \beta_i
 = \frac{1-n}{4a_2 n}
 = -\frac{1}{4a_2} + \frac{1}{4a_2 n} \to 
  -\frac{1}{4a_2} \mbox{ as } n\to\infty, 
 \]
-which coincides with the lower bound on $\beta_i$ as stated in theorem 1. 
-This means that, as the number of renewable operators grows,
-Pareto optimality forces the \emph{average} risk tolerance level to approach
-its feasibility lower bound from above. In the large-population limit,
-aggregate optimal performance is therefore achieved when the collective
-risk tolerance reaches its lower bound. This reveals an emergent mean-field structure: rather than requiring coordination of individual bidding strategies, Pareto efficiency is recovered through convergence of the aggregate risk profile to its lower limit.
-This connection is reminiscent of mean-field game theory~\cite{huang2006large,lasry2007mean}, in which the strategic interactions of a large population of agents can often be characterized through a single aggregate quantity. Here the average risk tolerance $\frac{1}{n}\sum_i\beta_i$ plays the role of the mean-field state, and Pareto efficiency emerges as this quantity converges to a well-defined limit, without requiring direct coordination of individual bids. Exploring this connection formally—including rigorous mean-field limits and equilibrium uniqueness—is a promising direction for future work.
+which coincides with the lower bound on $\beta_i$ as stated in theorem 1. This means that, as the number of renewable operators grows, Pareto optimality forces the \emph{average} risk tolerance level to approach its feasibility lower bound from above. In the large-population limit, aggregate optimal performance is therefore achieved when the collective risk tolerance reaches its lower bound. This reveals an emergent mean-field structure: rather than requiring coordination of individual bidding strategies, Pareto efficiency is recovered through convergence of the aggregate risk profile to its lower limit. This connection is reminiscent of mean-field game theory~\cite{huang2006large,lasry2007mean}, in which the strategic interactions of a large population of agents can often be characterized through a single aggregate quantity. Here the average risk tolerance $\frac{1}{n}\sum_i\beta_i$ plays the role of the mean-field state, and Pareto efficiency emerges as this quantity converges to a well-defined limit, without requiring direct coordination of individual bids. % Exploring this connection formally—including rigorous mean-field limits and equilibrium uniqueness—is a promising direction for future work.
 
-Should all the renewable entities adopt 
-the same risk tolerance level, constraint \eqref{eq:beta_sum_condition} is satisfied by choosing 
+All the renewable entities may adopt the same risk tolerance level as
 \begin{equation}
-    \beta_i=\beta_0, \;\;\; \beta_0= \frac{1-n}{4a_2n}; \;\;\; \forall i\in\{1,\cdots,n\}. \label{eq:final_beta}
+    \beta_i^*=\beta_0, \;\;\; \forall i\in\Omega. \label{eq:final_beta}
 \end{equation}   
-Note that all the entities employing a common risk seeking level is a fair policy enforceable by the utility and is also supported by the Nash equilibria formed by all the operators. In this special case, theorem 2 reduces to the following corollary. 
+Note that all the entities employing a common risk seeking level is a fair policy enforceable by the utility and is also supported by the Nash equilibria formed by all the operators. In this special case, theorem 2 and corollary 4 reduce to the following corollary. 
+%For compactness, define the scaled risk parameter $\beta_i'\triangleq a_2\beta_i$, so that \eqref{eq:beta_sum_condition} becomes $\sum_i\beta_i'=(1-n)/4$ and the ERS level is $\beta_0'=a_2\beta_0=(1-n)/(4n)$.
+It should be noted that, when implementing equal risk seeking strategy \eqref{eq:alpha_optimal_simplified} or \eqref{eq:alpha_hetero}, the renewable operators do not need to know the value of parameter $a_2$ even though an explicit calculation of the equal risk tolerance level in \eqref{eq:final_beta}  would require the value of $a_2$.
 
 % -- begin corollary 5 marker ----
 
-\noindent {\bf Corollary 5} (Equal Risk-Seeking Bidding Strategies){\bf :}
-{\it Under ERS \eqref{eq:final_beta}, substituting $\beta_i = \beta_0$ into \eqref{eq:alpha_optimal} gives
-
-\noindent {\bf (a) Unconstrained ERS.} The optimal unconstrained bidding
-strategy is
+\noindent \textbf{Corollary 5:} {\it The equal risk seeking (ERS) bidding strategy (under \eqref{eq:final_beta}) is given as follows: \\
+(a) If set
 \begin{equation}
-    \alpha_i^* = \frac{1}{2n}\eta_i^{-1}, \label{eq:alpha_optimal_simplified}
-\end{equation}
-and the total profit $\Pi$ in \eqref{eq:Pi_exp} is maximized with
-$g^{ERS}(\boldsymbol{\alpha}^*) = \tfrac{1}{4}(x_r^o)^2 = g^{\max}$.
-
-\noindent{\bf (b) Constrained ERS with fixed $\beta_0$ (clamped bids).}
-If overbidding is not permitted and operators retain $\beta_i=\beta_0$,
-let
-\begin{equation}
-    \Omega_{\rm ERS} = \Bigl\{j \in \Omega : \eta_j < \tfrac{1}{2n}\Bigr\}
+    \Omega_{\rm ERS}^0 = \Bigl\{j\in\Omega : \eta_j < \tfrac{1}{2n}\Bigr\}
     \label{eq:overbid_bound}
 \end{equation}
-denote the ERS saturation set with $|\Omega_{\rm ERS}|$ its cardinality.
-The constrained bidding strategy is
+is empty, then
 \begin{equation}
-    \alpha_i^* = \begin{cases}
+    \alpha_i^* = \frac{1}{2n}\eta_i^{-1}. \label{eq:alpha_optimal_simplified}
+\end{equation}
+(b) When the set $\Omega_{\rm ERS}^0$ is non-empty, 
+strategy \eqref{eq:alpha_optimal_simplified} would yield overbidding (that is, $\alpha_i^*>1$) for some of the operators, and the constrained ERS and Pareto-optimal bidding strategy is
+\begin{equation}
+    \alpha_i^* \;=\; \begin{cases}
+        1, & i\in\Omega_{\rm ERS},\\[6pt]
         \displaystyle
-        \frac{n\!\left(1-S\right)}
-             {(2n-|\Omega_{\rm ERS}|)\,\eta_i}
-        & i \notin \Omega_{\rm ERS}, \\[10pt]
-        1 & i \in \Omega_{\rm ERS},
-    \end{cases} \label{eq:alpha_clamp}
+        \frac{\sum_{j\not\in \Omega_{\rm ERS}}\eta_j-\sum_{l\in\Omega_{\rm ERS}}\eta_l}{2\,(n-|\Omega_{\rm ERS}|)\,\eta_i}, & i\not\in\Omega_{\rm ERS},
+    \end{cases}
+    \label{eq:alpha_hetero}
 \end{equation}
-and the total profit $\Pi$ in \eqref{eq:Pi_exp} satisfies
+where 
 \begin{equation}
-    g^{ERS}(\boldsymbol{\alpha}^*) =
-    \frac{\bigl(S(2n-|\Omega_{\rm ERS}|) + n - |\Omega_{\rm ERS}|\bigr)
-          (1-S)}
-         {(2n-|\Omega_{\rm ERS}|)^2}
-    (x_r^o)^2, \label{eq:g_ERS_clamp}
+    \Omega_{\rm ERS}\triangleq\left\{i\in\Omega: \;\; \eta_i < \tfrac{1}{2}\bigl(\max_{l\in\Omega}\eta_l+\min_{j\in\Omega}\eta_j\bigr)\right\}.  
+    \label{eq:partition_Omega}
 \end{equation}
-where $S = \sum_{j\in\Omega_{\rm ERS}}\eta_j$,
-with $f(\boldsymbol{\alpha}^*) \leq \tfrac{1}{2}$, so
-$g^{ERS}(\boldsymbol{\alpha}^*) \leq g^{\max}$ in general.}
+Under strategy \eqref{eq:alpha_optimal_simplified} or \eqref{eq:alpha_hetero}, 
+$\alpha_i^*\leq 1$ for all $i$, and the total profit $\Pi$ in \eqref{eq:Pi_exp} is maximized with $f(\boldsymbol{\alpha}^*)=\tfrac12$ and $g^{ERS}(\boldsymbol{\alpha}^*)=\tfrac{1}{4}(x_r^o)^2 =g^{\max}$.}
 
-\noindent {\bf Proof:}
-
-Part~(a) follows from Theorem~2 with $\beta_i = \beta_0 = (1-n)/(4a_2n)$
-for all $i$. Substituting into \eqref{eq:alpha_optimal} gives
-$1 + 4a_2\beta_0 = 1/n$, and hence $\alpha_i^* = \frac{1}{2n}\eta_i^{-1}$.
-It follows that $f(\boldsymbol{\alpha}^*) = \frac{1}{2n}\sum_i 1 = \frac{1}{2}$,
-confirming $g^{ERS}(\boldsymbol{\alpha}^*) = \frac{1}{4}(x_r^o)^2 = g^{\max}$
-via \eqref{eq:G}.
-
-For part~(b), it follows from \eqref{eq:p1Ji=0} that, with
-$\beta_i = \beta_0$ for all $i$,
-$\frac{1}{n}\sum_{j=1}^n(1-\alpha_j^*)\eta_j = \alpha_i^*\eta_i$.
-Since $\alpha_j^* = 1$ for $j \in \Omega_{\rm ERS}$, this becomes
-\[
-    \frac{1}{n}\sum_{j \notin \Omega_{\rm ERS}}\alpha_j^*\eta_j + \alpha_i^*\eta_i
-    = \frac{1-S}{n},
-    \quad \forall\, i \notin \Omega_{\rm ERS}.
-\]
-Solving these equations yields \eqref{eq:alpha_clamp}. It then
-follows from \eqref{eq:F} that
-\[
-    f(\boldsymbol{\alpha}^*) =
-    \frac{n-|\Omega_{\rm ERS}|}{2n-|\Omega_{\rm ERS}|}
-    (1-S)
-    + S,
-\]
-and $g^{ERS}(\boldsymbol{\alpha}^*)=f(\boldsymbol{\alpha}^*)[1-f(\boldsymbol{\alpha}^*)](x_r^o)^2$,
-which gives \eqref{eq:g_ERS_clamp}. \hfill $\Box$
-
-\noindent\textbf{Remark~1.}
-\textit{When the no-overbidding constraint is active but the Pareto condition
-$f(\boldsymbol{\alpha}^*)=\tfrac{1}{2}$ is additionally required,
-the common risk parameter must be re-optimized to
+\noindent\textbf{Proof:} Case (a) follows from $\Omega_{\rm ERS}^0$ being empty that, by theorem~2, condition \eqref{eq:beta_sum_condition} can be met by choosing \eqref{eq:final_beta} with   
 \begin{equation}
-    \beta'^* = \frac{1}{4}\!\left(
-    \frac{1 - 2S}{n - |\Omega_{\rm ERS}|}
-    - 1\right), \label{eq:beta_opt_clamp}
+\beta_0= \tfrac{1-n}{4a_2n}.  \label{eq:beta_optimal_simplified}
 \end{equation}
-where $S=\sum_{j\in\Omega_{\rm ERS}}\eta_j$,
-valid provided the resulting $\boldsymbol{\alpha}^*$ does not expand
-$\Omega_{\rm ERS}$ beyond the set assumed in its construction.
-This restores $g^{ERS}(\boldsymbol{\alpha}^*)=g^{\max}$ with no efficiency
-penalty, and is the case illustrated in Scenario~2 of Section~VI-C.
-The derivation follows by substituting \eqref{eq:alpha_clamp} into
-$f(\boldsymbol{\alpha}^*)=\tfrac{1}{2}$ and solving for $\beta'^*$.}
+Substituting the above into~\eqref{eq:alpha_optimal} yields strategy \eqref{eq:alpha_optimal_simplified}. It follows from \eqref{eq:G} that, under strategy \eqref{eq:alpha_optimal_simplified},
+$f(\boldsymbol{\alpha}^*)=\tfrac{1}{2n}\sum_i 1=\tfrac{1}{2}$, and
+$g^{ERS}(\boldsymbol{\alpha}^*)=\frac{1}{4}(x_r^o)^2=g^{\max}$.
+
+In case (b), $\beta_i^*$ can no longer be chosen according to \eqref{eq:final_beta}. Instead, $\beta_i^*$ is chosen to be equal within each of the two subgroups and as 
+\begin{equation}
+    \beta_i^* \;=\; \begin{cases}
+        \frac{2\eta_i-1}{4a_2} & i\in\Omega_{\rm ERS}, \\[3pt]
+        \displaystyle\frac{\sum_{j\not\in\Omega_{\rm ERS}}\eta_j-\sum_{l\in\Omega_{\rm ERS}}\eta_j}{4a_2(n-|\Omega_{\rm ERS}|)}-\frac{1}{4a_2}, & i\not\in\Omega_{\rm ERS}
+    \end{cases}.
+    \label{eq:beta_hetero}
+\end{equation}
+It follows that 
+\[
+\begin{aligned}
+    & \sum_i 4a_2\beta_i^* \\
+    =\; & \sum_{i\in\Omega_{\rm ERS}}(2\eta_i-1)  + \sum_{i\not\in\Omega_{\rm ERS}} \left(\tfrac{\sum_{j\not\in\Omega_{\rm ERS}}\eta_j-\sum_{l\in\Omega_{\rm ERS}}\eta_j}{n-|\Omega_{\rm ERS}|}-1\right) \\
+    = & \; 1 - n,
+\end{aligned}
+\]
+which meets condition \eqref{eq:beta_sum_condition} in theorem 2. We also know from \eqref{eq:alpha_equation} in the proof of theorem 2 that, in order to achieve Pareto optimal solution of 
+$f(\boldsymbol{\alpha}^*)=\tfrac{1}{2}$ and
+$g^{ERS}(\boldsymbol{\alpha}^*)=\frac{1}{4}(x_r^o)^2=g^{\max}$, condition 
+\[ \eta_i\alpha_i^*=\tfrac12(1+4a_2\beta_i^*) \] 
+has to hold for every operator. Substituting \eqref{eq:beta_hetero} into the above yields optimal bidding strategy \eqref{eq:alpha_hetero}.
+
+To establish $\alpha_i^*\le1$ for all $i\in\Omega$, it suffices to show that, for $i\not\in\Omega_{\rm ERS}$,
+\begin{equation}
+    \sum_{j\not\in\Omega_{\rm ERS}}\eta_j-\sum_{l\in\Omega_{\rm ERS}}\eta_j
+    \leq 2(n-|\Omega_{\rm ERS}|)\min_{i\not\in\Omega_{\rm ERS}}\eta_i.
+    \label{eq:feas_star}
+\end{equation}
+It follows from the definition of $\Omega_{\rm ERS}$ that
+\[
+\begin{aligned}
+    & \; \sum_{j\not\in\Omega_{\rm ERS}}\eta_j-\sum_{l\in\Omega_{\rm ERS}}\eta_j \\
+    \;\le\; & \; (n-|\Omega_{\rm ERS}|)\max_{j\not\in\Omega_{\rm ERS}}\eta_j -|\Omega_{\rm ERS}|\min_{l\in \Omega_{\rm ERS}}\eta_l\\
+    \;=\; & \; (n-|\Omega_{\rm ERS}|)\left(\max_{j\not\in\Omega_{\rm ERS}}\eta_j+\min_{l\in\Omega_{\rm ERS}}\eta_l\right) -n\min_{l\in \Omega_{\rm ERS}}\eta_l\\
+    \;=\; & \; (n-|\Omega_{\rm ERS}|)\left(\max_{j\not\in\Omega}\eta_j+\min_{l\in\Omega}\eta_l\right) -n\min_{l\in \Omega_{\rm ERS}}\eta_l\\
+     \;\leq \; & \; 2(n-|\Omega_{\rm ERS}|)\left[\tfrac12 \left(\max_{j\not\in\Omega}\eta_j+\min_{l\in\Omega}\eta_l\right) \right]\\
+     \;\leq \; & 2(n-|\Omega_{\rm ERS}|)\min_{i\not\in\Omega_{\rm ERS}}\eta_i,
+\end{aligned}
+\]
+which validates inequality~\eqref{eq:feas_star}. This concludes the overall proof. \hfill $\Box$
+
+When there is no restriction on overbidding, every operator prefers the Pareto-optimal (risk seeking) Nash equilibrium to the risk-neutral Nash equilibrium. To see this conclusion, note from~\eqref{eq:Pi_j_exp} that operator~$i$'s mean profit is given by 
+\[ \Pi_i = 2a_2\,\alpha_i(1-f)(x_r^o)^2\eta_i + C_i, \]
+where $C_i$ is the sum of those terms that are in \eqref{eq:Pi_j_exp} and independent of bidding strategies used. It follows from corollary 5(a) and corollary 3 that, under the ERS strategy, 
+\[ \alpha_i^*(1-f^{ERS}) = \tfrac{1}{2n}\eta_i^{-1}\cdot\tfrac{1}{2} = \tfrac{1}{4n}\eta_i^{-1}; \] 
+and under the RN strategy, 
+\[ \alpha_i^{RN}(1-f^{RN}) = \tfrac{1}{n+1}\eta_i^{-1}\cdot\tfrac{1}{n+1} = \tfrac{1}{(n+1)^2}\eta_i^{-1}.\] 
+Hence, we have
+\[
+\Pi_i^{RS} - \Pi_i^{RN} = \frac{a_2(n-1)^2}{2n(n+1)^2} (x_r^o)^2 > 0 \quad \forall\, n \geq 2.
+\]
+All operators gain equally from adopting the risk seeking strategy and moving from RN Nash to the Pareto-optimal equilibrium, confirming that the proposed bidding mechanism is individually rational. % Whether the ERS allocation also forms a Nash equilibrium in the $\beta$-parameter space (i.e., no operator benefits from unilateral deviation of $\beta_i$) is deferred to future work.
+
+When overbidding is not permitted, each of the operators can individually check for itself $\eta_i\geq\tfrac12$ as the condition of whether an overbidding would occur. It should be noted that this condition without any overbidding in the ERS setup is much more relaxed than \eqref{eq:eta_0} in the RN setup. If $\Omega_{\rm ERS}^0$ in \eqref{eq:overbid_bound} is empty, there is no overbidding, and all the operators can adopt bidding strategy \eqref{eq:alpha_optimal_simplified}. If $\Omega_{\rm ERS}^0$ in \eqref{eq:overbid_bound} is not empty, at least one of the operators will overbid under strategy \eqref{eq:alpha_optimal_simplified}. To ensure no overbidding for all the operators while achieving pareto-optimal payoffs, those operators corresponding to set $\Omega_{\rm ERS}$ in \eqref{eq:partition_Omega} are forced to saturate their bids as $\alpha_i^*=1$, which makes their risk seeking levels individually different for distinct values of $\eta_i$. The rest of the operators not contained in set $\Omega_{\rm ERS}$ share a common risk seeking level, and their bids are unsaturated. These results are mathematically shown in \eqref{eq:alpha_hetero} and \eqref{eq:beta_hetero}. Note also that, unlike the recursive process of determining set set $\Omega_{\rm RN}$ in corollary 4, set $\Omega_{\rm ERS}$ in corollary 5 is determined in one step (but somewhat conservatively). 
+%Should $\Omega_{\rm ERS}^0$ become null, \eqref{eq:alpha_hetero} and \eqref{eq:beta_hetero} reduce to \eqref{eq:alpha_optimal_simplified} and \eqref{eq:beta_optimal_simplified}, respectively. 
 
 % -- end corollary 5 marker ----
 
@@ -620,138 +626,97 @@ In what follows, the Pareto-optimal bidding strategy is cast into a distributed 
 
 \section{Distributed Risk Aware Solutions}
 
-It follows from \eqref{eq:Pi_exp}, theorem 1, theorem 2 and corollary~5a that the Pareto optimal total profit 
+It follows from \eqref{eq:Pi_exp}, theorem 1, theorem 2, and corollary~5 that the Pareto optimal total profit 
 \begin{eqnarray*}
     \Pi^{\max}  
      & = & 2a_2\left[  x_{n+1}^o - \frac{3}{4} x_r^o \right]x_r^o   +a_1 x_r^o  \nonumber \\ && 
-     + 2a_2 \left[ \sum_{i=1}^n \sigma_{iL} -\sum_{i=1}^n\sum_{j=1}^n\sigma_{ij}\right],
+     + 2a_2 \left[ \sum_{i\in\Omega} \sigma_{iL} -\sum_{i\in\Omega}\sum_{j\in\Omega}\sigma_{ij}\right],
 \end{eqnarray*}
 is reached provided that the renewable operators use bidding strategy \eqref{eq:alpha_optimal_simplified}.
-Direct implementation of \eqref{eq:alpha_optimal_simplified} by the $i$th operator requires the following information:
+Direct implementation of strategy \eqref{eq:alpha_optimal_simplified} by the $i$th operator requires the following information:
 \begin{itemize}
     \item The total of renewable operators participating in the markets, $n$, which could be either fixed or changing; 
     \item The percentage of renewable generation contributed by the $i$th operator with respect to the total renewable generation, $\eta_i$.
 \end{itemize}
-In what follows, $n$ and $\eta_i$ are determined distributively and iteratively, based on the following lemma \cite{qu}. 
+In addition, implementation of strategy \eqref{eq:alpha_hetero} requires the following extra information:
+\begin{itemize}
+    \item Maximum and minimum of $\eta_i$; 
+    \item Set $\Omega_{\rm ERS}$, its cardinality $|\Omega_{\rm ERS}|$, as well as the sums of $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j$ and $\sum_{l\in\Omega_{\rm ERS}}\eta_j$.
+\end{itemize}
+In what follows, all the above information are determined distributively and iteratively, based on the following lemma \cite{qu}. 
 
-\noindent {\bf Lemma 2:} {\it Consider $m$ agents which employ the following consensus protocol:
-\begin{equation*}
-z_i(k+1) = z_i(k) + \epsilon_i \sum_{j \in \mathcal{N}_i} [z_j(k) - z_i(k)], \label{eq:consensus*}
-\end{equation*}
-where $\mathcal{N}_i$ denotes the set of neighbors of the $i$th agent, and $\epsilon_i > 0$ is the consensus gain satisfying $\epsilon_i < \tfrac{1}{\max_i |\mathcal{N}_i|}$. Then, as long as the communication topology is connected, the consensus is reached in the sense that  
-\begin{equation*}
-\lim_{k \to \infty} z_i(k) = \frac{1}{m}\sum_{j=1}^m z_j(0), \quad \forall i.
-\end{equation*}
+\noindent \textbf{Lemma 2:} {\it Consider $n$ agents and their average/maximum/minimum consensus protocols:
+\begin{eqnarray*}
+z_i(k+1) & = & z_i(k) + \epsilon_i \sum_{j \in \mathcal{N}_i} [z_j(k) - z_i(k)], \label{eq:consensus} \\
+\overline{z}_i(k+1) & = & \max_{j\in\{i\}\cup\mathcal{N}_i} \overline{z}_j(k), \label{eq:max} \\
+\underline{z}_i(k+1) & = & \min_{j\in\{i\}\cup\mathcal{N}_i} \underline{z}_j(k), \label{eq:min}
+\end{eqnarray*}
+where $\mathcal{N}_i$ denotes the set of neighbors of the $i$th agent, and $\epsilon_i > 0$ is the consensus gain satisfying $\epsilon_i < \tfrac{1}{\max_i |\mathcal{N}_i|}$. Then, as long as the communication topology is connected, the average/maximum/minimum consensus is reached in the sense that  
+\begin{eqnarray*}
+\lim_{k \to \infty} z_i(k) & = & \frac{1}{m}\sum_{j=1}^m z_j(0), \quad \forall i; \\
+\lim_{k \to n} \overline{z}_i(k) & = & \max_{i\in\Omega} \overline{z}_j(0), \\
+\lim_{k \to n} \underline{z}_i(k) & = & \min_{i\in\Omega} \underline{z}_j(0).
+\end{eqnarray*}
 }
 
 \begin{algorithm}[hbt]
 \caption{Distributed Risk-Aware Nash Optimization}
 \label{alg:dist_risk_aware}
 \begin{algorithmic}[1]
-\Require \\
-\begin{itemize}
-    \item Utility: $\xi_{n+1}(0)=1$, and $\psi_{n+1}(0)=0$;
-    \item A participating operator: $\xi_i(0)=0$, and $\psi_i(0)=x_i^o$.
-    \item A non-participating operator: no sharing or communication
-    \item Convergence threshold: $0<c<<1$.
-\end{itemize}
-\Ensure Converged values $\{\hat{n}_i, \; \eta_i, \; \beta_i^{\prime}\}$
-\State Operator $i$ (with $i=1,\cdots,(n+1)$) employs the following distributed {\bf consensus protocols}:
+\Require $c>0$;\; $\xi_{n+1}(0)=1,\;\psi_{n+1}(0)=0$;\; $\xi_i(0)=0,\;\psi_i(0)=x_i^o$
+\Ensure $\alpha_i^*$ for each operator $i$
+\State \textbf{Phase 1.} Run average consensus until $|\xi_i(k)-\xi_i(k-1)|\leq c$:
 \begin{equation}
     \xi_i(k+1) = \xi_i(k) + \epsilon_i \sum_{j \in \mathcal{N}_i} [\xi_j(k) - \xi_i(k)], \label{eq:xi}
-\end{equation} 
-and 
-\begin{equation} 
+\end{equation}
+\begin{equation}
 \psi_i(k+1) = \psi_i(k) + \epsilon_i \sum_{j \in \mathcal{N}_i} [\psi_j(k) - \psi_i(k)]. \label{eq:psi}
-\end{equation} 
-\State {\bf{Once}} {$\|\xi_i(k)-\xi_i(k-1)\|\leq c$ and $\|\psi_i(k)-\psi_i(k-1)\|\leq c$}, operator $i$ sets the following values: 
-\begin{itemize}
-    \item $\hat{n}_i = \frac{1}{\xi_i(k)}-1$
-    \item $\eta_i = \frac{x_i^o}{\psi_i(k)/\xi_i(k)}=\frac{x_i^o\xi_i(k)}{\psi_i(k)}$
-    \item $\beta_i^{\prime} = \frac{1-\hat{n}_i}{4\hat{n}_i}$
-\end{itemize}
-\Ensure Optimal bid with parameters $\{\eta_i, \; \beta_i^{\prime}\}$
-\State Operator $i$ submits its bid using strategy \eqref{eq:alpha_optimal_simplified} 
+\end{equation}
+\State \textbf{Phase 2.} Compute individually \quad  $\hat{n}_i = 1/\xi_i - 1$,\quad  $\eta_i = x_i^o\xi_i/\psi_i$, \quad  and \quad $\beta_i' \stackrel{\triangle}{=} a_2\beta_i = (1-\hat{n}_i)/(4\hat{n}_i)$
+\State \textbf{Phase 3.} Compute max/min consensus \quad  $\eta_{\max}=\max_{i\in\Omega} \eta_i$, \quad $\eta_{\min}=\min_{i\in\Omega} \eta_i$, \quad and \quad $\eta_c = (\eta_{\max}+\eta_{\min})/2$.
+\If{$\eta_{\min}\geq 1/(2\hat{n}_i)$} 
+    \State $\alpha_i^* = 1/(2\hat{n}_i\eta_i)$
+\Else 
+    \State $i\in \Omega_{\rm ERS}$ if $\eta_i<\eta_c$; otherwise $i\not\in \Omega_{\rm ERS}$
+    \State \textbf{Phase 4.} For $i\not\in \Omega_{\rm ERS}$, use a version of \eqref{eq:xi} to calculate cardinality $(n-|\Omega_{\rm ERS}|)$, and use a version of \eqref{eq:psi} to compute $\sum_{j\not\in \Omega_{\rm ERS}}\eta_j$. 
+    \If{$i\in \Omega_{\rm ERS}$}
+        \State $\alpha_i^* = 1$
+    \Else
+        \State $\alpha_i^*=\tfrac{2(\sum_{j\not\in \Omega_{\rm ERS}}\eta_j)-1}{2\,(n-|\Omega_{\rm ERS}|)\,\eta_i}$
+    \EndIf
+\EndIf
 \end{algorithmic}
 \end{algorithm}
 
-The proposed distributed algorithm is given by algorithm \ref{alg:dist_risk_aware}. Since every participating renewable operator must communicate with the utility, the communication topology among all the participating operators and the utility is guaranteed to be connected. It follows from lemma 2, initial conditions $\xi_i(0)$ and $\psi_i(0)$, and protocols \eqref{eq:xi} and \eqref{eq:psi} that $\xi_i(k)\rightarrow \frac{1}{n+1}$ and $\psi_i(k)\rightarrow \frac{1}{n+1}x_r^o$. Therefore, the estimate of $n$, $\eta_i$ and $\beta_i$ can be computed distributively. There is no explicit sharing of private information, and required information is generated through diffusion of the consensus protocols \eqref{eq:xi} and \eqref{eq:psi}.
+The proposed distributed algorithm is given by Algorithm~\ref{alg:dist_risk_aware}. Since every participating renewable operator must communicate with the utility, the communication topology among all the participating operators and the utility is guaranteed to be connected. It follows from Lemma~2, initial conditions $\xi_i(0)$ and $\psi_i(0)$, and protocols \eqref{eq:xi} and \eqref{eq:psi} that $\xi_i(k)\rightarrow \frac{1}{n+1}$ and $\psi_i(k)\rightarrow \frac{1}{n+1}x_r^o$. Therefore, the estimate of $n$, $\eta_i$ and $\beta_i'$ can be computed distributively. There is no explicit sharing of private information, and required information is generated through diffusion of the consensus protocols \eqref{eq:xi} and \eqref{eq:psi}.
 
 Algorithm~1 operates over an \emph{undirected, static} communication graph in which every renewable operator maintains a direct link with the utility, forming a star topology $K_{1,n}$. This structure guarantees connectivity for any $n \geq 1$: since every operator communicates with the utility, the graph is connected by construction and requires no additional peer-to-peer links. The analysis assumes synchronous updates and lossless communication links. Robustness to asynchronous operation, link failures, and dynamic operator participation are important extensions beyond the scope of this paper and are noted as future work.
 
-The consensus protocols~\eqref{eq:xi}--\eqref{eq:psi} converge geometrically at a rate determined by the algebraic connectivity $\lambda_2(L)$, the second-smallest eigenvalue of the graph Laplacian $L$. By Theorem~3.3 of~\cite{qu}, the convergence error satisfies $\|z(k) - z^\infty\mathbf{1}\| \leq (1-\epsilon\lambda_2)^k \|z(0) - z^\infty\mathbf{1}\|$, so the number of iterations to reach $\varepsilon$-accuracy scales as $O\!\left(\log(1/\varepsilon)/\lambda_2\right)$. For the star graph $K_{1,n}$, the Laplacian eigenvalues are $0$, $1$ (with multiplicity $n-1$), and $n+1$ (with multiplicity $1$), giving $\lambda_2 = 1$ independently of $n$. Consequently, Algorithm~1 converges at a rate that does not degrade as the number of operators increases, making it well-suited for large-scale markets. With step size $\epsilon < 1/n$, the per-iteration contraction factor is $\rho = 1 - \epsilon < 1$.
-
-When the no-overbidding constraint is active, the distributed implementation requires a minor modification. After consensus convergence, each operator locally checks whether its unconstrained bid $\alpha_i^* = \frac{1}{2n}\eta_i^{-1}$ exceeds unity, which occurs whenever $\eta_i < \frac{1}{2n}$. If so, operator $i$ projects its bid to $\bar{\alpha}_i = 1$ and belongs to the saturated set $\Omega_{\rm ERS}$ of Corollary~5b. The key observation is that the constrained bid~\eqref{eq:alpha_clamp} for unsaturated operators depends on the aggregate quantity $\sum_{j\in\Omega_{\rm ERS}}\eta_j$, which can be estimated through an additional consensus round. Specifically, after each operator determines its own saturation status locally, a third consensus protocol initialized with $\phi_i(0) = \eta_i$ if $i\in\Omega_{\rm ERS}$ and $\phi_i(0) = 0$ otherwise yields the average $\frac{1}{n+1}\sum_{j\in\Omega_{\rm ERS}}\eta_j$, from which each operator recovers $\sum_{j\in\Omega_{\rm ERS}}\eta_j$. Combined with the already-available $n$ and $\eta_i$, each unsaturated operator can then compute its constrained bid~\eqref{eq:alpha_clamp} without centralized coordination. If the Pareto condition is additionally required, $\beta'^*$ is computed via Remark~1 using the recovered $\sum_{j\in\Omega_{\rm ERS}}\eta_j$.
-\begin{comment}
-For heterogeneous initial risk parameters, we next provide a second distributed algorithm that starts from arbitrary $\beta_i'(0)$, drives the aggregate risk level to the Pareto condition, and then performs one-shot bidding.
-
-\begin{algorithm}[hbt]
-\caption{Distributed Sum-\texorpdfstring{$\beta'$}{beta'} Coordination + One-Shot Bid}
-\label{alg:dist_risk_aware_beta_coord}
-\begin{algorithmic}[1]
-\Require Initial values $\beta_i'(0)$, local $\eta_i$, stepsize $\epsilon_\beta>0$, lower bound margin $\delta>0$, tolerance $\tau_\beta>0$
-\Ensure Final risk levels $\beta_i'$, then one-shot bid $\alpha_i^*$
-\State Set target sum: $B^\star=\frac{1-n}{4}$.
-\For{$k=0,1,2,\ldots$}
-\State Run consensus on $z_{\beta,i}(k)$ initialized by $z_{\beta,i}(0)=\beta_i'(k)$ to estimate
-\[
-\widehat{B}(k)=\sum_{j=1}^n\beta_j'(k).
-\]
-\State Compute aggregate error:
-\[
-e_\beta(k)=\widehat{B}(k)-B^\star.
-\]
-\State Update local risk parameter:
-\[
-\beta_i'(k+1)=\max\left\{\beta_i'(k)-\epsilon_\beta e_\beta(k),\;-\frac14+\delta\right\}.
-\]
-\State If $|e_\beta(k)|\le\tau_\beta$, stop.
-\EndFor
-\State Perform one-shot bid submission:
-\[
-\alpha_i^*=\frac{1}{2}(1+4\beta_i')\eta_i^{-1}.
-\]
-\end{algorithmic}
-\end{algorithm}
-
-Algorithm \ref{alg:dist_risk_aware_beta_coord} keeps the implementation distributed: each operator only needs local $\beta_i'(k)$ and a consensus estimate of the aggregate sum. Without clamping, the aggregate dynamics are
-\[
-\sum_{i=1}^n \beta_i'(k+1)=\sum_{i=1}^n \beta_i'(k)-n\epsilon_\beta\left(\sum_{i=1}^n \beta_i'(k)-B^\star\right),
-\]
-which converges to $B^\star$ for $0<n\epsilon_\beta<2$. Hence, starting from arbitrary non-equal $\beta_i'(0)$, the market can first coordinate the Pareto-optimal aggregate risk and then execute one-shot Nash bidding via \eqref{eq:alpha_optimal_simplified}.
-\end{comment}
+The consensus protocols~\eqref{eq:xi}--\eqref{eq:psi} converge geometrically at a rate determined by the algebraic connectivity $\lambda_2(L)$, the second-smallest eigenvalue of the graph Laplacian $L$. By Theorem~3.3 of~\cite{qu}, the convergence error satisfies $\|z(k) - z^\infty\one\| \leq (1-\epsilon\lambda_2)^k \|z(0) - z^\infty\one\|$, so the number of iterations to reach $\varepsilon$-accuracy scales as $O\!\left(\log(1/\varepsilon)/\lambda_2\right)$. For the star graph $K_{1,n}$, the Laplacian eigenvalues are $0$, $1$ (with multiplicity $n-1$), and $n+1$ (with multiplicity $1$), giving $\lambda_2 = 1$ independently of $n$. Consequently, Algorithm~1 converges at a rate that does not degrade as the number of operators increases, making it well-suited for large-scale markets. With step size $\epsilon < 1/n$, the per-iteration contraction factor is $\rho = 1 - \epsilon < 1$. The same convergence guarantee applies to the auxiliary $\sigma$ and $\mu$ consensus rounds in the constrained branch, both of which run over the same star graph at the same geometric rate. The max-/min-consensus on $\eta_i$ terminates in a single round of forward-and-back communication through the utility hub on $K_{1,n}$.
 
 \section{Illustrative Example \label{sec:examples}}
 
 To demonstrate the proposed analytical and algorithmic results, a three-operator case study is used in which both the centralized solution and the distributed solution are computed and compared across multiple scenarios.
 
-\subsection{Power System Setup}
+\subsection{Basic Setup}
 
 \begin{table}[hbt!]
 \centering
 \caption{Example Parameters}
 \label{tab:example_params}
-\begin{tabular}{|c c|}
+\begin{tabular}{|c||c||c|c|c||c|c|c||c|c|}
 \hline
-\textbf{Parameter} & \textbf{Value} \\
-\hline
-n & $3$ \\
-$a_2$ & 0.1 \\
-$a_1$ & 1 \\
-$a_0$ & 0 \\
-$x_1^o$ & 120 \\
-$x_2^o$ & 100 \\
-$x_3^o$ & 80 \\
-$x_L^o$ & 400 \\
+\textbf{Parameter} & n & $a_2$ & $a_1$ & $a_0$ & $x_1^o$ & $x_2^o$ & $x_3^o$ & $x_L^o$ \\ \hline
+\textbf{Value} &  $3$ &  0.1 & 1 & 0 & 120 & 100 & 80 & 400 \\
 \hline
 \end{tabular}
 \end{table}
 
-Consider the day-ahead/real-time electricity markets with three renewable generation operators $i \in \{1,2,3\}$ and one conventional generation aggregator. The system parameter settings are provided in Table~\ref{tab:example_params}. It follows that the objective function is 
+Consider the day-ahead/real-time electricity markets with three renewable generation operators $i \in \{1,2,3\}$ and one conventional generation aggregator (as the slack bus). The power system parameters are provided in Table~\ref{tab:example_params}. It follows that the day-ahead forecasts for the renewables are $x_1^o, x_2^o, x_3^o$ in MW, respectively, that $x_4^o = P_L^o$ is the load forecast, and that the objective function of traditional generation is 
 \[
-J(P_g) = 0.1P_g^2 + P_g
+J(P_g) = 0.1P_g^2 + P_g, \;\;\; P_g=x_4-(x_1+x_2+x_3). 
 \]
-and the day-ahead forecasts be $x_1^o, x_2^o, x_3^o$ for the renewable and $x_4^o = P_L^o$ for the load. Real-time realizations are $x_i \sim \mathcal{N}(x_i^o,\sigma_i^2)$, with individual standard deviations $\sigma_1 = 12$\,MW, $\sigma_2 = 10$\,MW, $\sigma_3 = 8$\,MW (approximately 10\% of each forecast), load uncertainty $\sigma_L = 20$\,MW, cross-correlation $\rho_{ij}=0.3$ among renewable operators, and $\rho_{iL}=0.2$ between each renewable and the load. As seen from~\eqref{eq:Pi_exp}, the stochastic terms enter $\Pi$ only as the constant offset $\Delta\Pi = 2a_2\bigl[\sum_i\sigma_{iL} - \sum_{i,j}\sigma_{ij}\bigr]$, which is identical across all strategies and does not affect the optimization over $\alpha_i$ or $\beta_i$. Hence, all optimal bidding strategies and the strategic comparisons reported below are independent of the uncertainty parameters; the profit values in Table~\ref{tab:comparison} reflect the deterministic component.
+Real-time realizations are $x_i \sim \mathcal{N}(x_i^o,\sigma_i^2)$, with standard deviations of $\sigma_1 = 12$\,MW, $\sigma_2 = 10$\,MW, $\sigma_3 = 8$\,MW, load uncertainty is $\sigma_L = 20$\,MW, cross-correlations are $\rho_{ij}=0.3$ among renewable operators, and $\rho_{iL}=0.2$ among renewables and the load. As seen from~\eqref{eq:Pi_exp}, the stochastic terms enter total average profit $\Pi$ only as the constant offset $\Delta\Pi = 2a_2\bigl[\sum_i\sigma_{iL} - \sum_{i,j}\sigma_{ij}\bigr]$, which is identical across all strategies and does not affect the optimization results of choosing $\alpha_i$ or $\beta_i$. Hence, all optimal bidding strategies and the strategic comparisons reported below are independent of the uncertainty parameters; the profit values in Table~\ref{tab:comparison} are those excluding the constant offset.
 
 \subsection{Analytical and Centralized Nash Solutions}
 
@@ -801,22 +766,22 @@ Table~\ref{tab:comparison} and Figures~\ref{fig:algo1_comp_alpha}--\ref{fig:algo
 \centering
 \caption{Performance Comparison of Bidding Strategies ($n=3$)}
 \label{tab:comparison}
-\footnotesize
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \hline
-Strategy & $\boldsymbol{\alpha}^*$ & $f$ & $g$\,(MW$^2$) & $\Pi$\,(\$/hr) \\
+Strategy & $\boldsymbol{\alpha}^*$ & $f$ & $g$\,(MW$^2$) & $\sum_i\Pi_i$\,(\$/hr) \\
 \hline
-Coalition & $(0.50,\;0.50,\;0.50)$ & $0.50$ & 22{,}500 & 10{,}800 \\
-RN Nash             & $(0.63,\;0.75,\;0.94)$ & $0.75$ & 16{,}875 &  9{,}675 \\
-RS Pareto Nash      & $(0.42,\;0.50,\;0.63)$ & $0.50$ & 22{,}500 & 10{,}800 \\
-Algo.~1 (Dist.)     & $(0.42,\;0.50,\;0.63)$ & $0.50$ & 22{,}500 & 10{,}800 \\
+Coalition       & $(0.50,\;0.50,\;0.50)$ & $0.50$ & $22{,}500$ & $10{,}800$ \\
+RN Nash         & $(0.63,\;0.75,\;0.94)$ & $0.75$ & $16{,}875$ & $\phantom{0}9{,}675$ \\
+RS Pareto Nash  & $(0.42,\;0.50,\;0.63)$ & $0.50$ & $22{,}500$ & $10{,}800$ \\
+Algo.~1 (Dist.) & $(0.42,\;0.50,\;0.63)$ & $0.50$ & $22{,}500$ & $10{,}800$ \\
 \hline
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \begin{figure}[hbt!]
     \centering
-    \includegraphics[width=1\linewidth]{figures/algorithm1_comp_alpha.png}
+    \includegraphics[width=1\linewidth]{figures/algorithm1_comp_alpha_s1.png}
     \caption{Bidding strategies $\alpha_i^*$ for all four strategies.}
     \label{fig:algo1_comp_alpha}
 \end{figure}
@@ -825,26 +790,45 @@ Figure~\ref{fig:algo1_comp_alpha} shows that the risk-neutral Nash bids are noti
 
 \begin{figure}[hbt!]
     \centering
-    \includegraphics[width=1\linewidth]{figures/algorithm1_comp_profit.png}
-    \caption{Individual profits $\Pi_i$ for all four strategies.}
+    \includegraphics[width=1\linewidth]{figures/algorithm1_comp_profit_s1.png}
+    \caption{Individual profits $\Pi_i$ for all four strategies (Scenario~1).}
     \label{fig:algo1_comp_profit}
 \end{figure}
 
-Figure~\ref{fig:algo1_comp_profit} confirms that the profit improvement under Pareto coordination is shared across all operators: each $\Pi_i$ rises relative to the risk-neutral Nash case, so the move from RN to RS is a Pareto improvement in the game-theoretic sense — no operator is made worse off by adopting the risk-seeking strategy.
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/algorithm1_comp_profit_perunit_s1.png}
+    \caption{Per-unit profit $\Pi_i/x_i^o$ (\$/hr/MW) for all four strategies (Scenario~1). Normalizing by capacity reveals that smaller operators earn disproportionately less per MW under risk-neutral Nash; Pareto coordination through risk-seeking equalizes the per-unit returns across operators.}
+    \label{fig:algo1_comp_profit_perunit_s1}
+\end{figure}
+
+Figure~\ref{fig:algo1_comp_profit} confirms that the profit improvement under Pareto coordination is shared across all operators: each $\Pi_i$ rises relative to the risk-neutral Nash case, so the move from RN to RS is a Pareto improvement in the game-theoretic sense — no operator is made worse off by adopting the risk-seeking strategy. Figure~\ref{fig:algo1_comp_profit_perunit_s1} further shows the per-unit perspective: under risk-neutral Nash, the smaller Op~3 earns less per MW of installed capacity, while Pareto coordination through risk-seeking restores equal per-unit returns.
+
+\subsection{Heterogeneous Pareto Risk Allocations}
+
+Theorem~2 states that any $\boldsymbol{\beta}$ satisfying $\sum_i\beta_i' = (1-n)/4$ achieves Pareto optimality, yielding infinitely many valid heterogeneous allocations. Three representative allocations for the base parameters illustrate this flexibility:
+\begin{itemize}
+    \item \textbf{Symmetric ERS}: $\beta_i'=-\frac{1}{6}$ for all $i$ (Corollary~5a). Bids are $\boldsymbol{\alpha}^*=(0.417,\,0.500,\,0.625)$, $f=0.5$, $g=g^{\max}$.
+    \item \textbf{Hetero~A}: $\boldsymbol{\beta}'=(-0.10,\,-0.17,\,-0.23)$ — Op~3 (smallest share) is most risk-seeking. Bids become $\boldsymbol{\alpha}^*=(0.750,\,0.480,\,0.150)$, with $f=0.5$ and $g=g^{\max}$ fully preserved.
+    \item \textbf{Hetero~B}: $\boldsymbol{\beta}'=(-0.23,\,-0.17,\,-0.10)$ — Op~1 is most risk-seeking. Although $\sum_i\beta_i'=-0.5$ satisfies the Pareto aggregate condition, Op~3's low risk tolerance yields $\alpha_3^*\approx1.12>1$, violating the capacity constraint. Clamping reduces $f$ below $\frac{1}{2}$ and incurs an efficiency loss.
+\end{itemize}
+
+Symmetric ERS and Hetero~A both achieve $\Pi^{\rm total}=10{,}800$\,\$/hr, but distribute profits differently: Hetero~A shifts profit toward Op~1 (higher bid) and away from Op~3 (lower bid). This gives a regulator or cooperative agreement a mechanism to adjust equity without sacrificing aggregate efficiency — a direct consequence of the infinite-solution structure of Theorem~2.
 
 \subsection{Overbidding Impact}
 
 From~\eqref{eq:overbid_bound}, overbidding occurs for operator~$i$ at the ERS optimum whenever $\eta_i < \frac{1}{2n}$. For the original parameters in Table~\ref{tab:example_params}, $\eta_i \in \{0.40, 0.33, 0.27\}$ all exceed $\frac{1}{6}$, so $\Omega_{\rm ERS}=\varnothing$ and no overbidding occurs; Scenario~1 in Table~\ref{tab:overbid_compare} confirms that the symmetric Pareto allocation $\beta'^* = -\frac{1}{6}$ achieves $f=0.5$ and $g=g^{\max}$.
 
-To illustrate the constrained branch of Corollary~5b, we introduce \textit{Scenario~2} by setting $x_3^o = 30$\,MW, giving $x_r^o = 250$\,MW and $\eta_3 = \frac{30}{250} = 0.12 < \frac{1}{6} = \frac{1}{2n}$. Operator~3 therefore belongs to $\Omega_{\rm ERS} = \{3\}$: its unconstrained bid at $\beta'=-\frac{1}{6}$ equals $\frac{1}{2n\eta_3} = \frac{1}{6\times 0.12}\approx 1.39 > 1$.
+To illustrate the heterogeneous-$\beta$ branch of Corollary~5b, we introduce \textit{Scenario~2} by setting $x_3^o = 30$\,MW, giving $x_r^o = 250$\,MW and $\boldsymbol{\eta}=(0.48,\,0.40,\,0.12)$. Operator~3 has $\eta_3 < \tfrac{1}{2n}=\tfrac{1}{6}$, so $\Omega_{\rm ERS}=\{3\}$ and the homogeneous ERS bid is $\alpha_3^*=\tfrac{1}{2n\eta_3}\approx1.39>1$.
 
-Table~\ref{tab:overbid_compare} compares two policies for Scenario~2. If overbidding is permitted, Op~3 bids $\alpha_3^*\approx1.39$ at $\beta'=-\frac{1}{6}$; the Pareto condition still holds ($f=0.5$, $g=g^{\max}$), so there is no efficiency loss, only a feasibility violation. Remark~1 provides the no-overbidding Pareto-restoring alternative: prescribing $\beta'^*$ via~\eqref{eq:beta_opt_clamp} so that the constraint binds exactly without any efficiency loss. With $|\Omega_{\rm ERS}|=1$ and $\sum_{j\in\Omega_{\rm ERS}}\eta_j = 0.12$, solving $f(\boldsymbol{\alpha}^*)=\frac{1}{2}$ gives
-\[
-  w^* = \frac{1 - 2\eta_3}{n - |\Omega_{\rm ERS}|} = \frac{1 - 0.24}{2} = 0.38,
-  \qquad
-  \beta'^* = \frac{w^*-1}{4} \approx -0.155,
-\]
-yielding $\boldsymbol{\alpha}^*=(0.396,\,0.475,\,1.000)$, $f=0.500$, and $g=g^{\max}=15{,}625$\,MW$^2$. The overbidding constraint is binding at Op~3 exactly, and no efficiency loss occurs.
+The partition~\eqref{eq:partition_Omega} gives $\eta_{\max}=0.48$, $\eta_{\min}=0.12$, midpoint $\eta_c=0.30$, hence $\Omega=\{1,2\}$ and $\Omega^c=\{3\}$. Substituting into~\eqref{eq:beta_hetero}--\eqref{eq:alpha_hetero} with $\sum_{j\in\Omega}\eta_j=0.88$, $\sum_{j\in\Omega^c}\eta_j=0.12$, $|\Omega|=2$:
+\begin{align}
+  4a_2\beta_3^* &= 2\eta_3-1 = -0.76,\qquad \alpha_3^*=1,\notag\\
+  4a_2\beta_{1,2}^* &= \tfrac{0.88-0.12}{2}-1 = -0.62, \notag\\
+  \alpha_1^* &= \tfrac{0.76}{4\cdot 0.48}\approx 0.396, \qquad
+  \alpha_2^* = \tfrac{0.76}{4\cdot 0.40}=0.475, \notag
+\end{align}
+yielding $\boldsymbol{\alpha}^*=(0.396,\,0.475,\,1.000)$, $f=0.500$, and $g=g^{\max}=15{,}625$\,MW$^2$. The construction is one-shot: the partition is read off directly from $(\eta_{\max},\eta_{\min})$, no iterative saturation check is needed.
 
 \begin{table}[hbt!]
 \centering
@@ -854,50 +838,129 @@ yielding $\boldsymbol{\alpha}^*=(0.396,\,0.475,\,1.000)$, $f=0.500$, and $g=g^{\
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lccccccccc}
 \hline
-Scenario & $\Omega_{\rm ERS}$ & $\beta'^*$ & $\alpha_1^*$ & $\alpha_2^*$ & $\alpha_3^*$ & $f$ & $g$\,(MW$^2$) & $\sum\Pi_i$\,(\$/hr) & loss \\
+Scenario & $\Omega^c$ & $4a_2\beta_i^*$ & $\alpha_1^*$ & $\alpha_2^*$ & $\alpha_3^*$ & $f$ & $g$\,(MW$^2$) & $\sum\Pi_i$\,(\$/hr) & loss \\
 \hline
-S1: original (no overbid)        & $\varnothing$ & $-0.167$ & $0.417$ & $0.500$ & $0.625$ & $0.500$ & $22{,}500$ & $10{,}800$ & $0\%$ \\
-S2: unclamped (overbid)          & $\{3\}$       & $-0.167$ & $0.347$ & $0.417$ & $1.389$ & $0.500$ & $15{,}625$ & $10{,}875$ & $0\%$ \\
-S2: opt.\ $\beta'^*$ (Cor.~5b)  & $\{3\}$       & $-0.155$ & $0.396$ & $0.475$ & $1.000$ & $0.500$ & $15{,}625$ & $10{,}875$ & $0\%$ \\
+S1: original (no overbid)         & $\varnothing$ & $-2/3$ (sym.)         & $0.417$ & $0.500$ & $0.625$ & $0.500$ & $22{,}500$ & $10{,}800$ & $0\%$ \\
+S2: unclamped sym.\ ERS           & $\{3\}$       & $-2/3$ (sym.)         & $0.347$ & $0.417$ & $1.389$ & $0.500$ & $15{,}625$ & $10{,}875$ & $0\%$ \\
+S2: hetero-$\beta$ (Cor.~5b)      & $\{3\}$       & $(-0.62,-0.62,-0.76)$ & $0.396$ & $0.475$ & $1.000$ & $0.500$ & $15{,}625$ & $10{,}875$ & $0\%$ \\
+S3: unclamped sym.\ ERS           & $\{2,3\}$     & $-2/3$ (sym.)         & $0.238$ & $1.111$ & $1.111$ & $0.500$ & $22{,}500$ & $10{,}800$ & $0\%$ \\
+S3: hetero-$\beta$ (Cor.~5b)      & $\{2,3\}$     & $(-0.60,-0.70,-0.70)$ & $0.286$ & $1.000$ & $1.000$ & $0.500$ & $22{,}500$ & $10{,}800$ & $0\%$ \\
 \hline
-\multicolumn{10}{l}{S2: $x_3^o{=}30$\,MW, $x_r^o{=}250$\,MW; loss $= g^{\max}$ gap.}
+\multicolumn{10}{l}{S2: $x_3^o{=}30$\,MW, $x_r^o{=}250$\,MW;\quad S3: $x^o{=}(210,45,45)$\,MW, $x_r^o{=}300$\,MW; loss $= g^{\max}$ gap.}
 \end{tabular}}
 \end{table}
 
-To illustrate the \emph{profit} impact of overbidding with the original capacity parameters ($x^o=[120,100,80]$\,MW), consider the heterogeneous risk-parameter scenario $\beta'_1=-0.20$, $\beta'_2=-0.15$, $\beta'_3=-0.05$. The one-shot formula gives $\alpha_1^*=0.25$, $\alpha_2^*=0.60$, $\alpha_3^*\approx1.50$; Op~3 overbids because $\beta'_3=-0.05>\beta'^*=-\frac{1}{6}$ raises its target $w=1+4\beta'_3=0.80$ above the ERS level. The resulting aggregate fraction $f=0.700>0.5$ drives market efficiency below $g^{\max}$.
+\begin{table}[hbt!]
+\centering
+\caption{ERS Strategy Performance Under Overbidding Scenarios ($n=3$, $a_2=0.1$, $x_L^o=400$\,MW)}
+\label{tab:ers_compare}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llcccc}
+\hline
+Scenario & Strategy & $\boldsymbol{\alpha}^*$ & $f$ & $g$\,(MW$^2$) & $\sum_i\Pi_i$\,(\$/hr) \\
+\hline
+\multirow{4}{*}{S2 ($x_r^o{=}250$\,MW)} &
+  Coalition         & $(0.500,\;0.500,\;0.500)$ & $0.500$ & $15{,}625$ & $10{,}875$ \\
+& RN Nash           & $(0.521,\;0.625,\;2.083)$ & $0.750$ & $11{,}719$ & $10{,}094$ \\
+& Pareto-NE         & $(0.347,\;0.417,\;1.389)$ & $0.500$ & $15{,}625$ & $10{,}875$ \\
+& Algo.~1 (Cor.~5b) & $(0.396,\;0.475,\;1.000)$ & $0.500$ & $15{,}625$ & $10{,}875$ \\
+\hline
+\multirow{4}{*}{S3 ($x_r^o{=}300$\,MW)} &
+  Coalition         & $(0.500,\;0.500,\;0.500)$ & $0.500$ & $22{,}500$ & $10{,}800$ \\
+& RN Nash           & $(0.357,\;1.667,\;1.667)$ & $0.750$ & $16{,}875$ & $\phantom{0}9{,}675$ \\
+& Pareto-NE         & $(0.238,\;1.111,\;1.111)$ & $0.500$ & $22{,}500$ & $10{,}800$ \\
+& Algo.~1 (Cor.~5b) & $(0.286,\;1.000,\;1.000)$ & $0.500$ & $22{,}500$ & $10{,}800$ \\
+\hline
+\multicolumn{6}{l}{Pareto-NE bids in italics are infeasible ($\alpha_i>1$); Algo.~1 enforces feasibility via Cor.~5b.}
+\end{tabular}}
+\end{table}
+
+Table~\ref{tab:ers_compare} summarizes the four primary strategies across Scenarios~2 and~3, confirming that Algorithm~1 matches the Coalition and Pareto-NE aggregate performance while enforcing feasibility. Figure~\ref{fig:algo1_overbid_alpha} applies all six strategies to Scenario~2 ($x_3^o=30$\,MW, $\eta_3=0.12$), the same capacity configuration examined analytically above. Under these parameters, $\eta_3 < \tfrac{1}{2n} = \tfrac{1}{6}$, so the unconstrained symmetric Pareto bid for Op~3 is $\alpha_3^* = \tfrac{1}{6\eta_3} \approx 1.39 > 1$ — a feasibility violation. The risk-neutral Nash equilibrium is even more aggressive ($\alpha_3^* \approx 2.08$). Algorithm~1 follows the heterogeneous-$\beta$ branch of Corollary~5b: it identifies the partition $\Omega=\{1,2\}$, $\Omega^c=\{3\}$ via max-/min-consensus, recovers $\sum_{j\in\Omega}\eta_j-\sum_{j\in\Omega^c}\eta_j=0.76$ and $|\Omega|=2$ from two short auxiliary consensus rounds, and submits $(0.396,\,0.475,\,1.000)$ — landing the Algo~1 bar \emph{exactly} at the $\alpha=1$ boundary while recovering $f=\frac{1}{2}$. Also shown is a heterogeneous-$\beta$ deviation scenario ($\beta'=[{-0.20},{-0.15},{-0.05}]$, ``Unclamped OB'') and its naive per-operator clamp (``No-overbid''), which can push Op~3 far above~1 without the principled risk re-allocation that Algo~1 performs.
 
 \begin{figure}[hbt!]
     \centering
-    \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_alpha_unc.png}
-    \caption{Unclamped overbidding bids: Op~3 exceeds the $\alpha=1$ limit.}
-    \label{fig:algo1_overbid_alpha_unc}
+    \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_alpha_s2.png}
+    \caption{Bidding strategies $\alpha_i^*$ under Scenario~2 ($x_3^o=30$\,MW). The dashed line marks $\alpha=1$; both the unconstrained Pareto-NE and RN-NE overbid at Op~3, while Algorithm~1 (Corollary~5b saturation branch) places $\alpha_3^*$ exactly at~1. Bars for RN-NE and Unclamped~OB at Op~3 extend beyond the $y$-axis clip; their values are annotated.}
+    \label{fig:algo1_overbid_alpha}
 \end{figure}
 
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_alpha_clp.png}
-    \caption{No-overbidding projection: Op~3 is clamped to $\alpha_3^*=1$.}
-    \label{fig:algo1_overbid_alpha_clp}
-\end{figure}
-
-Figure~\ref{fig:algo1_overbid_profit} shows aggregate profit across three scenarios: ERS Pareto optimum, unclamped overbid, and no-overbidding projection. Unclamped overbidding incurs a ${\approx}6.5\%$ profit loss relative to the Pareto optimum, since $f=0.700\gg0.5$. Notably, the no-overbidding (clamped) case recovers nearly all of this loss (${\approx}0.5\%$ below optimum): because the unclamped $f=0.700>0.5$, clamping Op~3 to $\alpha_3^*=1$ moves $f$ toward~$\frac{1}{2}$, improving efficiency. This is the \emph{complementary} regime to Corollary~4, where clamping at the risk-neutral NE pushes $f$ away from~$\frac{1}{2}$ and hurts profit — here, clamping is beneficial precisely because the unclamped equilibrium overshoots $f=\frac{1}{2}$.
+Figures~\ref{fig:algo1_overbid_profit} and~\ref{fig:algo1_overbid_profit_perunit} show the profit consequences under Scenario~2. Coalition and Algo~1 achieve the same total profit ($f=0.5$, $g=g^{\max}=15{,}625$\,MW$^2$), with Op~3 receiving a smaller absolute share due to its reduced capacity. Pareto-NE produces the same aggregate outcome analytically but is infeasible ($\alpha_3^*>1$). Unclamped overbidding overshoots $f=0.5$, reducing aggregate efficiency, while the simple per-operator clamp partially recovers it without restoring the Pareto target.
 
 \begin{figure}[hbt!]
     \centering
-    \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_profit.png}
-    \caption{Aggregate profit across three overbidding scenarios.}
+    \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_profit_s2.png}
+    \caption{Per-operator profit $\Pi_i$ under Scenario~2 for all six strategies. Coalition and Algo~1 achieve the same total profit at $f=0.5$; risk-neutral and unclamped strategies overshoot $f=\tfrac{1}{2}$, reducing aggregate efficiency.}
     \label{fig:algo1_overbid_profit}
 \end{figure}
 
 \begin{figure}[hbt!]
     \centering
-    \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_profit_individual.png}
-    \caption{Individual profits $\Pi_i$ across three overbidding scenarios. Under unclamped overbidding, Op~3 gains at the expense of Ops~1 and~2; the no-overbidding projection restores a more balanced allocation while recovering near-optimal aggregate profit.}
-    \label{fig:algo1_overbid_profit_individual}
+    \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_profit_perunit_s2.png}
+    \caption{Per-unit profit $\Pi_i/x_i^o$ under Scenario~2. Algorithm~1 achieves per-unit equity comparable to the Coalition benchmark; unclamped overbidding distorts Op~3's per-unit revenue upward at the expense of the other operators.}
+    \label{fig:algo1_overbid_profit_perunit}
 \end{figure}
 
-\noindent\textbf{Remark~2.} \textit{Overbidding at the ERS optimum is not an artifact of deviating from $\beta'^*$, but a structural consequence of small renewable share: operator~$i$ overbids whenever $\eta_i < \frac{1}{2n}$, regardless of the chosen common $\beta'$. In such cases, the re-optimized $\beta'^*$ of Remark~1 reallocates bids so that the capacity-limited operator is fully dispatched ($\alpha_i^*=1$) while the remaining operators restore $f=\frac{1}{2}$, recovering $g^{\max}$ with no efficiency penalty.}
+\noindent\textbf{Observation.} \textit{Overbidding at the ERS optimum is not an artifact of deviating from the Pareto sum condition, but a structural consequence of small renewable share: operator~$i$ overbids whenever $\eta_i < \frac{1}{2n}$, regardless of the chosen common $\beta'$. No homogeneous-$\beta$ policy can simultaneously achieve feasibility and $f=\tfrac12$. The heterogeneous allocation of Corollary~5b assigns a more risk-seeking $\beta_i^*$ to capacity-limited operators (driving $\alpha_i^*=1$ exactly) and a common, milder $\beta_i^*$ to the remainder (restoring $f=\tfrac12$), recovering $g^{\max}$ with no efficiency penalty.}
 
+
+\subsection{Constrained Risk-Neutral Nash (Corollary~4)}
+
+To isolate the value of risk coordination under capacity constraints, consider Scenario~2 capacities ($x_3^o=30$\,MW, $x_r^o=250$\,MW) with all operators risk-neutral ($\beta_i=0$) and overbidding forbidden. Since $\eta_3=0.12<\frac{1}{n+1}=0.25$, Corollary~4 applies with $\Omega_{\rm RN}=\{3\}$. Op~3 is clamped to $\alpha_3^*=1$ and the remaining operators are re-solved:
+\[
+    \alpha_i^* = \frac{1-\sum_{j\in\Omega_{\rm RN}}\eta_j}{(n+1-|\Omega_{\rm RN}|)\,\eta_i}
+    = \frac{0.88}{3\eta_i}, \quad i\in\{1,2\},
+\]
+yielding $\boldsymbol{\alpha}^*=(0.611,\,0.733,\,1.000)$, $f=0.707$, and $g\approx12{,}946$\,MW$^2$.
+
+Figure~\ref{fig:cor4_alpha} compares the three strategies for Scenario~2. The unconstrained RN naturally drives Op~3 to $\alpha_3^*\approx2.08$ (overbidding); Corollary~4 enforces feasibility by re-solving the equilibrium, but $f=0.707\gg\frac{1}{2}$ leaves market efficiency at only ${\approx}83\%$ of $g^{\max}=15{,}625$\,MW$^2$. This quantifies the efficiency cost of foregoing risk coordination: even when overbidding is eliminated, risk-neutral operation incurs a persistent market efficiency loss that risk-seeking coordination avoids.
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/cor4_constrained_rn_alpha.png}
+    \caption{Corollary~4: bidding strategies under unconstrained RN and constrained RN (Cor.~4 clamped) for Scenario~2 ($x_3^o=30$\,MW). Constrained RN enforces feasibility but leaves $f=0.707\gg\frac{1}{2}$, incurring a persistent efficiency loss relative to risk-seeking coordination.}
+    \label{fig:cor4_alpha}
+\end{figure}
+
+\subsection{Multiple Operator Saturation (Corollary~5b)}
+
+To validate the generality of Corollary~5b beyond $|\Omega^c|=1$, we introduce \textit{Scenario~3} by setting $x^o=(210,45,45)$\,MW giving $\eta=(0.70,0.15,0.15)$.  The unconstrained ERS formula yields $\alpha_{2,3}^*\approx1.11>1$, so Ops~2 and~3 would overbid; the heterogeneous-$\beta$ construction of Corollary~5b corrects this.
+
+With $\eta_{\max}=0.70$ and $\eta_{\min}=0.15$, the cutoff and partition are
+\[
+    \eta_c = \tfrac{1}{2}(0.70+0.15) = 0.425,
+    \qquad \Omega=\{1\},\quad \Omega^c=\{2,3\}.
+\]
+We have $\sum_{j\in\Omega}\eta_j=0.70$, $\sum_{j\in\Omega^c}\eta_j=0.30$, so $D\triangleq\sum_{j\in\Omega}\eta_j-\sum_{j\in\Omega^c}\eta_j=0.40$ and $|\Omega|=1$.
+Substituting into \eqref{eq:alpha_hetero}:
+\[
+    \alpha_1^* = \frac{D}{2\,|\Omega|\,\eta_1}
+               = \frac{0.40}{2\times0.70} = \frac{2}{7}\approx0.286,
+    \qquad \alpha_2^*=\alpha_3^*=1.
+\]
+One can verify $f=\tfrac{2}{7}\times0.70+1\times0.15+1\times0.15=0.500$ and $g=g_{\max}=22{,}500$\,MW$^2$, achieving the full Pareto optimum even with two saturating operators.  This contrasts sharply with a na\"{i}ve homogeneous-$\beta_0$ approach, which would give $f=0.825$ and $g\approx13{,}001$\,MW$^2$ — confirming that the heterogeneous construction eliminates the efficiency penalty regardless of $|\Omega^c|$.
+
+Figure~\ref{fig:algo1_overbid_alpha_s3} compares all six strategies under Scenario~3. Both RN-NE and the unconstrained Pareto-NE overbid at Ops~2 and~3, while Algorithm~1 (Corollary~5b) sets $\alpha_{2,3}^*=1$ exactly and recovers $f=\frac{1}{2}$ without the efficiency penalty incurred by naive clamping. Figures~\ref{fig:algo1_overbid_profit_s3} and~\ref{fig:algo1_overbid_profit_perunit_s3} show the corresponding per-operator and per-unit profits.
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_alpha_s3.png}
+    \caption{Bidding strategies under Scenario~3 ($x^o=(210,45,45)$\,MW). Both RN-NE and Pareto-NE overbid at Ops~2 and~3; Algorithm~1 (Cor.~5b) places $\alpha_{2,3}^*$ exactly at~1. Naive clamping reduces $f$ below $\tfrac{1}{2}$.}
+    \label{fig:algo1_overbid_alpha_s3}
+\end{figure}
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_profit_s3.png}
+    \caption{Per-operator profit $\Pi_i$ under Scenario~3 for all six strategies. Coalition and Algo~1 both achieve $\sum\Pi_i=10{,}800$\,\$/hr at $f=0.5$; risk-neutral and unclamped strategies reduce aggregate efficiency.}
+    \label{fig:algo1_overbid_profit_s3}
+\end{figure}
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_profit_perunit_s3.png}
+    \caption{Per-unit profit $\Pi_i/x_i^o$ under Scenario~3. Algorithm~1 restores per-unit equity comparable to the Coalition benchmark.}
+    \label{fig:algo1_overbid_profit_perunit_s3}
+\end{figure}
 
 \subsection{Solutions under Distributed Algorithms}
 
@@ -931,20 +994,29 @@ Op. & $\xi_i^\infty$ & $\hat{n}_i $ & $\eta_i$ & $\beta_i'$ \\
 \hline
 \end{tabular}
 \end{table}
+\noindent\textbf{Remark~3.} \textit{The convergence rate of Algorithm~1 on the star graph $K_{1,n}$ is $O(\log(1/\varepsilon))$ per consensus round, independent of the number of operators~$n$. This follows from the algebraic connectivity $\lambda_2(L)=1$ of $K_{1,n}$, which is established in Section~V and does not degrade as $n$ grows.}
+
+The Corollary~5b branch of Algorithm~1 is validated on Scenarios~2 and~3.  In each case operators first run max- and min-consensus on $\eta_i$ to recover $\eta_{\max}$ and $\eta_{\min}$, then each operator locally computes $\eta_c=(\eta_{\max}+\eta_{\min})/2$ and determines its partition membership.  In Scenario~2 ($\eta_c=0.30$): Ops~1 and~2 belong to $\Omega$ and seed $\sigma_i(0)=+\eta_i$, while Op~3 belongs to $\Omega^c$ and seeds $\sigma_3(0)=-0.12$; the indicator seeds are $\mu_{1,2}(0)=1$, $\mu_3(0)=0$.  In Scenario~3 ($\eta_c=0.425$): Op~1 alone belongs to $\Omega$ and seeds $\sigma_1(0)=+0.70$, while Ops~2 and~3 each seed $\sigma_i(0)=-0.15$; the indicator seeds are $\mu_1(0)=1$, $\mu_{2,3}(0)=0$.  In both cases the $\sigma$- and $\mu$-consensus rounds converge and the locally recovered $\widehat{D}=\sum_{j\in\Omega}\eta_j-\sum_{j\in\Omega^c}\eta_j$ and $|\widehat{\Omega}|$ yield bids $\boldsymbol{\alpha}^*$ indistinguishable from the centralized Corollary~5b solution, confirming that partition information is correctly propagated without any central coordinator.
+
+Figures~\ref{fig:sigma_s2}--\ref{fig:sigma_s6} show the $\sigma$-consensus trajectories for Scenarios~2 and~3. Operators in $\Omega$ seed positive values $+\eta_i$ and converge downward; operators in $\Omega^c$ seed negative values $-\eta_i$ and converge upward. The utility (dashed) seeds $\sigma_{n+1}(0)=0$ and rises monotonically to the common steady state. The red dotted line marks the target $D/(n+1)$; dividing by the converged $\xi_i^\infty=1/(n+1)$ recovers $\widehat{D}$ locally at each node.
+
 \begin{figure}[hbt!]
     \centering
-    \includegraphics[width=0.48\linewidth]{figures/algorithm1_comp_f.png}%
-    \hfill%
-    \includegraphics[width=0.48\linewidth]{figures/algorithm1_comp_g.png}
-    \caption{Aggregate bid fraction $f$ (left) and market efficiency $g$ (right) for all four strategies.}
-    \label{fig:algo1_comp_fg}
+    \includegraphics[width=1\linewidth]{figures/sigma_consensus_s2.png}
+    \caption{$\sigma$-consensus trajectory for Scenario~2 ($\Omega^c=\{3\}$). Ops~1,2 ($\in\Omega$) seed $+\eta_i$ and converge down; Op~3 ($\in\Omega^c$) seeds $-0.12$ and converges up. The utility (dashed) seeds~$0$ and rises monotonically. Red dotted line: steady-state target $D/(n+1)=0.19$; recovering $\widehat{D}=\sigma_i^\infty/\xi_i^\infty=0.76$.}
+    \label{fig:sigma_s2}
 \end{figure}
 
-\noindent\textbf{Remark~2.} \textit{The convergence rate of Algorithm~1 on the star graph $K_{1,n}$ is $O(\log(1/\varepsilon))$ per consensus round, independent of the number of operators~$n$. This follows from the algebraic connectivity $\lambda_2(L)=1$ of $K_{1,n}$, which is established in Section~V and does not degrade as $n$ grows.}
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/sigma_consensus_s6.png}
+    \caption{$\sigma$-consensus trajectory for Scenario~3 ($\Omega^c=\{2,3\}$). Op~1 ($\in\Omega$) seeds $+0.70$ and converges down; Ops~2,3 ($\in\Omega^c$) seed $-0.15$ and converge up. The utility (dashed) seeds~$0$ and rises monotonically. Red dotted line: steady-state target $D/(n+1)=0.10$; recovering $\widehat{D}=\sigma_i^\infty/\xi_i^\infty=0.40$.}
+    \label{fig:sigma_s6}
+\end{figure}
 
 \subsection{Scalability Discussion}
 
-The numerical example above uses $n=3$ operators to keep the exposition concrete. The theoretical results, however, are fully general: Theorems~1--2 and Corollaries~1--5b hold for any $n\geq 1$, and Algorithm~1 requires no modification as $n$ grows. Three structural properties support scalability. First, from Remark~2, the convergence rate of Algorithm~1 is $O(\log(1/\varepsilon))$ per consensus round on the star graph, independent of $n$. Second, each operator performs only local computations (a single division and two multiplications after consensus), so per-operator complexity does not grow with $n$. Third, the overbidding threshold $\eta_i < 1/(2n)$ becomes more stringent as $n$ increases, so in large markets with many similarly-sized operators the unconstrained formula~\eqref{eq:alpha_optimal_simplified} applies without any clamping. Simulation studies at larger scale ($n \in \{10, 50\}$) are deferred to future work, where they will also address sensitivity of the Pareto condition to heterogeneous capacity distributions and transient operator participation.
+The numerical example above uses $n=3$ operators to keep the exposition concrete. The theoretical results, however, are fully general: Theorems~1--2 and Corollaries~1--5b hold for any $n\geq 1$, and Algorithm~1 requires no modification as $n$ grows. Three structural properties support scalability. First, from Remark~3, the convergence rate of Algorithm~1 is $O(\log(1/\varepsilon))$ per consensus round on the star graph, independent of $n$. Second, each operator performs only local computations (a single division and two multiplications after consensus), so per-operator complexity does not grow with $n$. Third, the overbidding threshold $\eta_i < 1/(2n)$ becomes more stringent as $n$ increases, so in large markets with many similarly-sized operators the unconstrained formula~\eqref{eq:alpha_optimal_simplified} applies without any clamping. Simulation studies at larger scale ($n \in \{10, 50\}$) are deferred to future work, where they will also address sensitivity of the Pareto condition to heterogeneous capacity distributions and transient operator participation.
 
 \begin{comment}
 
@@ -1075,7 +1147,7 @@ These results validate that the proposed distributed algorithm achieves Pareto-e
 
 This paper presented a risk-aware bidding framework in which the risk sensitivity parameter $\beta_i$ acts as a coordination variable for renewable generation operators in electricity markets. We showed that the noncooperative game admits structured Nash equilibria and that, by appropriate risk allocation, these equilibria can recover Pareto-efficient aggregate outcomes. In particular, the analysis established explicit relationships between risk parameters, bidding coefficients, and market efficiency.
 
-A distributed consensus-based implementation was developed for the one-shot strategy, allowing each operator to estimate required aggregate quantities using only local communication. The illustrative example confirmed that the distributed Algorithm~1 reproduces the targeted bidding behavior without centralized disclosure of private forecasts or cost data. When the no-overbidding constraint is active, a minor extension using a third consensus protocol allows each operator to determine its constrained bid locally after recovering the aggregate saturation quantities $\sum_{j\in\Omega_{\rm ERS}}\eta_j$ and $\sum_{j\not\in\Omega_{\rm ERS}}w_j$ through neighborhood communication alone.
+A distributed consensus-based implementation was developed for the one-shot strategy, allowing each operator to estimate required aggregate quantities using only local communication. The illustrative example confirmed that the distributed Algorithm~1 reproduces the targeted bidding behavior without centralized disclosure of private forecasts or cost data. When the no-overbidding constraint is active, a minor extension using a third consensus protocol allows each operator to determine its constrained bid locally after recovering the aggregate saturation quantities $\sum_{j\in\Omega_{\rm ERS}}\eta_j$ and $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j$ through neighborhood communication alone.
 
 A detailed overbidding analysis established per-operator saturation thresholds from~\eqref{eq:overbid_bound} and showed that operators with smaller capacity shares saturate first under a common risk parameter. The individual profit analysis revealed that the no-overbidding projection shifts $f(\boldsymbol{\alpha})$ below $\tfrac{1}{2}$ and reduces the payoff of all operators through the shared market-clearing term, not only those whose bids are clamped. This individual-level effect, quantified via~\eqref{eq:Pi_i} and illustrated numerically in the constrained Scenario~2 study, demonstrates that the performance impact of feasibility constraints is collective rather than local.
 
