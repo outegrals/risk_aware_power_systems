@@ -309,7 +309,9 @@ Hence, $\Pi$ is maximized if function $g(\cdot)$ is maximized by choosing $\beta
 Simplifying the above expression of $g(\cdot)$ yields \eqref{eq:G}. This completes the proof. \hfill $\Box$
 
 Theorem 1 extends the results in \cite{Chow2017} in several ways. First, load uncertainties and correlations among the renewable generations are considered.  As a result, we know from \eqref{eq:Pi_exp} that the degradation of total profit function $\Pi$ due to uncertainties is 
-\[ \Delta \Pi = 2a_2 \left[ \sum_{i\in\Omega}\sum_{j\in\Omega}\sigma_{ij}- \sum_{i\in\Omega} \sigma_{iL}\right], \]
+\begin{equation} 
+\Delta \Pi = 2a_2 \left[ \sum_{i\in\Omega}\sum_{j\in\Omega}\sigma_{ij}- \sum_{i\in\Omega} \sigma_{iL}\right], \label{eq:D_P}
+\end{equation}
 is less as long as there is some correlation (e.g., due to weather) between renewable generation and load variation. Second, risk aware bidding strategies are considered, specifically, theorem 1 allows us to study and compare three classes of bidding strategies: risk neutral, risk adverse, and risk seeking. The latter two correspond to optimization of design parameters $\beta_j$. 
 
 Theorem 1 shows that the Nash equilibrium in terms of design parameters $\beta_j$ can be further optimized, and the optimal choices of $\beta_j$ are the main subject of this paper. To illustrate some of the specifics, let us first consider the two simple cases: $n=1$ and $n=2$. And the corresponding results are provided by the subsequent corollaries, followed by the risk neutral strategy for the general case of $n$ operators. 
@@ -665,15 +667,15 @@ where $\mathcal{N}_i$ denotes the set of neighbors of the $i$th agent, and $\eps
 \begin{algorithmic}[1]
 \Require $c>0$;\; $\xi_{n+1}(0)=1,\;\psi_{n+1}(0)=0$;\; $\xi_i(0)=0,\;\psi_i(0)=x_i^o$
 \Ensure $\alpha_i^*$ for each operator $i$
-\State \textbf{Phase 1.} Run average consensus until $|\xi_i(k)-\xi_i(k-1)|\leq c$:
+\State \textbf{Phase 1.} Run average consensus~\eqref{eq:xi}--\eqref{eq:psi} until \mbox{$|\xi_i(k)-\xi_i(k-1)|\leq c$}:
 \begin{equation}
     \xi_i(k+1) = \xi_i(k) + \epsilon_i \sum_{j \in \mathcal{N}_i} [\xi_j(k) - \xi_i(k)], \label{eq:xi}
 \end{equation}
 \begin{equation}
 \psi_i(k+1) = \psi_i(k) + \epsilon_i \sum_{j \in \mathcal{N}_i} [\psi_j(k) - \psi_i(k)]. \label{eq:psi}
 \end{equation}
-\State \textbf{Phase 2.} Compute individually \quad  $\hat{n}_i = 1/\xi_i - 1$,\quad  $\eta_i = x_i^o\xi_i/\psi_i$, \quad  and \quad $\beta_i' \stackrel{\triangle}{=} a_2\beta_i = (1-\hat{n}_i)/(4\hat{n}_i)$
-\State \textbf{Phase 3.} Compute max/min consensus \quad  $\eta_{\max}=\max_{i\in\Omega} \eta_i$, \quad $\eta_{\min}=\min_{i\in\Omega} \eta_i$, \quad and \quad $\eta_c = (\eta_{\max}+\eta_{\min})/2$.
+\State \textbf{Phase 2.} Compute individually $\hat{n}_i = 1/\xi_i - 1$, $\eta_i = x_i^o\xi_i/\psi_i$, and $\beta_i' \triangleq a_2\beta_i = (1-\hat{n}_i)/(4\hat{n}_i)$
+\State \textbf{Phase 3.} Compute max/min consensus~$\eta_{\max}=\max_{i\in\Omega}\eta_i$, $\eta_{\min}=\min_{i\in\Omega}\eta_i$, and $\eta_c = (\eta_{\max}+\eta_{\min})/2$.
 \If{$\eta_{\min}\geq 1/(2\hat{n}_i)$} 
     \State $\alpha_i^* = 1/(2\hat{n}_i\eta_i)$
 \Else 
@@ -682,7 +684,7 @@ where $\mathcal{N}_i$ denotes the set of neighbors of the $i$th agent, and $\eps
     \If{$i\in \Omega_{\rm ERS}$}
         \State $\alpha_i^* = 1$
     \Else
-        \State $\alpha_i^*=\tfrac{2(\sum_{j\not\in \Omega_{\rm ERS}}\eta_j)-1}{2\,(n-|\Omega_{\rm ERS}|)\,\eta_i}$
+        \State $\alpha_i^*=\dfrac{2\bigl(\sum_{j\not\in \Omega_{\rm ERS}}\eta_j\bigr)-1}{2\,(n-|\Omega_{\rm ERS}|)\,\eta_i}$
     \EndIf
 \EndIf
 \end{algorithmic}
@@ -690,7 +692,8 @@ where $\mathcal{N}_i$ denotes the set of neighbors of the $i$th agent, and $\eps
 
 The proposed distributed algorithm is given by Algorithm~\ref{alg:dist_risk_aware}. Since every participating renewable operator must communicate with the utility, the communication topology among all the participating operators and the utility is guaranteed to be connected. It follows from Lemma~2, initial conditions $\xi_i(0)$ and $\psi_i(0)$, and protocols \eqref{eq:xi} and \eqref{eq:psi} that $\xi_i(k)\rightarrow \frac{1}{n+1}$ and $\psi_i(k)\rightarrow \frac{1}{n+1}x_r^o$. Therefore, the estimate of $n$, $\eta_i$ and $\beta_i'$ can be computed distributively. There is no explicit sharing of private information, and required information is generated through diffusion of the consensus protocols \eqref{eq:xi} and \eqref{eq:psi}.
 
-Algorithm~1 operates over an \emph{undirected, static} communication graph in which every renewable operator maintains a direct link with the utility, forming a star topology $K_{1,n}$. This structure guarantees connectivity for any $n \geq 1$: since every operator communicates with the utility, the graph is connected by construction and requires no additional peer-to-peer links. The analysis assumes synchronous updates and lossless communication links. Robustness to asynchronous operation, link failures, and dynamic operator participation are important extensions beyond the scope of this paper and are noted as future work.
+Algorithm~1 operates over an \emph{undirected, static} communication graph in which every renewable operator maintains a direct link with the utility, forming a star topology $K_{1,n}$. This structure guarantees connectivity for any $n \geq 1$: since every operator communicates with the utility, the graph is connected by construction and requires no additional peer-to-peer links. 
+%The analysis assumes synchronous updates and lossless communication links. Robustness to asynchronous operation, link failures, and dynamic operator participation are important extensions beyond the scope of this paper and are noted as future work.
 
 The consensus protocols~\eqref{eq:xi}--\eqref{eq:psi} converge geometrically at a rate determined by the algebraic connectivity $\lambda_2(L)$, the second-smallest eigenvalue of the graph Laplacian $L$. By Theorem~3.3 of~\cite{qu}, the convergence error satisfies $\|z(k) - z^\infty\one\| \leq (1-\epsilon\lambda_2)^k \|z(0) - z^\infty\one\|$, so the number of iterations to reach $\varepsilon$-accuracy scales as $O\!\left(\log(1/\varepsilon)/\lambda_2\right)$. For the star graph $K_{1,n}$, the Laplacian eigenvalues are $0$, $1$ (with multiplicity $n-1$), and $n+1$ (with multiplicity $1$), giving $\lambda_2 = 1$ independently of $n$. Consequently, Algorithm~1 converges at a rate that does not degrade as the number of operators increases, making it well-suited for large-scale markets. With step size $\epsilon < 1/n$, the per-iteration contraction factor is $\rho = 1 - \epsilon < 1$. The same convergence guarantee applies to the auxiliary $\sigma$ and $\mu$ consensus rounds in the constrained branch, both of which run over the same star graph at the same geometric rate. The max-/min-consensus on $\eta_i$ terminates in a single round of forward-and-back communication through the utility hub on $K_{1,n}$.
 
@@ -698,10 +701,9 @@ The consensus protocols~\eqref{eq:xi}--\eqref{eq:psi} converge geometrically at 
 
 To demonstrate the proposed analytical and algorithmic results, a three-operator case study is used in which both the centralized solution and the distributed solution are computed and compared across multiple scenarios.
 
-\subsection{Basic Setup}
-
 \begin{table}[hbt!]
 \centering
+\vspace*{-0.1in}
 \caption{Example Parameters}
 \label{tab:example_params}
 \begin{tabular}{|c||c||c|c|c||c|c|c||c|c|}
@@ -712,18 +714,20 @@ To demonstrate the proposed analytical and algorithmic results, a three-operator
 \end{tabular}
 \end{table}
 
+\subsection{Basic Setup}
+
 Consider the day-ahead/real-time electricity markets with three renewable generation operators $i \in \{1,2,3\}$ and one conventional generation aggregator (as the slack bus). The power system parameters are provided in Table~\ref{tab:example_params}. It follows that the day-ahead forecasts for the renewables are $x_1^o, x_2^o, x_3^o$ in MW, respectively, that $x_4^o = P_L^o$ is the load forecast, and that the objective function of traditional generation is 
 \[
 J(P_g) = 0.1P_g^2 + P_g, \;\;\; P_g=x_4-(x_1+x_2+x_3). 
 \]
-Real-time realizations are $x_i \sim \mathcal{N}(x_i^o,\sigma_i^2)$, with standard deviations of $\sigma_1 = 12$\,MW, $\sigma_2 = 10$\,MW, $\sigma_3 = 8$\,MW, load uncertainty is $\sigma_L = 20$\,MW, cross-correlations are $\rho_{ij}=0.3$ among renewable operators, and $\rho_{iL}=0.2$ among renewables and the load. As seen from~\eqref{eq:Pi_exp}, the stochastic terms enter total average profit $\Pi$ only as the constant offset $\Delta\Pi = 2a_2\bigl[\sum_i\sigma_{iL} - \sum_{i,j}\sigma_{ij}\bigr]$, which is identical across all strategies and does not affect the optimization results of choosing $\alpha_i$ or $\beta_i$. Hence, all optimal bidding strategies and the strategic comparisons reported below are independent of the uncertainty parameters; the profit values in Table~\ref{tab:comparison} are those excluding the constant offset.
+Real-time realizations are $x_i \sim \mathcal{N}(x_i^o,\sigma_i^2)$, with standard deviations of $\sigma_1 = 12$\,MW, $\sigma_2 = 10$\,MW, $\sigma_3 = 8$\,MW, load uncertainty is $\sigma_L = 20$\,MW, cross-correlations are $\rho_{ij}=0.3$ among renewable operators, and $\rho_{iL}=0.2$ among renewables and the load. As seen from~\eqref{eq:Pi_exp}, the stochastic terms enter total average profit $\Pi$ only as the constant offset $\Delta\Pi$ in \eqref{eq:D_P}, which is identical across all strategies and does not affect the optimization results of choosing $\alpha_i$ or $\beta_i$. Hence, all optimal bidding strategies and the strategic comparisons reported below are independent of the uncertainty parameters; the profit values in Table~\ref{tab:comparison} are those excluding the constant offset.
 
 \subsection{Analytical and Centralized Nash Solutions}
 
-Given table~\ref{tab:example_params}, renewable operator can choose one of the following strategies:
+Renewable operators have the following choices: 
 \begin{itemize}
-    \item Coalition bidding strategy \eqref{eq:alpha_1} 
-    \item the Pareto-optimal Nash strategy \eqref{eq:alpha_i}, that is
+    \item Coalition bidding strategy \eqref{eq:alpha_1} (if all agree to join); 
+    \item Risk seeking Pareto-optimal Nash strategy \eqref{eq:alpha_i}, that is,
 \begin{subequations}
 \begin{align}
 \alpha_1^*
@@ -745,14 +749,11 @@ Given table~\ref{tab:example_params}, renewable operator can choose one of the f
 \end{subequations}
 \end{itemize}
 
-Under the coalition strategy of Lemma~1, all operators cooperate and bid $\alpha^*=\frac{1}{2}$ with $\beta^*=0$, yielding $f=\frac{1}{2}$, $g^C = 22{,}500$\,MW$^2$, and total profit $\Pi^C = 10{,}800$\,\$/hr. This serves as the upper benchmark for collective profit.
+It follows from Lemma~1 that, if all operators cooperate and 
+adopt the coalition strategy, their bids are $\alpha^*=\frac{1}{2}$ (with $\beta^*=0$), which yields $f(\boldsymbol{\alpha}^*)=\frac{1}{2}$, $g^C(\boldsymbol{\alpha}^*) = 22{,}500$\,MW$^2$, and the total profit of $\Pi^C = 10{,}800$\,\$/hr. This serves as the upper bound for the collective profit.
 
-It follows from \eqref{eq:3p} that the risk-neutral Nash bidding strategies are $\boldsymbol{\alpha}^* =(\alpha_1^*, \alpha_2^*, \alpha_3^*) = (0.625, 0.75, 0.9375)$, resulting in $f(\boldsymbol{\alpha}^*)=0.75$, $g(\boldsymbol{\alpha}^*)=16{,}875$\,MW$^2$, and total profit $\Pi^{RN} = 9{,}675$\,\$/hr, which is $10.42\%$ below the coalition benchmark.
-
-On the other hand, risk-seeking Pareto-optimal Nash bidding strategies are also given by \eqref{eq:3p}, in which each operator may choose different $\beta_i$ as long as constraint \eqref{eq:beta_sum_condition} is satisfied. Choices of $\beta_i$ are illustrated in Figure~\ref{fig:beta_rs}. If all renewable operators agree to have the same risk tolerance level, we know from \eqref{eq:beta_sum_condition} that $\beta_i^* = -\frac{5}{3} \approx -1.667$ (equivalently $\beta_i^{\prime *} = a_2\beta_i^* = -\frac{1}{6}$), which yields $\boldsymbol{\alpha}^*=(0.4167, 0.5000, 0.6250)$, resulting in $f(\boldsymbol{\alpha}^*)=0.5$, $g(\boldsymbol{\alpha}^*)=22{,}500$\,MW$^2$, and total profit $\Pi^{RS} = 10{,}800$\,\$/hr, fully recovering the coalition benchmark.
+It follows from \eqref{eq:3p} with $\beta_i=0$ that the risk neutral Nash bidding strategies are $\boldsymbol{\alpha}^* =(\alpha_1^*, \alpha_2^*, \alpha_3^*) = (0.625, 0.75, 0.9375)$, which results in $f(\boldsymbol{\alpha}^*)=0.75$, $g(\boldsymbol{\alpha}^*)=16{,}875$\,MW$^2$, and the total profit $\Pi^{RN} = 9{,}675$\,\$/hr. In this case, the collective profit is $10.42\%$ below that under the coalition solution. On the other hand, risk seeking Pareto-optimal Nash bidding strategies in \eqref{eq:3p} allow different choices of risk seeking levels $\beta_i$ by different operators as long as constraint \eqref{eq:beta_sum_condition} is satisfied. Admissible choices of $\beta_i$ form in Figure~\ref{fig:beta_rs}. Should all renewable operators agree to choose the same risk tolerance level, we know from \eqref{eq:beta_sum_condition} that $\beta_i^* = -\frac{5}{3} $ (equivalently $\beta_i^{\prime *} = a_2\beta_i^* = -\frac{1}{6}$), which yields $\boldsymbol{\alpha}^*=(0.4167, 0.5000, 0.6250)$, resulting in $f(\boldsymbol{\alpha}^*)=0.5$, $g(\boldsymbol{\alpha}^*)=22{,}500$\,MW$^2$, and the total profit $\Pi^{RS} = 10{,}800$\,\$/hr. This risk seeking Pareto-optimal Nash solution fully recovers the total profit under the coalition strategy.
  
-
-
 \begin{figure}[hbt!]
     \centering
     \includegraphics[width=1\linewidth]{figures/risk_seek_sol.png}
@@ -821,7 +822,7 @@ From~\eqref{eq:overbid_bound}, overbidding occurs for operator~$i$ at the ERS op
 
 To illustrate the heterogeneous-$\beta$ branch of Corollary~5b, we introduce \textit{Scenario~2} by setting $x_3^o = 30$\,MW, giving $x_r^o = 250$\,MW and $\boldsymbol{\eta}=(0.48,\,0.40,\,0.12)$. Operator~3 has $\eta_3 < \tfrac{1}{2n}=\tfrac{1}{6}$, so $\Omega_{\rm ERS}=\{3\}$ and the homogeneous ERS bid is $\alpha_3^*=\tfrac{1}{2n\eta_3}\approx1.39>1$.
 
-The partition~\eqref{eq:partition_Omega} gives $\eta_{\max}=0.48$, $\eta_{\min}=0.12$, midpoint $\eta_c=0.30$, hence $\Omega=\{1,2\}$ and $\Omega^c=\{3\}$. Substituting into~\eqref{eq:beta_hetero}--\eqref{eq:alpha_hetero} with $\sum_{j\in\Omega}\eta_j=0.88$, $\sum_{j\in\Omega^c}\eta_j=0.12$, $|\Omega|=2$:
+The partition~\eqref{eq:partition_Omega} gives $\eta_{\max}=0.48$, $\eta_{\min}=0.12$, midpoint $\eta_c=0.30$, hence $\Omega_{\rm ERS}=\{3\}$ and $\Omega\setminus\Omega_{\rm ERS}=\{1,2\}$. Substituting into~\eqref{eq:beta_hetero}--\eqref{eq:alpha_hetero} with $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j=0.88$, $\sum_{j\in\Omega_{\rm ERS}}\eta_j=0.12$, $n-|\Omega_{\rm ERS}|=2$:
 \begin{align}
   4a_2\beta_3^* &= 2\eta_3-1 = -0.76,\qquad \alpha_3^*=1,\notag\\
   4a_2\beta_{1,2}^* &= \tfrac{0.88-0.12}{2}-1 = -0.62, \notag\\
@@ -996,23 +997,7 @@ Op. & $\xi_i^\infty$ & $\hat{n}_i $ & $\eta_i$ & $\beta_i'$ \\
 \end{table}
 \noindent\textbf{Remark~3.} \textit{The convergence rate of Algorithm~1 on the star graph $K_{1,n}$ is $O(\log(1/\varepsilon))$ per consensus round, independent of the number of operators~$n$. This follows from the algebraic connectivity $\lambda_2(L)=1$ of $K_{1,n}$, which is established in Section~V and does not degrade as $n$ grows.}
 
-The Corollary~5b branch of Algorithm~1 is validated on Scenarios~2 and~3.  In each case operators first run max- and min-consensus on $\eta_i$ to recover $\eta_{\max}$ and $\eta_{\min}$, then each operator locally computes $\eta_c=(\eta_{\max}+\eta_{\min})/2$ and determines its partition membership.  In Scenario~2 ($\eta_c=0.30$): Ops~1 and~2 belong to $\Omega$ and seed $\sigma_i(0)=+\eta_i$, while Op~3 belongs to $\Omega^c$ and seeds $\sigma_3(0)=-0.12$; the indicator seeds are $\mu_{1,2}(0)=1$, $\mu_3(0)=0$.  In Scenario~3 ($\eta_c=0.425$): Op~1 alone belongs to $\Omega$ and seeds $\sigma_1(0)=+0.70$, while Ops~2 and~3 each seed $\sigma_i(0)=-0.15$; the indicator seeds are $\mu_1(0)=1$, $\mu_{2,3}(0)=0$.  In both cases the $\sigma$- and $\mu$-consensus rounds converge and the locally recovered $\widehat{D}=\sum_{j\in\Omega}\eta_j-\sum_{j\in\Omega^c}\eta_j$ and $|\widehat{\Omega}|$ yield bids $\boldsymbol{\alpha}^*$ indistinguishable from the centralized Corollary~5b solution, confirming that partition information is correctly propagated without any central coordinator.
-
-Figures~\ref{fig:sigma_s2}--\ref{fig:sigma_s6} show the $\sigma$-consensus trajectories for Scenarios~2 and~3. Operators in $\Omega$ seed positive values $+\eta_i$ and converge downward; operators in $\Omega^c$ seed negative values $-\eta_i$ and converge upward. The utility (dashed) seeds $\sigma_{n+1}(0)=0$ and rises monotonically to the common steady state. The red dotted line marks the target $D/(n+1)$; dividing by the converged $\xi_i^\infty=1/(n+1)$ recovers $\widehat{D}$ locally at each node.
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=1\linewidth]{figures/sigma_consensus_s2.png}
-    \caption{$\sigma$-consensus trajectory for Scenario~2 ($\Omega^c=\{3\}$). Ops~1,2 ($\in\Omega$) seed $+\eta_i$ and converge down; Op~3 ($\in\Omega^c$) seeds $-0.12$ and converges up. The utility (dashed) seeds~$0$ and rises monotonically. Red dotted line: steady-state target $D/(n+1)=0.19$; recovering $\widehat{D}=\sigma_i^\infty/\xi_i^\infty=0.76$.}
-    \label{fig:sigma_s2}
-\end{figure}
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=1\linewidth]{figures/sigma_consensus_s6.png}
-    \caption{$\sigma$-consensus trajectory for Scenario~3 ($\Omega^c=\{2,3\}$). Op~1 ($\in\Omega$) seeds $+0.70$ and converges down; Ops~2,3 ($\in\Omega^c$) seed $-0.15$ and converge up. The utility (dashed) seeds~$0$ and rises monotonically. Red dotted line: steady-state target $D/(n+1)=0.10$; recovering $\widehat{D}=\sigma_i^\infty/\xi_i^\infty=0.40$.}
-    \label{fig:sigma_s6}
-\end{figure}
+The Corollary~5b branch of Algorithm~1 is validated on Scenarios~2 and~3.  In each case operators first run max- and min-consensus on $\eta_i$ to recover $\eta_{\max}$ and $\eta_{\min}$ (Phase~3a), then each operator locally computes $\eta_c=(\eta_{\max}+\eta_{\min})/2$ and determines its partition membership.  Operators not in $\Omega_{\rm ERS}$ then execute Phase~4: a second $\xi$-protocol seeded with $\xi_i^{(2)}(0)=1$ for $i\not\in\Omega_{\rm ERS}$ and $0$ otherwise, recovering $n-|\Omega_{\rm ERS}|=\xi_i^{(2),\infty}/\xi_i^\infty$; and a $\psi$-protocol seeded with $\psi_i^{(2)}(0)=\eta_i$ for $i\not\in\Omega_{\rm ERS}$ and $0$ otherwise, recovering $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j=\psi_i^{(2),\infty}/\xi_i^\infty$.  In Scenario~2 ($\eta_c=0.30$): Ops~1 and~2 are not in $\Omega_{\rm ERS}$ and seed the Phase~4 protocols, while Op~3 ($\in\Omega_{\rm ERS}$) sets $\alpha_3^*=1$ directly.  In Scenario~3 ($\eta_c=0.425$): Op~1 alone is not in $\Omega_{\rm ERS}$ and executes Phase~4, while Ops~2 and~3 ($\in\Omega_{\rm ERS}$) saturate at $\alpha_{2,3}^*=1$.  In both cases the Phase~4 consensus rounds converge and the locally recovered $(n-|\Omega_{\rm ERS}|)$ and $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j$ yield bids $\boldsymbol{\alpha}^*$ indistinguishable from the centralized Corollary~5b solution, confirming that partition information is correctly propagated without any central coordinator.
 
 \subsection{Scalability Discussion}
 
