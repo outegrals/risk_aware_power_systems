@@ -769,7 +769,7 @@ summarizes the performance of all four strategies. The risk neutral Nash equilib
 
 \begin{table}[hbt!]
 \centering
-\caption{Performance Comparison of Bidding Strategies ($n=3$)}
+\caption{Bidding Strategy Performance ($n=3$, $|\Omega_{\rm ERS}|=0$, $x^o=(120,100,80)$\,MW)}
 \label{tab:comparison}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{|l|c|c|c|c|}
@@ -816,14 +816,16 @@ per-unit profits under the four different strategies. Specifically, we see that 
 
 \subsection{Heterogeneous Pareto Risk Allocations}
 
-Theorem~2 states that any $\boldsymbol{\beta}$ satisfying $\sum_i\beta_i' = (1-n)/4$ achieves Pareto optimality, yielding infinitely many valid heterogeneous allocations. Three representative allocations for the base parameters illustrate this flexibility:
+Theorem~2 states that any $\boldsymbol{\beta}$ satisfying $\sum_i\beta_i' = (1-n)/4$ achieves Pareto optimality, yielding infinitely many valid heterogeneous allocations. Three representative allocations illustrate this flexibility:
 \begin{itemize}
-    \item \textbf{ERS}: $\beta_i'=-\frac{1}{6}$ for all $i$ (Corollary~5a). Bids are $\boldsymbol{\alpha}^*=(0.417,\,0.500,\,0.625)$, $f=0.5$, $g=g^{\max}$.
-    \item \textbf{Hetero~A}: $\boldsymbol{\beta}'=(-0.10,\,-0.17,\,-0.23)$ — Op~3 (smallest share) is most risk-seeking. Bids become $\boldsymbol{\alpha}^*=(0.750,\,0.480,\,0.150)$, with $f=0.5$ and $g=g^{\max}$ fully preserved.
-    \item \textbf{Hetero~B}: $\boldsymbol{\beta}'=(-0.23,\,-0.17,\,-0.10)$ — Op~1 is most risk-seeking. Although $\sum_i\beta_i'=-0.5$ satisfies the Pareto aggregate condition, Op~3's low risk tolerance yields $\alpha_3^*\approx1.12>1$, violating the capacity constraint. Clamping reduces $f$ below $\frac{1}{2}$ and incurs an efficiency loss.
+    \item \textbf{ERS}: $\beta_i'=-\frac{1}{6}$ for all $i$ (Corollary~5a). Bids: $\boldsymbol{\alpha}^*=(0.417,\,0.500,\,0.625)$; per-unit profits: $(33.5,\,36.0,\,39.8)$\,\$/hr/MW; $f=0.5$, $g=g^{\max}$.
+    \item \textbf{Unequal RS-A}: $\boldsymbol{\beta}'=(-0.10,\,-0.17,\,-0.23)$, assigning the most risk-seeking level to Op~3 (smallest capacity share). Bids shift to $\boldsymbol{\alpha}^*=(0.750,\,0.480,\,0.150)$; per-unit profits: $(43.5,\,35.4,\,25.5)$\,\$/hr/MW. Op~1 earns $30\%$ more per MW while Op~3 earns $36\%$ less, yet $f=0.5$ and $g=g^{\max}$ are fully preserved.
+    \item \textbf{Unequal RS-B}: $\boldsymbol{\beta}'=(-0.23,\,-0.17,\,-0.10)$, assigning the most risk-seeking level to Op~1. The Pareto sum $\sum_i\beta_i'=-0.5$ is satisfied, so the unclamped bids $(0.100,\,0.480,\,1.125)$ analytically achieve $f=0.5$ and $\Pi^{\rm total}=10{,}800$\,\$/hr — but only because $\alpha_3^*=1.125>1$ constitutes overbidding. Once the capacity constraint is enforced by clamping $\alpha_3^*=1$, the bids become $(0.100,\,0.480,\,1.000)$ with per-unit profits $(24.2,\,36.4,\,53.0)$\,\$/hr/MW, $f$ drops to ${\approx}0.467$, and the aggregate falls to ${\approx}10{,}784$\,\$/hr — an efficiency loss incurred solely by the feasibility violation.
 \end{itemize}
 
-ERS and Hetero~A both achieve $\Pi^{\rm total}=10{,}800$\,\$/hr, but distribute profits differently: Hetero~A shifts profit toward Op~1 (higher bid) and away from Op~3 (lower bid). This gives a regulator or cooperative agreement a mechanism to adjust equity without sacrificing aggregate efficiency — a direct consequence of the infinite-solution structure of Theorem~2.
+ERS and Unequal RS-A both achieve $\Pi^{\rm total}=10{,}800$\,\$/hr, but the per-unit distribution differs substantially: Unequal RS-A raises Op~1's revenue by $10$\,\$/hr/MW and cuts Op~3's by $14.3$\,\$/hr/MW relative to ERS, while leaving Op~2 nearly unchanged. This gives a regulator or cooperative a concrete mechanism to adjust individual equity without sacrificing aggregate efficiency — a direct consequence of Theorem~2's infinite Pareto solution set.
+
+\textcolor{red}{Tommy: can we add a simple table here on $\alpha_i^*$ and $\Pi_i$? We can then discuss the results without list numbers}
 
 \subsection{Overbidding Impact}
 
@@ -842,60 +844,41 @@ yielding $\boldsymbol{\alpha}^*=(0.396,\,0.475,\,1.000)$, $f=0.500$, and $g=g^{\
 
 \begin{table}[hbt!]
 \centering
-\caption{Overbidding Scenario Comparison ($n=3$, $a_2=0.1$, $x_L^o=400$\,MW)}
-\label{tab:overbid_compare}
+\caption{Bidding Strategy Performance ($n=3$, $|\Omega_{\rm ERS}|=1$, $x_3^o=30$\,MW)}
+\label{tab:ers_compare_s2}
 \resizebox{\columnwidth}{!}{%
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lccccccccc}
+\begin{tabular}{|l|c|c|c|c|}
 \hline
-Scenario & $\Omega_{\rm ERS}$ & $4a_2\beta_i^*$ & $\alpha_1^*$ & $\alpha_2^*$ & $\alpha_3^*$ & $f$ & $g$\,(MW$^2$) & $\sum\Pi_i$\,(\$/hr) & loss \\
+Strategy & $\boldsymbol{\alpha}^*$ & $f$ & $g$\,(MW$^2$) & $\sum_i\Pi_i$\,(\$/hr) \\
 \hline
-S1: original (no overbid)         & $\varnothing$ & $-2/3$ (sym.)         & $0.417$ & $0.500$ & $0.625$ & $0.500$ & $22{,}500$ & $10{,}800$ & $0\%$ \\
-S2: unclamped sym.\ ERS           & $\{3\}$       & $-2/3$ (sym.)         & $0.347$ & $0.417$ & $1.389$ & $0.500$ & $15{,}625$ & $10{,}875$ & $0\%$ \\
-S2: hetero-$\beta$ (Cor.~5b)      & $\{3\}$       & $(-0.62,-0.62,-0.76)$ & $0.396$ & $0.475$ & $1.000$ & $0.500$ & $15{,}625$ & $10{,}875$ & $0\%$ \\
-S3: unclamped sym.\ ERS           & $\{2,3\}$     & $-2/3$ (sym.)         & $0.238$ & $1.111$ & $1.111$ & $0.500$ & $22{,}500$ & $10{,}800$ & $0\%$ \\
-S3: hetero-$\beta$ (Cor.~5b)      & $\{2,3\}$     & $(-0.60,-0.70,-0.70)$ & $0.286$ & $1.000$ & $1.000$ & $0.500$ & $22{,}500$ & $10{,}800$ & $0\%$ \\
+Coalition         & $(0.500,\;0.500,\;0.500)$ & $0.500$ & $15{,}625$ & $10{,}875$ \\
+RN Nash           & $(0.521,\;0.625,\;2.083)$ & $0.750$ & $11{,}719$ & $10{,}094$ \\
+Pareto-NE         & $(0.347,\;0.417,\;1.389)$ & $0.500$ & $15{,}625$ & $10{,}875$ \\
+Algo.~1 (Cor.~5b) & $(0.396,\;0.475,\;1.000)$ & $0.500$ & $15{,}625$ & $10{,}875$ \\
 \hline
-\multicolumn{10}{l}{S2: $x_3^o{=}30$\,MW, $x_r^o{=}250$\,MW;\quad S3: $x^o{=}(210,45,45)$\,MW, $x_r^o{=}300$\,MW; loss $= g^{\max}$ gap.}
+\multicolumn{5}{l}{Bids $>1$ are infeasible; Algo.~1 enforces $\alpha_3^*=1$ via Cor.~5b.}
 \end{tabular}}
 \end{table}
 
 \begin{table}[hbt!]
 \centering
-\caption{ERS Strategy Performance Under Overbidding Scenarios ($n=3$, $a_2=0.1$, $x_L^o=400$\,MW)}
-\label{tab:ers_compare}
+\caption{Bidding Strategy Performance ($n=3$, $|\Omega_{\rm ERS}|=2$, $x^o=(210,45,45)$\,MW)}
+\label{tab:ers_compare_s3}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{llcccc}
+\begin{tabular}{|l|c|c|c|c|}
 \hline
-Scenario & Strategy & $\boldsymbol{\alpha}^*$ & $f$ & $g$\,(MW$^2$) & $\sum_i\Pi_i$\,(\$/hr) \\
+Strategy & $\boldsymbol{\alpha}^*$ & $f$ & $g$\,(MW$^2$) & $\sum_i\Pi_i$\,(\$/hr) \\
 \hline
-\multirow{4}{*}{S2 ($x_r^o{=}250$\,MW)} &
-  Coalition         & $(0.500,\;0.500,\;0.500)$ & $0.500$ & $15{,}625$ & $10{,}875$ \\
-& RN Nash           & $(0.521,\;0.625,\;2.083)$ & $0.750$ & $11{,}719$ & $10{,}094$ \\
-& Pareto-NE         & $(0.347,\;0.417,\;1.389)$ & $0.500$ & $15{,}625$ & $10{,}875$ \\
-& Algo.~1 (Cor.~5b) & $(0.396,\;0.475,\;1.000)$ & $0.500$ & $15{,}625$ & $10{,}875$ \\
+Coalition         & $(0.500,\;0.500,\;0.500)$ & $0.500$ & $22{,}500$ & $10{,}800$ \\
+RN Nash           & $(0.357,\;1.667,\;1.667)$ & $0.750$ & $16{,}875$ & $\phantom{0}9{,}675$ \\
+Pareto-NE         & $(0.238,\;1.111,\;1.111)$ & $0.500$ & $22{,}500$ & $10{,}800$ \\
+Algo.~1 (Cor.~5b) & $(0.286,\;1.000,\;1.000)$ & $0.500$ & $22{,}500$ & $10{,}800$ \\
 \hline
-\multirow{4}{*}{S3 ($x_r^o{=}300$\,MW)} &
-  Coalition         & $(0.500,\;0.500,\;0.500)$ & $0.500$ & $22{,}500$ & $10{,}800$ \\
-& RN Nash           & $(0.357,\;1.667,\;1.667)$ & $0.750$ & $16{,}875$ & $\phantom{0}9{,}675$ \\
-& Pareto-NE         & $(0.238,\;1.111,\;1.111)$ & $0.500$ & $22{,}500$ & $10{,}800$ \\
-& Algo.~1 (Cor.~5b) & $(0.286,\;1.000,\;1.000)$ & $0.500$ & $22{,}500$ & $10{,}800$ \\
-\hline
-\multicolumn{6}{l}{Pareto-NE bids in italics are infeasible ($\alpha_i>1$); Algo.~1 enforces feasibility via Cor.~5b.}
+\multicolumn{5}{l}{Bids $>1$ are infeasible; Algo.~1 enforces $\alpha_{2,3}^*=1$ via Cor.~5b.}
 \end{tabular}}
 \end{table}
 
-Table~\ref{tab:ers_compare} summarizes the four primary strategies across Scenarios~2 and~3, confirming that Algorithm~1 matches the Coalition and Pareto-NE aggregate performance while enforcing feasibility. Figure~\ref{fig:algo1_overbid_alpha} applies all six strategies to Scenario~2 ($x_3^o=30$\,MW, $\eta_3=0.12$), the same capacity configuration examined analytically above. Under these parameters, $\eta_3 < \tfrac{1}{2n} = \tfrac{1}{6}$, so the unconstrained ERS bid for Op~3 is $\alpha_3^* = \tfrac{1}{6\eta_3} \approx 1.39 > 1$ — a feasibility violation. The risk-neutral Nash equilibrium is even more aggressive ($\alpha_3^* \approx 2.08$). Algorithm~1 follows the heterogeneous-$\beta$ branch of Corollary~5b: it identifies $\Omega_{\rm ERS}=\{3\}$ via max-/min-consensus on $\eta_i$, then executes Phase~4 to recover $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j=0.88$ and $n-|\Omega_{\rm ERS}|=2$ via two auxiliary consensus rounds, and submits $(0.396,\,0.475,\,1.000)$ — landing the Algo~1 bar \emph{exactly} at the $\alpha=1$ boundary while recovering $f=\frac{1}{2}$. Also shown is a heterogeneous-$\beta$ deviation scenario ($\beta'=[{-0.20},{-0.15},{-0.05}]$, ``Unclamped OB'') and its naive per-operator clamp (``No-overbid''), which can push Op~3 far above~1 without the principled risk re-allocation that Algo~1 performs.
-
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_alpha_s2.png}
-    \caption{Bidding strategies $\alpha_i^*$ under Scenario~2 ($x_3^o=30$\,MW). The dashed line marks $\alpha=1$; both the unconstrained Pareto-NE and RN-NE overbid at Op~3, while Algorithm~1 (Corollary~5b saturation branch) places $\alpha_3^*$ exactly at~1. Bars for RN-NE and Unclamped~OB at Op~3 extend beyond the $y$-axis clip; their values are annotated.}
-    \label{fig:algo1_overbid_alpha}
-\end{figure}
-
-Figures~\ref{fig:algo1_overbid_profit} and~\ref{fig:algo1_overbid_profit_perunit} show the profit consequences under Scenario~2. Coalition and Algo~1 achieve the same total profit ($f=0.5$, $g=g^{\max}=15{,}625$\,MW$^2$), with Op~3 receiving a smaller absolute share due to its reduced capacity. Pareto-NE produces the same aggregate outcome analytically but is infeasible ($\alpha_3^*>1$). Unclamped overbidding overshoots $f=0.5$, reducing aggregate efficiency, while the simple per-operator clamp partially recovers it without restoring the Pareto target.
+Tables~\ref{tab:ers_compare_s2}--\ref{tab:ers_compare_s3} confirm that Algorithm~1 matches Coalition and Pareto-NE aggregate performance while enforcing feasibility. Figures~\ref{fig:algo1_overbid_profit} and~\ref{fig:algo1_overbid_profit_perunit} show the profit consequences for Scenario~2. Coalition and Algo~1 achieve the same total profit ($f=0.5$, $g=g^{\max}$), while RN-NE and unclamped strategies overshoot $f=\tfrac{1}{2}$, reducing aggregate efficiency.
 
 \begin{figure}[hbt!]
     \centering
@@ -916,61 +899,37 @@ Figures~\ref{fig:algo1_overbid_profit} and~\ref{fig:algo1_overbid_profit_perunit
 
 \subsection{Constrained Risk-Neutral Nash (Corollary~4)}
 
-To isolate the value of risk coordination under capacity constraints, consider Scenario~2 capacities ($x_3^o=30$\,MW, $x_r^o=250$\,MW) with all operators risk-neutral ($\beta_i=0$) and overbidding forbidden. Since $\eta_3=0.12<\frac{1}{n+1}=0.25$, Corollary~4 applies with $\Omega_{\rm RN}=\{3\}$. Op~3 is clamped to $\alpha_3^*=1$ and the remaining operators are re-solved:
-\[
-    \alpha_i^* = \frac{1-\sum_{j\in\Omega_{\rm RN}}\eta_j}{(n+1-|\Omega_{\rm RN}|)\,\eta_i}
-    = \frac{0.88}{3\eta_i}, \quad i\in\{1,2\},
-\]
-yielding $\boldsymbol{\alpha}^*=(0.611,\,0.733,\,1.000)$, $f=0.707$, and $g\approx12{,}946$\,MW$^2$.
-
-Figure~\ref{fig:cor4_alpha} compares the three strategies for Scenario~2. The unconstrained RN naturally drives Op~3 to $\alpha_3^*\approx2.08$ (overbidding); Corollary~4 enforces feasibility by re-solving the equilibrium, but $f=0.707\gg\frac{1}{2}$ leaves market efficiency at only ${\approx}83\%$ of $g^{\max}=15{,}625$\,MW$^2$. This quantifies the efficiency cost of foregoing risk coordination: even when overbidding is eliminated, risk-neutral operation incurs a persistent market efficiency loss that risk-seeking coordination avoids.
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=1\linewidth]{figures/cor4_constrained_rn_alpha.png}
-    \caption{Corollary~4: bidding strategies under unconstrained RN and constrained RN (Cor.~4 clamped) for Scenario~2 ($x_3^o=30$\,MW). Constrained RN enforces feasibility but leaves $f=0.707\gg\frac{1}{2}$, incurring a persistent efficiency loss relative to risk-seeking coordination.}
-    \label{fig:cor4_alpha}
-\end{figure}
+Using Scenario~2 ($x_3^o=30$\,MW) with all operators risk-neutral and overbidding forbidden, Corollary~4 applies with $\Omega_{\rm RN}=\{3\}$ (since $\eta_3=0.12<\tfrac{1}{n+1}=0.25$). Op~3 saturates at $\alpha_3^*=1$, and the remaining bids re-solve to $\boldsymbol{\alpha}^*=(0.611,\,0.733,\,1.000)$, giving $f=0.707$ and $g\approx12{,}946$\,MW$^2$ — only ${\approx}83\%$ of $g^{\max}$. This isolates the efficiency cost of foregoing risk coordination: even after enforcing feasibility, a persistent $17\%$ efficiency gap remains that Corollary~5b's risk re-allocation fully eliminates.
 
 \subsection{Multiple Operator Saturation (Corollary~5b)}
 
-To validate the generality of Corollary~5b beyond $|\Omega_{\rm ERS}|=1$, we introduce \textit{Scenario~3} by setting $x^o=(210,45,45)$\,MW giving $\eta=(0.70,0.15,0.15)$.  The unconstrained ERS formula yields $\alpha_{2,3}^*\approx1.11>1$, so Ops~2 and~3 would overbid; the heterogeneous-$\beta$ construction of Corollary~5b corrects this.
+Scenario~2 had a single saturating operator; Scenario~3 stresses the algorithm with \textit{simultaneous} saturation of two operators. Setting $x^o=(210,45,45)$\,MW gives $\eta=(0.70,0.15,0.15)$, so the unconstrained ERS bids yield $\alpha_{2,3}^*\approx1.11>1$ for both smaller operators. The critical new challenge is that only \emph{one} operator (Op~1, with $\eta_1=0.70$) remains unsaturated, requiring Phase~4 to correctly recover $n-|\Omega_{\rm ERS}|=1$ and $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j=\eta_1=0.70$ from consensus — a harder case than Scenario~2 where two operators shared the unsaturated burden.
 
 With $\eta_{\max}=0.70$ and $\eta_{\min}=0.15$, the cutoff and partition are
 \[
     \eta_c = \tfrac{1}{2}(0.70+0.15) = 0.425,
     \qquad \Omega_{\rm ERS}=\{2,3\},\quad \Omega\setminus\Omega_{\rm ERS}=\{1\}.
 \]
-We have $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j=0.70$ and $\sum_{l\in\Omega_{\rm ERS}}\eta_l=0.30$, so $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j-\sum_{l\in\Omega_{\rm ERS}}\eta_l=0.40$ and $n-|\Omega_{\rm ERS}|=1$.
-Substituting into \eqref{eq:alpha_hetero}:
+Substituting into \eqref{eq:alpha_hetero} with $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j=0.70$, $\sum_{l\in\Omega_{\rm ERS}}\eta_l=0.30$:
 \begin{align}
-    \alpha_1^* &= \frac{\sum_{j\not\in\Omega_{\rm ERS}}\eta_j-\sum_{l\in\Omega_{\rm ERS}}\eta_l}{2\,(n-|\Omega_{\rm ERS}|)\,\eta_1}
-               = \frac{0.40}{2\times0.70} = \frac{2}{7}\approx0.286, \notag\\
+    \alpha_1^* &= \frac{0.70-0.30}{2\times1\times0.70} = \frac{2}{7}\approx0.286, \notag\\
     \alpha_2^* &= \alpha_3^* = 1. \notag
 \end{align}
-One can verify $f=\tfrac{2}{7}\times0.70+1\times0.15+1\times0.15=0.500$ and $g=g_{\max}=22{,}500$\,MW$^2$, achieving the full Pareto optimum even with two saturating operators.  This contrasts sharply with a na\"{i}ve homogeneous-$\beta_0$ approach, which would give $f=0.825$ and $g\approx13{,}001$\,MW$^2$ — confirming that the heterogeneous construction eliminates the efficiency penalty regardless of $|\Omega_{\rm ERS}|$.
+One can verify $f=\tfrac{2}{7}\times0.70+0.15+0.15=0.500$ and $g=g_{\max}=22{,}500$\,MW$^2$ — full Pareto optimality with two saturating operators, compared to $f=0.825$ and $g\approx13{,}001$\,MW$^2$ under a naïve homogeneous-$\beta_0$ approach.
 
-
-Figure~\ref{fig:algo1_overbid_alpha_s3} compares all six strategies under Scenario~3. Both RN-NE and the unconstrained Pareto-NE overbid at Ops~2 and~3, while Algorithm~1 (Corollary~5b) sets $\alpha_{2,3}^*=1$ exactly and recovers $f=\frac{1}{2}$ without the efficiency penalty incurred by naive clamping. Figures~\ref{fig:algo1_overbid_profit_s3} and~\ref{fig:algo1_overbid_profit_perunit_s3} show the corresponding per-operator and per-unit profits.
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_alpha_s3.png}
-    \caption{Bidding strategies under Scenario~3 ($x^o=(210,45,45)$\,MW). Both RN-NE and Pareto-NE overbid at Ops~2 and~3; Algorithm~1 (Cor.~5b) places $\alpha_{2,3}^*$ exactly at~1. Naive clamping reduces $f$ below $\tfrac{1}{2}$.}
-    \label{fig:algo1_overbid_alpha_s3}
-\end{figure}
+Figures~\ref{fig:algo1_overbid_profit_s3} and~\ref{fig:algo1_overbid_profit_perunit_s3} confirm that Algorithm~1 achieves the same total profit as Coalition ($\sum\Pi_i=10{,}800$\,\$/hr) with Op~1 bearing a lower bid to compensate for both saturated operators, while RN-NE and unclamped strategies reduce aggregate efficiency.
 
 \begin{figure}[hbt!]
     \centering
     \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_profit_s3.png}
-    \caption{Per-operator profit $\Pi_i$ under Scenario~3 for all six strategies. Coalition and Algo~1 both achieve $\sum\Pi_i=10{,}800$\,\$/hr at $f=0.5$; risk-neutral and unclamped strategies reduce aggregate efficiency.}
+    \caption{Per-operator profit $\Pi_i$ under Scenario~3 ($x^o=(210,45,45)$\,MW). Coalition and Algo~1 achieve $\sum\Pi_i=10{,}800$\,\$/hr at $f=0.5$; Op~1 alone absorbs the bid adjustment for both saturated operators.}
     \label{fig:algo1_overbid_profit_s3}
 \end{figure}
 
 \begin{figure}[hbt!]
     \centering
     \includegraphics[width=1\linewidth]{figures/algorithm1_overbid_profit_perunit_s3.png}
-    \caption{Per-unit profit $\Pi_i/x_i^o$ under Scenario~3. Algorithm~1 restores per-unit equity comparable to the Coalition benchmark.}
+    \caption{Per-unit profit $\Pi_i/x_i^o$ under Scenario~3. Algorithm~1 restores per-unit equity comparable to the Coalition benchmark despite the skewed capacity distribution.}
     \label{fig:algo1_overbid_profit_perunit_s3}
 \end{figure}
 
@@ -1013,7 +972,7 @@ The Corollary~5b branch of Algorithm~1 is validated on Scenarios~2 and~3.  In ea
 
 \subsection{Scalability Discussion}
 
-The numerical example above uses $n=3$ operators to keep the exposition concrete. The theoretical results, however, are fully general: Theorems~1--2 and Corollaries~1--5b hold for any $n\geq 1$, and Algorithm~1 requires no modification as $n$ grows. Three structural properties support scalability. First, from Remark~3, the convergence rate of Algorithm~1 is $O(\log(1/\varepsilon))$ per consensus round on the star graph, independent of $n$. Second, each operator performs only local computations (a single division and two multiplications after consensus), so per-operator complexity does not grow with $n$. Third, the overbidding threshold $\eta_i < 1/(2n)$ becomes more stringent as $n$ increases, so in large markets with many similarly-sized operators the unconstrained formula~\eqref{eq:alpha_optimal_simplified} applies without any clamping. Simulation studies at larger scale ($n \in \{10, 50\}$) are deferred to future work, where they will also address sensitivity of the Pareto condition to heterogeneous capacity distributions and transient operator participation.
+Although the case study uses $n=3$, all theoretical results hold for any $n\geq 1$ and Algorithm~1 requires no structural modification as $n$ grows. Three properties support this: (i) convergence is $O(\log(1/\varepsilon))$ per round on $K_{1,n}$, independent of $n$ (Remark~3); (ii) each operator's post-consensus computation is $O(1)$; and (iii) the overbidding threshold $\eta_i < 1/(2n)$ tightens as $n$ increases, so in large markets with many similarly-sized operators the unconstrained ERS formula applies without any saturation branch. Larger-scale validation ($n\in\{10,50\}$) is deferred to future work.
 
 \begin{comment}
 To assess the robustness of the overbidding analysis with respect to initial risk profiles, the outer-loop coordination of $\beta_i'$ is evaluated under six heterogeneous starting points: risk-neutral ($\beta_i'(0)=0$), uniform risk-seeking ($\beta_i'(0)=-1$), uniform risk-averse ($\beta_i'(0)=1$), and three mixed profiles. Figures~\ref{fig:mc_overbid_count} and~\ref{fig:mc_overbid_profit} show the per-operator overbidding indicator and aggregate profit comparison for each case. Operators with smaller capacity shares saturate first in every case, consistent with the threshold ordering of Remark~1. Cases where no operator overbids throughout coordination (e.g., the ERS) yield identical unclamped and clamped profit trajectories, while cases with high initial risk-seeking values exhibit a transient profit gap that closes as $\sum\beta_i'$ converges to the Pareto target.
@@ -1138,9 +1097,9 @@ These results validate that the proposed distributed algorithm achieves Pareto-e
 
 \section{Conclusion}
 
-It is well known that, in electricity markets, a coalition bidding strategy provides the best economic payoff for renewable operators but requires full information sharing and collective action. On the other hand, 
+It is well known that, in electricity markets, a coalition bidding strategy provides the best economic payoff for renewable operators (as one of the Pareto optimal solutions) but requires full information sharing and a collective action among them. On the other hand, noncooperative and risk neural Nash bidding strategies require minimum information sharing and are simple to implement, but their performance is inferior when compared to the Pareto optimal solutions. In this paper, this performance gap is bridged by developing a risk-aware bidding framework in which risk tolerances of renewable generation operators are represented by scalar parameters $\beta_i$, performance of Nash equilibria is enhanced by optimizing $\beta_i$, and the resultingn risk seeking Nash strategies ensures Pareto optimality. 
 
-This paper presented a risk-aware bidding framework in which the risk sensitivity parameter $\beta_i$ acts as a coordination variable for renewable generation operators in electricity markets. We showed that the noncooperative game admits structured Nash equilibria and that, by appropriate risk allocation, these equilibria can recover Pareto-efficient aggregate outcomes. In particular, the analysis established explicit relationships between risk parameters, bidding coefficients, and market efficiency.
+The risk aware optimization in which the risk sensitivity parameter $\beta_i$ acts as a coordination variable for renewable generation operators in electricity markets. We showed that the noncooperative game admits structured Nash equilibria and that, by appropriate risk allocation, these equilibria can recover Pareto-efficient aggregate outcomes. In particular, the analysis established explicit relationships between risk parameters, bidding coefficients, and market efficiency.
 
 A distributed consensus-based implementation was developed for the one-shot strategy, allowing each operator to estimate required aggregate quantities using only local communication. The illustrative example confirmed that the distributed Algorithm~1 reproduces the targeted bidding behavior without centralized disclosure of private forecasts or cost data. When the no-overbidding constraint is active, a minor extension using a third consensus protocol allows each operator to determine its constrained bid locally after recovering the aggregate saturation quantities $\sum_{j\in\Omega_{\rm ERS}}\eta_j$ and $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j$ through neighborhood communication alone.
 
@@ -1148,6 +1107,7 @@ A detailed overbidding analysis established per-operator saturation thresholds f
 
 Overall, the results demonstrate that risk-aware design can align self-interested bidding with improved collective efficiency while preserving decentralization and privacy. Future work will incorporate network congestion and locational pricing, extend to non-Gaussian uncertainty structures and time-varying operator participation, and analyze robustness under communication delay, packet loss, and adversarial behavior.
 
+\textcolor{red}{Tommy: please add our own paper on risk averse.}
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 
