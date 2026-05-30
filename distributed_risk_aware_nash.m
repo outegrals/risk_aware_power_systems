@@ -842,7 +842,7 @@ xlabel('Operator'); ylabel('\alpha_i^*  (bid fraction)');
 title('Bidding Strategies: All Four Methods');
 xticklabels(op_labels);
 yline(1, 'k--', 'LineWidth', 1, 'HandleVisibility', 'off');
-legend(strat_labels, 'Location', 'best', 'FontSize', 7);
+legend(strat_labels, 'Location', 'northwest', 'FontSize', 7);  % Op1 bars short (~0.42-0.63), space above
 grid on;
 if save_figs
     style_current_figure();
@@ -857,7 +857,7 @@ bar(1:n, Pi_all);
 xlabel('Operator'); ylabel('\Pi_i  ($/hr)');
 title('Individual Profit: All Four Methods (S1)');
 xticklabels(op_labels);
-legend(strat_labels, 'Location', 'best', 'FontSize', 7);
+legend(strat_labels, 'Location', 'northeast', 'FontSize', 7);  % Op3 bars shorter (~2800-3200), space above
 grid on;
 if save_figs
     style_current_figure();
@@ -873,7 +873,8 @@ bar(1:n, Pipu_all_s1);
 xlabel('Operator'); ylabel('\Pi_i / x_i^o  ($/hr/MW)');
 title('Per-Unit Profit: All Four Methods (S1, x^o=[120,100,80] MW)');
 xticklabels(op_labels);
-legend(strat_labels, 'Location', 'best', 'FontSize', 7);
+ylim([0, 50]);  % headroom above bars (~30-40) for legend
+legend(strat_labels, 'Location', 'northeast', 'FontSize', 7);
 grid on;
 if save_figs
     style_current_figure();
@@ -972,7 +973,7 @@ for s = 1:n_ob, b_abs(s).FaceColor = ob_colors(s,:); end
 xlabel('Operator'); ylabel('\Pi_i  ($/hr)');
 title('Per-Operator Profit: Scenario 2 (x_3^o = 30 MW)');
 xticks(1:n); xticklabels(op_labels_ob);
-legend(ob_strat_labels, 'Location', 'northwest', 'FontSize', 7);
+legend(ob_strat_labels, 'Location', 'northeast', 'FontSize', 7);  % Op3 bars short (~1300-2500), space above
 grid on;
 if save_figs
     style_current_figure();
@@ -1112,7 +1113,7 @@ bar(1:n, alpha_s4);
 hold on; yline(1,'k--','LineWidth',1.5,'HandleVisibility','off');
 xlabel('Operator'); ylabel('\alpha_i^*  (bid fraction)');
 title('Corollary 4: Constrained RN vs ERS Pareto  (x_3^o=30 MW)');
-xticklabels(op_labels_s2); legend(scen4_labels,'Location','best','FontSize',7);
+xticklabels(op_labels_s2); legend(scen4_labels,'Location','northwest','FontSize',7);  % Op1 bars short (~0.52-0.63), space above
 grid on;
 if save_figs
     style_current_figure();
@@ -1203,7 +1204,7 @@ for s = 1:n_ob_s3, b_abs3(s).FaceColor = ob_colors_s3(s,:); end
 xlabel('Operator'); ylabel('\Pi_i  ($/hr)');
 title('Per-Operator Profit: Scenario 3  (x^o=[210,45,45] MW)');
 xticks(1:n); xticklabels(op_labels_s3);
-legend(ob_strat_labels_s3, 'Location', 'northwest', 'FontSize', 7);
+legend(ob_strat_labels_s3, 'Location', 'northeast', 'FontSize', 7);  % Op3 bars short (~1600-3200), space above
 grid on;
 if save_figs
     style_current_figure();
