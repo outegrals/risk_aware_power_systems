@@ -47,8 +47,8 @@ Under this assumption, the equilibrium is determined once risk preferences are a
 Separately, Pareto efficiency has been studied through centralized optimization or cooperative formulations that require full information sharing
 \cite{hobbs2001individual, zhao2010social, su2018integrated}.
 These approaches are impractical in deregulated markets where operators are self-interested and unwilling to disclose private cost and forecast data.
-The key question that remains unaddressed is whether Nash equilibrium behavior can be reconciled with Pareto-optimal outcomes
-\emph{without} centralized coordination or private information disclosure.
+The authors' prior work~\cite{Truong26} established that risk-aware Nash equilibria with Pareto payoffs exist in the two-operator (duopoly) case; the present paper extends this to the general $n$-operator setting and develops a fully distributed implementation.
+The key question that remains unaddressed is whether Nash equilibrium behavior can be reconciled with Pareto-optimal outcomes without centralized coordination or private information disclosure.
 
 This paper answers that question affirmatively by identifying risk sensitivity itself as the coordination variable.
 We show that, for a class of stochastic renewable energy market games, there exists a structured relationship between the operators'
@@ -816,31 +816,32 @@ per-unit profits under the four different strategies. Specifically, we see that 
 
 \subsection{Heterogeneous Pareto Risk Allocations}
 
-Theorem~2 states that any $\boldsymbol{\beta}$ satisfying $\sum_i\beta_i' = (1-n)/4$ achieves Pareto optimality, yielding infinitely many valid heterogeneous allocations. Three representative allocations illustrate this flexibility:
-\begin{itemize}
-    \item \textbf{ERS}: $\beta_i'=-\frac{1}{6}$ for all $i$ (Corollary~5a). Bids: $\boldsymbol{\alpha}^*=(0.417,\,0.500,\,0.625)$; per-unit profits: $(33.5,\,36.0,\,39.8)$\,\$/hr/MW; $f=0.5$, $g=g^{\max}$.
-    \item \textbf{Unequal RS-A}: $\boldsymbol{\beta}'=(-0.10,\,-0.17,\,-0.23)$, assigning the most risk-seeking level to Op~3 (smallest capacity share). Bids shift to $\boldsymbol{\alpha}^*=(0.750,\,0.480,\,0.150)$; per-unit profits: $(43.5,\,35.4,\,25.5)$\,\$/hr/MW. Op~1 earns $30\%$ more per MW while Op~3 earns $36\%$ less, yet $f=0.5$ and $g=g^{\max}$ are fully preserved.
-    \item \textbf{Unequal RS-B}: $\boldsymbol{\beta}'=(-0.23,\,-0.17,\,-0.10)$, assigning the most risk-seeking level to Op~1. The Pareto sum $\sum_i\beta_i'=-0.5$ is satisfied, so the unclamped bids $(0.100,\,0.480,\,1.125)$ analytically achieve $f=0.5$ and $\Pi^{\rm total}=10{,}800$\,\$/hr — but only because $\alpha_3^*=1.125>1$ constitutes overbidding. Once the capacity constraint is enforced by clamping $\alpha_3^*=1$, the bids become $(0.100,\,0.480,\,1.000)$ with per-unit profits $(24.2,\,36.4,\,53.0)$\,\$/hr/MW, $f$ drops to ${\approx}0.467$, and the aggregate falls to ${\approx}10{,}784$\,\$/hr — an efficiency loss incurred solely by the feasibility violation.
-\end{itemize}
+Theorem~2 states that any $\boldsymbol{\beta}$ satisfying $\sum_i\beta_i' = (1-n)/4$ achieves Pareto optimality, yielding infinitely many valid heterogeneous allocations. Table~\ref{tab:alpha_pi_summary} compares three representative allocations. The ERS allocation uses $\boldsymbol{\beta}'=(-\tfrac{1}{6},\,-\tfrac{1}{6},\,-\tfrac{1}{6})$; Unequal RS-A uses $\boldsymbol{\beta}'=(-0.10,\,-0.17,\,-0.23)$; Unequal RS-B uses $\boldsymbol{\beta}'=(-0.23,\,-0.17,\,-0.10)$, all satisfying $\sum_i\beta_i'=-\tfrac{1}{2}$.
 
-ERS and Unequal RS-A both achieve $\Pi^{\rm total}=10{,}800$\,\$/hr, but the per-unit distribution differs substantially: Unequal RS-A raises Op~1's revenue by $10$\,\$/hr/MW and cuts Op~3's by $14.3$\,\$/hr/MW relative to ERS, while leaving Op~2 nearly unchanged. This gives a regulator or cooperative a concrete mechanism to adjust individual equity without sacrificing aggregate efficiency — a direct consequence of Theorem~2's infinite Pareto solution set.
+\begin{table}[hbt!]
+\centering
+\caption{Heterogeneous Risk Allocations ($n=3$, $x^o=(120,100,80)$\,MW)}
+\label{tab:alpha_pi_summary}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+Allocation & $\boldsymbol{\alpha}^*$ & $\Pi_i/x_i^o$\,(\$/hr/MW) & $f$ & $\sum_i\Pi_i$\,(\$/hr) \\
+\hline
+ERS            & $(0.417,\,0.500,\,0.625)$ & $(33.5,\,36.0,\,39.8)$ & $0.500$ & $10{,}800$ \\
+Unequal RS-A   & $(0.750,\,0.480,\,0.150)$ & $(43.5,\,35.4,\,25.5)$ & $0.500$ & $10{,}800$ \\
+Unequal RS-B$^\dagger$ & $(0.100,\,0.480,\,1.000)$ & $(24.2,\,36.4,\,53.0)$ & $0.467$ & $10{,}784$ \\
+\hline
+\multicolumn{5}{l}{$^\dagger$After clamping $\alpha_3^*$ from $1.125$ to $1$; $f$ drops from $0.5$ due to feasibility violation.}
+\end{tabular}}
+\end{table}
 
-\textcolor{red}{Tommy: can we add a simple table here on $\alpha_i^*$ and $\Pi_i$? We can then discuss the results without list numbers}
+ERS and Unequal RS-A achieve identical aggregate outcomes ($f=0.5$, $g=g^{\max}$, $\Pi^{\rm total}=10{,}800$\,\$/hr) but distribute profits differently. Unequal RS-A raises Op~1's per-unit revenue by $10$\,\$/hr/MW and reduces Op~3's by $14.3$\,\$/hr/MW relative to ERS, while Op~2 is nearly unchanged. This illustrates a key degree of freedom available to operators: by coordinating only the aggregate risk sum $\sum_i\beta_i'$, the group achieves socially optimal total profit while retaining full flexibility over how individual risk levels are assigned. Unequal RS-B satisfies the Pareto aggregate condition but requires $\alpha_3^*=1.125>1$; clamping to the capacity limit breaks $f=0.5$ and reduces total profit to ${\approx}10{,}784$\,\$/hr. This reveals that when an operator's capacity share $\eta_i$ is too small, no homogeneous-$\beta'$ policy can simultaneously achieve feasibility and Pareto optimality — the operator is structurally forced to overbid. Understanding when and why this occurs motivates the overbidding analysis in the following subsection.
 
 \subsection{Overbidding Impact}
 
-From~\eqref{eq:overbid_bound}, overbidding occurs for operator~$i$ at the ERS optimum whenever $\eta_i < \frac{1}{2n}$. For the original parameters in Table~\ref{tab:example_params}, $\eta_i \in \{0.40, 0.33, 0.27\}$ all exceed $\frac{1}{6}$, so $\Omega_{\rm ERS}=\varnothing$ and no overbidding occurs; Scenario~1 in Table~\ref{tab:overbid_compare} confirms that the ERS allocation $\beta'^* = -\frac{1}{6}$ achieves $f=0.5$ and $g=g^{\max}$.
+From~\eqref{eq:overbid_bound}, overbidding occurs whenever $\eta_i < \frac{1}{2n}$. For the base parameters, all $\eta_i \in \{0.40, 0.33, 0.27\}$ exceed $\frac{1}{6}$, so $\Omega_{\rm ERS}=\varnothing$ and no overbidding occurs (Table~\ref{tab:comparison}).
 
-To illustrate the heterogeneous-$\beta$ branch of Corollary~5b, we introduce \textit{Scenario~2} by setting $x_3^o = 30$\,MW, giving $x_r^o = 250$\,MW and $\boldsymbol{\eta}=(0.48,\,0.40,\,0.12)$. Operator~3 has $\eta_3 < \tfrac{1}{2n}=\tfrac{1}{6}$, so $\Omega_{\rm ERS}=\{3\}$ and the homogeneous ERS bid is $\alpha_3^*=\tfrac{1}{2n\eta_3}\approx1.39>1$.
-
-The partition~\eqref{eq:partition_Omega} gives $\eta_{\max}=0.48$, $\eta_{\min}=0.12$, midpoint $\eta_c=0.30$, hence $\Omega_{\rm ERS}=\{3\}$ and $\Omega\setminus\Omega_{\rm ERS}=\{1,2\}$. Substituting into~\eqref{eq:beta_hetero}--\eqref{eq:alpha_hetero} with $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j=0.88$, $\sum_{j\in\Omega_{\rm ERS}}\eta_j=0.12$, $n-|\Omega_{\rm ERS}|=2$:
-\begin{align}
-  4a_2\beta_3^* &= 2\eta_3-1 = -0.76,\qquad \alpha_3^*=1,\notag\\
-  4a_2\beta_{1,2}^* &= \tfrac{0.88-0.12}{2}-1 = -0.62, \notag\\
-  \alpha_1^* &= \tfrac{0.76}{4\cdot 0.48}\approx 0.396, \qquad
-  \alpha_2^* = \tfrac{0.76}{4\cdot 0.40}=0.475, \notag
-\end{align}
-yielding $\boldsymbol{\alpha}^*=(0.396,\,0.475,\,1.000)$, $f=0.500$, and $g=g^{\max}=15{,}625$\,MW$^2$. The construction is one-shot: the partition is read off directly from $(\eta_{\max},\eta_{\min})$, no iterative saturation check is needed.
+Setting $x_3^o = 30$\,MW gives $\boldsymbol{\eta}=(0.48,\,0.40,\,0.12)$ with $\eta_3 < \tfrac{1}{6}$, so $\Omega_{\rm ERS}=\{3\}$. Applying~\eqref{eq:alpha_hetero} yields $\boldsymbol{\alpha}^*=(0.396,\,0.475,\,1.000)$, $f=0.500$, and $g=g^{\max}=15{,}625$\,MW$^2$ — one-shot from $(\eta_{\max},\eta_{\min})$, no iterative check needed.
 
 \begin{table}[hbt!]
 \centering
@@ -894,30 +895,17 @@ Tables~\ref{tab:ers_compare_s2}--\ref{tab:ers_compare_s3} confirm that Algorithm
     \label{fig:algo1_overbid_profit_perunit}
 \end{figure}
 
-\noindent\textbf{Observation.} \textit{Overbidding at the ERS optimum is not an artifact of deviating from the Pareto sum condition, but a structural consequence of small renewable share: operator~$i$ overbids whenever $\eta_i < \frac{1}{2n}$, regardless of the chosen common $\beta'$. No homogeneous-$\beta$ policy can simultaneously achieve feasibility and $f=\tfrac12$. The heterogeneous allocation of Corollary~5b assigns a more risk-seeking $\beta_i^*$ to capacity-limited operators (driving $\alpha_i^*=1$ exactly) and a common, milder $\beta_i^*$ to the remainder (restoring $f=\tfrac12$), recovering $g^{\max}$ with no efficiency penalty.}
-
-
 \subsection{Constrained Risk-Neutral Nash (Corollary~4)}
 
 Using Scenario~2 ($x_3^o=30$\,MW) with all operators risk-neutral and overbidding forbidden, Corollary~4 applies with $\Omega_{\rm RN}=\{3\}$ (since $\eta_3=0.12<\tfrac{1}{n+1}=0.25$). Op~3 saturates at $\alpha_3^*=1$, and the remaining bids re-solve to $\boldsymbol{\alpha}^*=(0.611,\,0.733,\,1.000)$, giving $f=0.707$ and $g\approx12{,}946$\,MW$^2$ — only ${\approx}83\%$ of $g^{\max}$. This isolates the efficiency cost of foregoing risk coordination: even after enforcing feasibility, a persistent $17\%$ efficiency gap remains that Corollary~5b's risk re-allocation fully eliminates.
 
 \subsection{Multiple Operator Saturation (Corollary~5b)}
 
-Scenario~2 had a single saturating operator; Scenario~3 stresses the algorithm with \textit{simultaneous} saturation of two operators. Setting $x^o=(210,45,45)$\,MW gives $\eta=(0.70,0.15,0.15)$, so the unconstrained ERS bids yield $\alpha_{2,3}^*\approx1.11>1$ for both smaller operators. The critical new challenge is that only \emph{one} operator (Op~1, with $\eta_1=0.70$) remains unsaturated, requiring Phase~4 to correctly recover $n-|\Omega_{\rm ERS}|=1$ and $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j=\eta_1=0.70$ from consensus — a harder case than Scenario~2 where two operators shared the unsaturated burden.
+Scenario~2 had a single saturating operator; Scenario~3 stresses the algorithm with \textit{simultaneous} saturation of two operators. Setting $x^o=(210,45,45)$\,MW gives $\eta=(0.70,0.15,0.15)$, so the unconstrained ERS bids yield $\alpha_{2,3}^*\approx1.11>1$ for both smaller operators. The critical new challenge is that only \emph{one} operator (Op~1, with $\eta_1=0.70$) remains unsaturated, requiring Phase~4 to correctly recover $n-|\Omega_{\rm ERS}|=1$ and $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j=\eta_1=0.70$ from consensus.
 
-With $\eta_{\max}=0.70$ and $\eta_{\min}=0.15$, the cutoff and partition are
-\[
-    \eta_c = \tfrac{1}{2}(0.70+0.15) = 0.425,
-    \qquad \Omega_{\rm ERS}=\{2,3\},\quad \Omega\setminus\Omega_{\rm ERS}=\{1\}.
-\]
-Substituting into \eqref{eq:alpha_hetero} with $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j=0.70$, $\sum_{l\in\Omega_{\rm ERS}}\eta_l=0.30$:
-\begin{align}
-    \alpha_1^* &= \frac{0.70-0.30}{2\times1\times0.70} = \frac{2}{7}\approx0.286, \notag\\
-    \alpha_2^* &= \alpha_3^* = 1. \notag
-\end{align}
-One can verify $f=\tfrac{2}{7}\times0.70+0.15+0.15=0.500$ and $g=g_{\max}=22{,}500$\,MW$^2$ — full Pareto optimality with two saturating operators, compared to $f=0.825$ and $g\approx13{,}001$\,MW$^2$ under a naïve homogeneous-$\beta_0$ approach.
+Applying~\eqref{eq:alpha_hetero} identifies $\Omega_{\rm ERS}=\{2,3\}$ and yields $\boldsymbol{\alpha}^*\approx(0.286,\,1.000,\,1.000)$, achieving $f=0.500$ and $g=g_{\max}=22{,}500$\,MW$^2$ — full Pareto optimality despite two saturating operators, compared to $f=0.825$ and $g\approx13{,}001$\,MW$^2$ under a homogeneous-$\beta_0$ approach.
 
-Figures~\ref{fig:algo1_overbid_profit_s3} and~\ref{fig:algo1_overbid_profit_perunit_s3} confirm that Algorithm~1 achieves the same total profit as Coalition ($\sum\Pi_i=10{,}800$\,\$/hr) with Op~1 bearing a lower bid to compensate for both saturated operators, while RN-NE and unclamped strategies reduce aggregate efficiency.
+Figures~\ref{fig:algo1_overbid_profit_s3} and~\ref{fig:algo1_overbid_profit_perunit_s3} confirm that Algorithm~1 achieves the same total profit as Coalition ($\sum\Pi_i=10{,}800$\,\$/hr), while RN-NE and unclamped strategies reduce aggregate efficiency. The per-unit profit figure reveals the equity consequence of this recovery: because Ops~2 and~3 are symmetric ($\eta_2=\eta_3=0.15$), they equalize at the same per-unit revenue at saturation, while Op~1 must under-bid to pull $f$ back to $0.5$, suppressing its per-unit profit below the coalition benchmark. The large operator therefore subsidizes Pareto optimality for the smaller ones.
 
 \begin{figure}[hbt!]
     \centering
@@ -1097,17 +1085,12 @@ These results validate that the proposed distributed algorithm achieves Pareto-e
 
 \section{Conclusion}
 
-It is well known that, in electricity markets, a coalition bidding strategy provides the best economic payoff for renewable operators (as one of the Pareto optimal solutions) but requires full information sharing and a collective action among them. On the other hand, noncooperative and risk neural Nash bidding strategies require minimum information sharing and are simple to implement, but their performance is inferior when compared to the Pareto optimal solutions. In this paper, this performance gap is bridged by developing a risk-aware bidding framework in which risk tolerances of renewable generation operators are represented by scalar parameters $\beta_i$, performance of Nash equilibria is enhanced by optimizing $\beta_i$, and the resultingn risk seeking Nash strategies ensures Pareto optimality. 
+It is well known that, in electricity markets, a coalition bidding strategy provides the best economic payoff for renewable operators (as one of the Pareto optimal solutions) but requires full information sharing and a collective action among them. On the other hand, noncooperative and risk neural Nash bidding strategies require minimum information sharing and are simple to implement, but their performance is inferior when compared to the Pareto optimal solutions. In this paper, this performance gap is bridged by developing a risk-aware bidding framework in which risk tolerances of renewable generation operators are represented by scalar parameters $\beta_i$, performance of Nash equilibrium is enhanced by optimizing $\beta_i$, and the resulting risk seeking Nash strategies ensures Pareto optimality. 
 
-The risk aware optimization in which the risk sensitivity parameter $\beta_i$ acts as a coordination variable for renewable generation operators in electricity markets. We showed that the noncooperative game admits structured Nash equilibria and that, by appropriate risk allocation, these equilibria can recover Pareto-efficient aggregate outcomes. In particular, the analysis established explicit relationships between risk parameters, bidding coefficients, and market efficiency.
+The proposed risk-aware bidding framework is developed in three steps. First, the risk aware Nash equilibrium is analytically solved, and the Pareto optimality condition is derived in terms of risk tolerance levels of renewable generation operators. Three different Nash strategies are compared: the coalition strategy, the risk neutral strategy, and risk seeking strategies. It is shown that, for all operators, the best choices are either the coalition strategy (which requires full information sharing) or the risk seeking Nash strategy (which achieves Pareto optimality). Second, the equal risk seeking strategy is analytically solved, and it represents a fair way for all the operators to implement their Nash strategies. Third, the equal risk seeking Nash strategy is formulated into a distributed algorithm for achieving Preto optimality with minimum information sharing.
 
-A distributed consensus-based implementation was developed for the one-shot strategy, allowing each operator to estimate required aggregate quantities using only local communication. The illustrative example confirmed that the distributed Algorithm~1 reproduces the targeted bidding behavior without centralized disclosure of private forecasts or cost data. When the no-overbidding constraint is active, a minor extension using a third consensus protocol allows each operator to determine its constrained bid locally after recovering the aggregate saturation quantities $\sum_{j\in\Omega_{\rm ERS}}\eta_j$ and $\sum_{j\not\in\Omega_{\rm ERS}}\eta_j$ through neighborhood communication alone.
+Further analysis is done to delineate the conditions under which renewable operators may overbid in both risk neural and risk seeking settings. The conditions are in terms of relative dispersion of operators' capacities. No-overbidding Pareto-optimal Nash strategies are also developed in general. And, illustrative examples are included to demonstrate Pareto optimality of risk seeking Nash strategies, their no-overbidding version, and their distributed implementation. 
 
-A detailed overbidding analysis established per-operator saturation thresholds from~\eqref{eq:overbid_bound} and showed that operators with smaller capacity shares saturate first under a common risk parameter. The individual profit analysis revealed that the no-overbidding projection shifts $f(\boldsymbol{\alpha})$ below $\tfrac{1}{2}$ and reduces the payoff of all operators through the shared market-clearing term, not only those whose bids are clamped. This individual-level effect, quantified via~\eqref{eq:Pi_i} and illustrated numerically in the constrained Scenario~2 study, demonstrates that the performance impact of feasibility constraints is collective rather than local.
-
-Overall, the results demonstrate that risk-aware design can align self-interested bidding with improved collective efficiency while preserving decentralization and privacy. Future work will incorporate network congestion and locational pricing, extend to non-Gaussian uncertainty structures and time-varying operator participation, and analyze robustness under communication delay, packet loss, and adversarial behavior.
-
-\textcolor{red}{Tommy: please add our own paper on risk averse.}
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 
