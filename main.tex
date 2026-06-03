@@ -109,7 +109,7 @@ In this paper, we consider the simple case that all traditional generation asset
 \draw[comm, bend left=28]  (op1) to (util);
 \draw[comm, bend right=28] (op3) to (util);
 \end{tikzpicture}
-\caption{System and communication structure. Solid: bid submission and price return. Dashed: consensus links for Algorithm~\ref{alg:dist_risk_aware}.}
+\caption{System and communication structure. Solid: bid submission and price return. Dashed: consensus links for Algorithm~\ref{alg:dist_risk_aware}. \textcolor{red}{Tommy: are we exchange $\beta_i$ in algorithm 1?}}
 \label{fig:system_schematic}
 \end{figure}
 
@@ -848,7 +848,9 @@ URS strategy S1-B also pushes operator 3's bid above $1$, which is an overbiddin
 
 Overbid occurs when $\alpha_i^*>1$, i.e., an operator (or several) commits more to the day-ahead market than his/her forecast capacity $x_i^o$ and thereby exposes itself to a real-time shortfall. Inequalities \eqref{eq:eta_0} and \eqref{eq:overbid_bound} provide explicit conditions on no overbidding for RN and ERS strategies, respectively. Among the two bidding strategies, the RN strategy is more susceptible than ERS to overbidding. The following discussion reveals that overbidding is mostly a structural consequence of forecast capacity dispersion: a low-forecast operator is forced to inflate its bid in order to claim its Pareto-optimal profit share from the markets. Nonetheless, Table \ref{tab:alpha_pi_summary} also shows that a poor choice of risk level (in the sense of being either too high or too low when compared to the choices by others) may also induce overbidding. In any case, overbidding can be outlawed by the grid operator, and renewable operators can respond by implementing the clamped RN and ERS strategies in corollaries 4 and 5, respectively. 
 
-Table~\ref{tab:ers_compare_s2} provides scenario 2 and its corresponding results. When compared to scenario 1, its forecast capacity vector has more spreaded values; specifically,  $\boldsymbol{\eta}=(0.48,\,0.40,\,0.12)$, and $\eta_3<\frac16$ which implies that operator~3 may overbid. The results of RN and ERS strategies, in both unclamped and clamped versions, as well as Algorithm 1, are provided in the table. \textcolor{red}{Tommy: If corollary 4 is used appropriately, RN Nash clamped strategy should maintain the same value of $\Pi$ rather than a reduced value. Please revise Table IV and the rest of subsection accordingly.}
+Table~\ref{tab:ers_compare_s2} provides scenario 2 and its corresponding results. When compared to scenario 1, its forecast capacity vector has more spread-out values; specifically, $\boldsymbol{\eta}=(0.48,\,0.40,\,0.12)$, and $\eta_3<\frac16$, which implies that operator~3 overbids. The results of the RN and ERS strategies, in both unclamped and clamped versions, together with Algorithm~1, are listed in the table.
+
+\textcolor{red}{Tommy: corollary 4 says that RN Nash clamped can also restore Pareto optimal value. Hence, $\Pi$ in the third row is wrong.} The key contrast is what clamping does to each strategy. Clamping restores feasibility in both cases, but only the ERS strategy keeps the Pareto-optimal profit. The clamped ERS strategy saturates operator~3 at $\alpha_3^*=1$ and retunes operators~1 and~2 so that the Pareto condition is exactly preserved, recovering the full $\Pi=10{,}875$\,\$/hr, the same profit as the infeasible unclamped optimum. The clamped RN strategy of Corollary~4 instead raises $\Pi$ only from $10{,}094$ to $10{,}341$\,\$/hr, still about $5\%$ below the coalition value: each operator re-solves its risk-neutral best response after operator~3 saturates, which pushes the aggregate bidding fraction to $f=0.707$ rather than $\tfrac12$. In other words, enforcing feasibility alone does not restore efficiency; it is the risk-seeking coordination of the ERS strategy that makes a feasible bid Pareto-optimal.
 
 \begin{table}[hbt!]
 \centering
@@ -860,11 +862,10 @@ Table~\ref{tab:ers_compare_s2} provides scenario 2 and its corresponding results
 Strategy & $\boldsymbol{\alpha}^*$ & $\Pi_i/x_i^o$\, in \$/(hr$\cdot$MW) & $\Pi$\, in \$/hr \\
 \hline
 Coalition                & $(0.500,\,0.500,\,0.500)$ & $(43.5,\,43.5,\,43.5)$ & $10{,}875$ \\
-RN Nash - unclamped  & $(?,\,?,\,?)$ & $(?,\,?,\,?)$ & $10{,}875$ \\
-RN Nash - clamped    & $(0.611,\,0.733,\,1.000)$ & $(40.0,\,41.7,\,45.7)$ & $10{,}339$ \\
+RN Nash - unclamped  & $(0.521,\,0.625,\,2.083)$ & $(37.5,\,38.8,\,57.0)$ & $10{,}094$ \\
+RN Nash - clamped    & $(0.611,\,0.733,\,1.000)$ & $(40.0,\,41.8,\,45.7)$ & $10{,}341$ \\
 ERS Nash - unclamped  & $(0.347,\,0.417,\,1.389)$ & $(39.7,\,41.4,\,65.7)$ & $10{,}875$ \\
-ERS Nash - clamped             & $(0.396,\,0.475,\,1.000)$ & $(40.9,\,42.9,\,56.0)$ & $10{,}875$ \\
-Algorithm~1              & $(0.396,\,0.475,\,1.000)$ & $(40.9,\,42.9,\,56.0)$ & $10{,}875$ \\
+ERS Nash - clamped & $(0.396,\,0.475,\,1.000)$ & $(40.9,\,42.9,\,56.0)$ & $10{,}875$ \\
 \hline
 \end{tabular}}
 \end{table}
@@ -885,7 +886,7 @@ The per-unit profits in Fig.~\ref{fig:algo1_overbid_profit_perunit} expose the m
     \label{fig:algo1_overbid_profit_perunit}
 \end{figure}
 
-\emph{Multiple overbidders (Scenario 3).} A more skewed distribution $x^o=(210,45,45)$\,MW gives $\boldsymbol{\eta}=(0.70,\,0.15,\,0.15)$, so both small operators violate $\eta_i\ge\frac16$ and the unconstrained ERS would have them bid $\alpha_{2,3}^*=1.111>1$. Table~\ref{tab:ers_compare_s3} shows that Corollary~5b again recovers the full coalition profit $\Pi=10{,}800$\,\$/hr with feasible bids $\alpha_{2,3}^*=1$. The per-unit profits reveal an equity consequence of this recovery: because operators~2 and~3 are identical in size, they saturate together and earn the same per-unit revenue, while the large operator~1 must lower its bid to restore the Pareto fraction and so absorbs the entire adjustment. In effect, the large operator subsidizes Pareto optimality for the smaller ones.
+\textcolor{red}{Tommy: Same issue here. Inconsistent format of header and table.} \emph{Multiple overbidders (Scenario 3).} A more skewed distribution $x^o=(210,45,45)$\,MW gives $\boldsymbol{\eta}=(0.70,\,0.15,\,0.15)$, so both small operators violate $\eta_i\ge\frac16$ and the unconstrained ERS would have them bid $\alpha_{2,3}^*=1.111>1$. Table~\ref{tab:ers_compare_s3} shows that Corollary~5b again recovers the full coalition profit $\Pi=10{,}800$\,\$/hr with feasible bids $\alpha_{2,3}^*=1$. The per-unit profits reveal an equity consequence of this recovery: because operators~2 and~3 are identical in size, they saturate together and earn the same per-unit revenue, while the large operator~1 must lower its bid to restore the Pareto fraction and so absorbs the entire adjustment. In effect, the large operator subsidizes Pareto optimality for the smaller ones.
 
 \begin{table}[hbt!]
 \centering
@@ -897,9 +898,10 @@ The per-unit profits in Fig.~\ref{fig:algo1_overbid_profit_perunit} expose the m
 Strategy & $\boldsymbol{\alpha}^*$ & $\Pi_i/x_i^o$\, in \$/(hr$\cdot$MW) & $\Pi$\, in \$/hr \\
 \hline
 Coalition                & $(0.500,\,0.500,\,0.500)$ & $(36.0,\,36.0,\,36.0)$ & $10{,}800$ \\
-RN Nash unclamped$^\dagger$ & $(0.357,\,1.667,\,1.667)$ & $(26.4,\,46.0,\,46.0)$ & $\phantom{0}9{,}675$ \\
-ERS unclamped$^\dagger$  & $(0.238,\,1.111,\,1.111)$ & $(28.1,\,54.3,\,54.3)$ & $10{,}800$ \\
-Algorithm~1              & $(0.286,\,1.000,\,1.000)$ & $(29.6,\,51.0,\,51.0)$ & $10{,}800$ \\
+RN Nash - unclamped$^\dagger$ & $(0.357,\,1.667,\,1.667)$ & $(26.4,\,46.0,\,46.0)$ & $\phantom{0}9{,}675$ \\
+RN Nash - clamped    & $(0.500,\,1.000,\,1.000)$ & $(31.5,\,42.0,\,42.0)$ & $10{,}395$ \\
+ERS Nash - unclamped$^\dagger$  & $(0.238,\,1.111,\,1.111)$ & $(28.1,\,54.3,\,54.3)$ & $10{,}800$ \\
+ERS Nash - clamped & $(0.286,\,1.000,\,1.000)$ & $(29.6,\,51.0,\,51.0)$ & $10{,}800$ \\
 \hline
 \multicolumn{4}{l}{$^\dagger$Requires $\alpha_i>1$ (infeasible); shown as reference.}
 \end{tabular}}
@@ -919,7 +921,7 @@ Algorithm~1              & $(0.286,\,1.000,\,1.000)$ & $(29.6,\,51.0,\,51.0)$ & 
     \label{fig:algo1_overbid_profit_perunit_s3}
 \end{figure}
 
-\noindent\textbf{Observation.} Both scenarios tell the same story. A small operator overbids simply because it is small: to claim its fair share of the market it must promise more power than it can actually generate. Such a promise cannot be delivered, and the easy fixes are either capping the bid or just ignoring risk which keep the bids honest but leave money on the table. Corollary~5b instead lets the small operators bid up to their full capacity and then gently adjusts the larger ones, so the group keeps the maximum possible profit while every bid stays deliverable, with each operator working this out on its own through Algorithm~1.
+\noindent\textbf{Observation.} \textcolor{red}{Tommy: Why this is needed? Anything new here?} \emph{Multiple overbidders (Scenario 3).}  Both scenarios tell the same story. A small operator overbids simply because it is small: to claim its fair share of the market it must promise more power than it can actually generate. Such a promise cannot be delivered, and the easy fixes are either capping the bid or just ignoring risk which keep the bids honest but leave money on the table. Corollary~5b instead lets the small operators bid up to their full capacity and then gently adjusts the larger ones, so the group keeps the maximum possible profit while every bid stays deliverable, with each operator working this out on its own through Algorithm~1.
 
 
 \begin{comment}
