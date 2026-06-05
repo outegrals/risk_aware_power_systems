@@ -828,8 +828,18 @@ end
 n_hat_hist = 1./xi_hist(1:n,:) - 1;
 
 % Plot A_comp: Comparative results — four individual figures, one per metric
-strat_labels = {'Coalition', 'RN-NE', 'Pareto-NE', 'Algo1'};
+strat_labels = {'Coalition', 'RN Nash', 'RS Pareto Nash', 'Algorithm 1'};  % match Table II
 strat_cats   = categorical(strat_labels, strat_labels);  % preserve order
+% Operator x-axis labels with capacity (match S2/S3 figure format)
+op_labels_s1 = {sprintf('Op1 (%d MW)', x0(1)), ...
+                sprintf('Op2 (%d MW)', x0(2)), ...
+                sprintf('Op3 (%d MW)', x0(3))};
+% Per-strategy colors, consistent across all figures. The four core strategies
+% (Coalition, RN, ERS, Algorithm 1) use blue/orange/yellow/purple; the two
+% clamped-only strategies in S2/S3 take the leftover green/teal.
+%   Coalition=blue(1), RN=orange(2), ERS=yellow(3), Algorithm 1=purple(4)
+s1_palette = lines(6);
+s1_colors  = s1_palette([1 2 3 4], :);
 alpha_all = [alpha_coal, alpha_RN, alpha_sym, alpha_dist];
 Pi_all    = [Pi_coal,    Pi_RN,    Pi_sym,    Pi_dist];
 f_all     = [f_coal, f_RN, f_sym, f_dist];
@@ -837,10 +847,11 @@ g_all     = [g_coal, f_RN*(1-f_RN)*xr0^2, f_sym*(1-f_sym)*xr0^2, g_dist];
 
 % A_comp_1: Bidding strategies alpha_i
 figure('Position', [50, 50, 620, 460]);
-bar(1:n, alpha_all);
+b_al_s1 = bar(1:n, alpha_all);
+for s = 1:numel(strat_labels), b_al_s1(s).FaceColor = s1_colors(s,:); end
 xlabel('Operator'); ylabel('\alpha_i^*  (bid fraction)');
 title('Bidding Strategies: All Four Methods');
-xticklabels(op_labels);
+xticklabels(op_labels_s1);
 yline(1, 'k--', 'LineWidth', 1, 'HandleVisibility', 'off');
 legend(strat_labels, 'Location', 'northwest', 'FontSize', 7);  % Op1 bars short (~0.42-0.63), space above
 grid on;
@@ -853,10 +864,11 @@ end
 
 % A_comp_2: Individual profits Pi_i (S1)
 figure('Position', [80, 80, 620, 460]);
-bar(1:n, Pi_all);
+b_pi_s1 = bar(1:n, Pi_all);
+for s = 1:numel(strat_labels), b_pi_s1(s).FaceColor = s1_colors(s,:); end
 xlabel('Operator'); ylabel('\Pi_i  ($/hr)');
 title('Individual Profit: All Four Methods (S1)');
-xticklabels(op_labels);
+xticklabels(op_labels_s1);
 legend(strat_labels, 'Location', 'northeast', 'FontSize', 7);  % Op3 bars shorter (~2800-3200), space above
 grid on;
 if save_figs
@@ -869,10 +881,11 @@ end
 % A_comp_2b: Per-unit profit Pi_i / x_i^o (S1)
 Pipu_all_s1 = Pi_all ./ x0;   % $/hr per MW of installed capacity
 figure('Position', [95, 95, 620, 460]);
-bar(1:n, Pipu_all_s1);
+b_pu_s1 = bar(1:n, Pipu_all_s1);
+for s = 1:numel(strat_labels), b_pu_s1(s).FaceColor = s1_colors(s,:); end
 xlabel('Operator'); ylabel('\Pi_i / x_i^o  ($/hr/MW)');
 title('Per-Unit Profit: All Four Methods (S1, x^o=[120,100,80] MW)');
-xticklabels(op_labels);
+xticklabels(op_labels_s1);
 ylim([0, 50]);  % headroom above bars (~30-40) for legend
 legend(strat_labels, 'Location', 'northeast', 'FontSize', 7);
 grid on;
@@ -922,17 +935,25 @@ alpha_cV_clp_s2 = max(0, min(1, alpha_cV_unc_s2));
 Pi_cV_clp_s2    = profit(alpha_cV_clp_s2, a2, a1, x0_s2, xL0, xr0_s2, eta_s2, 0,0,0);
 
 % Assemble combined arrays — all evaluated at Scenario 2 params
-ob_strat_labels = {'Coalition', 'RN-NE', 'Pareto-NE', 'Algo1 (Cor.5b)', 'Unclamped OB', 'No-overbid'};
+% Strategy set and order match Table IV exactly. ERS-clamped (centralized
+% Cor.5b, alpha_Rem1) and Algorithm 1 (distributed, alpha_opt_s2d) are
+% numerically identical — both shown to mirror the table rows.
+ob_strat_labels = {'Coalition', 'RN Nash - unclamped', 'RN Nash - clamped', ...
+                   'ERS Nash - unclamped', 'ERS Nash - clamped', 'Algorithm 1'};
 n_ob = numel(ob_strat_labels);
-ob_colors = lines(n_ob);
+% Strategy-based colors (match S1 + user scheme): Coalition=blue, RN-unclamped
+% =orange, RN-clamped=green, ERS-unclamped=yellow, ERS-clamped=teal, Algorithm 1
+% =purple.  Indices into lines(6): [Coal RNu RNc ERSu ERSc Algo1]=[1 2 5 3 6 4].
+ob_colors = lines(6);
+ob_colors = ob_colors([1 2 5 3 6 4], :);
 op_labels_ob = {sprintf('Op1 (%d MW)', x0_s2(1)), ...
                 sprintf('Op2 (%d MW)', x0_s2(2)), ...
                 sprintf('Op3 (%d MW)', x0_s2(3))};
 
-alpha_combined = [alpha_coal_s2, alpha_RN_s2_unc, alpha_sym_s2_unc, alpha_opt_s2d, ...
-                  alpha_cV_unc_s2, alpha_cV_clp_s2];               % n×6
-Pi_combined    = [Pi_coal_s2, Pi_RN_s2_unc, Pi_sym_s2_unc, Pi_dist_s2, ...
-                  Pi_cV_unc_s2, Pi_cV_clp_s2];                     % n×6
+alpha_combined = [alpha_coal_s2, alpha_RN_s2_unc, alpha_Cor4, alpha_sym_s2_unc, ...
+                  alpha_Rem1, alpha_opt_s2d];                      % n×6
+Pi_combined    = [Pi_coal_s2, Pi_RN_s2_unc, Pi_Cor4, Pi_sym_s2_unc, ...
+                  Pi_Rem1, Pi_dist_s2];                            % n×6
 Pipu_combined  = Pi_combined ./ x0_s2;                             % per-unit ($/hr/MW)
 
 % Plot A5: Bidding strategies — Scenario 2, all six strategies
@@ -1146,26 +1167,38 @@ Pi_sym_s3_unc   = profit(alpha_unc_s6, a2, a1, x0_s6, xL0, xr0_s6, eta_s6, 0,0,0
 % --- Algo1 / Cor5b under S3 (alpha_opt_s6d = [0.286, 1, 1]) ---
 Pi_dist_s3      = profit(alpha_opt_s6d, a2, a1, x0_s6, xL0, xr0_s6, eta_s6, 0,0,0);
 
-% --- Unclamped OB under S3: heterogeneous beta, same as S2 deviator ---
-beta_cV_s3      = [-0.20; -0.15; -0.05];
-alpha_cV_unc_s3 = 0.5 * (1 + 4*beta_cV_s3) ./ eta_s6;
-Pi_cV_unc_s3    = profit(alpha_cV_unc_s3, a2, a1, x0_s6, xL0, xr0_s6, eta_s6, 0,0,0);
+% --- RN Nash clamped (Corollary 4) under S3 ---
+Omega_RN_s3  = find(eta_s6 < 1/(n+1));          % operators forced to clamp {2,3}
+S_RN_s3      = sum(eta_s6(Omega_RN_s3));
+n_eff_RN_s3  = n + 1 - length(Omega_RN_s3);     % effective n+1-|Omega|
+alpha_RNc_s3 = zeros(n,1);
+for i = 1:n
+    if ismember(i, Omega_RN_s3)
+        alpha_RNc_s3(i) = 1;
+    else
+        alpha_RNc_s3(i) = (1/n_eff_RN_s3) * (1/eta_s6(i)) * (1 - S_RN_s3);
+    end
+end
+Pi_RNc_s3 = profit(alpha_RNc_s3, a2, a1, x0_s6, xL0, xr0_s6, eta_s6, 0,0,0);
 
-% --- No-overbid under S3: naive per-operator clamp of Pareto-NE ---
-alpha_cV_clp_s3 = max(0, min(1, alpha_unc_s6));
-Pi_cV_clp_s3    = profit(alpha_cV_clp_s3, a2, a1, x0_s6, xL0, xr0_s6, eta_s6, 0,0,0);
-
-ob_strat_labels_s3 = {'Coalition','RN-NE','Pareto-NE','Algo1 (Cor.5b)','Unclamped OB','No-overbid'};
+% Strategy set and order match Table V exactly. ERS-clamped (centralized
+% Cor.5b, alpha_het_s6) and Algorithm 1 (distributed, alpha_opt_s6d) are
+% numerically identical — both shown to mirror the table rows.
+ob_strat_labels_s3 = {'Coalition','RN Nash - unclamped','RN Nash - clamped', ...
+                      'ERS Nash - unclamped','ERS Nash - clamped','Algorithm 1'};
 n_ob_s3 = numel(ob_strat_labels_s3);
-ob_colors_s3 = lines(n_ob_s3);
+% Same strategy-based color order as Scenario 2 (see comment there):
+% [Coal RNu RNc ERSu ERSc Algo1] -> lines(6) rows [1 2 5 3 6 4].
+ob_colors_s3 = lines(6);
+ob_colors_s3 = ob_colors_s3([1 2 5 3 6 4], :);
 op_labels_s3 = {sprintf('Op1 (%d MW)', x0_s6(1)), ...
                 sprintf('Op2 (%d MW)', x0_s6(2)), ...
                 sprintf('Op3 (%d MW)', x0_s6(3))};
 
-alpha_combined_s3 = [alpha_coal_s3, alpha_RN_s3_unc, alpha_unc_s6, alpha_opt_s6d, ...
-                     alpha_cV_unc_s3, alpha_cV_clp_s3];
-Pi_combined_s3    = [Pi_coal_s3, Pi_RN_s3_unc, Pi_sym_s3_unc, Pi_dist_s3, ...
-                     Pi_cV_unc_s3, Pi_cV_clp_s3];
+alpha_combined_s3 = [alpha_coal_s3, alpha_RN_s3_unc, alpha_RNc_s3, alpha_unc_s6, ...
+                     alpha_het_s6, alpha_opt_s6d];
+Pi_combined_s3    = [Pi_coal_s3, Pi_RN_s3_unc, Pi_RNc_s3, Pi_sym_s3_unc, ...
+                     Pi_het_s6, Pi_dist_s3];
 Pipu_combined_s3  = Pi_combined_s3 ./ x0_s6;
 
 % Plot S3-A: Bidding strategies — all six strategies
