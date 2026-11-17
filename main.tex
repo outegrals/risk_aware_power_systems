@@ -1,4 +1,5 @@
 \documentclass[journal]{IEEEtran}
+\usepackage[T1]{fontenc}
 \usepackage{amsmath, amssymb, xcolor, graphicx, comment, algorithm, algpseudocode}
 \usepackage{multirow}
 \usepackage{tikz}
@@ -36,7 +37,7 @@
 \maketitle
 
 \begin{abstract}
-In this paper, optimal bidding strategies are developed for renewable operators and their microgrid aggregators to participate in day-ahead and real-time markets. The well-known coalition bidding strategy offers optimal total payoff and equal per-unit payoff but requires full information sharing. Nash bidding strategy would be preferred for privacy, but its total payoff becomes lower. It is shown that, if each of the renewable operators adopts a risk aware Nash bidding strategy with respect to price uncertainty, their risk level parameters can be optimized to close the payoff gap and achieve Pareto optimality. Specifically, Pareto optimality is established for risk aware strategies if the sum of their risk level parameters equals to a constant and is risk seeking. It is shown further that, among the family of Pareto-optimal Nash strategies, the equal risk seeking (ERS) strategy would be the best in balancing the individual payoffs. Furthermore, a fully distributed algorithm of the ERS Nash strategy is developed. Performance of these strategies is demonstrated and compared using illustrative case studies. 
+This paper develops a coordinated design of risk aware bidding controllers for renewable operators and microgrid aggregators in day-ahead and real-time electricity markets. Each controller maximizes expected profit modified by a price-deviation term whose coefficient is prescribed before bidding. For fixed coefficients, the resulting bids form a Nash equilibrium of the controller objectives. In the uncapped model, we characterize the coefficient vectors for which this equilibrium attains the maximum aggregate expected profit of renewable operators; their sum must equal a negative constant when at least two operators participate. Equal risk seeking provides a symmetric coefficient design, whose bids are computed by masked consensus with a conditional privacy guarantee against passive collusion. A unilateral coefficient-deviation analysis shows that this design is not an equilibrium when owners independently select coefficients to maximize expected profit. The guarantees therefore concern coordinated controller design with assumed implementation, rather than incentive-compatible parameter selection. Illustrative cases compare the resulting expected-profit allocations.
 \end{abstract}
 
 %\begin{keywords}
@@ -53,14 +54,14 @@ Existing studies on stochastic Cournot and oligopoly games have examined the imp
 but they typically treat risk attitudes as fixed exogenous parameters and focus almost exclusively on risk averse firms \cite{cheng2002bertrand,sakai1989risk, gulpinar2014analysis, asplund2002risk, Chronopoulos2014}.
 The same risk averse emphasis dominates bidding research in power markets, where conditional value-at-risk and related measures are used to shield generators, electric-vehicle aggregators, and virtual power plants from price volatility \cite{Barroso2009, Gong2009, Zheng2023, Xiao2025}.
 Risk-seeking behavior, by contrast, is comparatively seldom modeled or systematically studied, and where optimism is considered it is posed as a behavioral trait rather than a controllable design variable \cite{Caraballo2015, Feng2023, ZhangEcon2020}; even recent risk sharing theory that admits risk seeking (convex) utilities treats the resulting equilibrium as descriptive rather than as an instrument a market operator can steer \cite{Lauzier2024}.
-Under these assumptions, the equilibrium is determined once risk preferences are assigned, leaving no room to steer outcomes. Separately, Pareto optimality has been studied through centralized optimization or cooperative formulations that require full information sharing \cite{hobbs2001individual, zhao2010social, su2018integrated}. These approaches are impractical in deregulated markets where operators are self-interested and unwilling to disclose private cost and forecast data. The most recent work~\cite{Truong26} starts the trend of bridging Nash equilibrium and Pareto optimality in the two-operator (duopoly) setting of Cournot game, but its outcome naturally yields a risk averse strategy, in which each operator suppresses real-time price variability to protect its own payoff. Our present paper provides distinct results in two fundamentally different ways. First, it is shown that, in electricity markets, the gap between Nash equilibrium and the Pareto frontier is eliminated not by risk aversion but by a \emph{risk seeking} regime: the Pareto optimality requires a net negative constant on the sum of all market participants' risk level parameters, in the sense that the participants collectively tolerate (indeed welcome) a level of price variation rather than suppress the variation. Second, the analysis in the paper addresses electricity markets with $n$ renewable operators, and it is shown that the risk seeking strategy can be implemented in a privacy-preserving and fully distributed manner.
+Those studies characterize equilibria conditional on preferences. Here we instead study coordinated design of controller coefficients; intrinsic preferences are not treated as freely adjustable actions. Separately, Pareto optimality has been studied through centralized optimization or cooperative formulations that require full information sharing \cite{hobbs2001individual, zhao2010social, su2018integrated}. These approaches are impractical in deregulated markets where operators are self-interested and unwilling to disclose private cost and forecast data. The most recent work~\cite{Truong26} starts the trend of bridging Nash equilibrium and Pareto optimality in the two-operator (duopoly) setting of Cournot game, but its outcome naturally yields a risk averse strategy, in which each operator suppresses real-time price variability to protect its own payoff. Our present paper provides distinct results in two fundamentally different ways. First, it is shown that, in electricity markets, the gap between Nash equilibrium and the Pareto frontier is eliminated not by risk aversion but by a \emph{risk seeking} regime: the Pareto optimality requires a net negative constant on the sum of all market participants' risk level parameters, in the sense that the prescribed controller objectives reward price deviation rather than penalize it. Second, the analysis in the paper addresses electricity markets with $n$ renewable operators, and its uncapped equal risk seeking design admits distributed computation with a scoped privacy guarantee using established finite-field masking.
 
 In parallel, stochastic and robust optimization models have been developed for microgrids and their aggregators to bid into day-ahead and real-time balancing markets \cite{7273948, 7393823, 8554122}, bi-level and tri-level formulations have been used to co-design retailer decisions and market operation \cite{9018247, 10908096}, and distributed schemes have been proposed for the energy management of multiple microgrids in real-time markets \cite{8141420}. However, in all of these formulations, each participant optimizes its own bid against exogenous prices or a fixed market design; moreover, their distributed bid coordination has not been studied, nor have Nash and Pareto properties been analyzed. 
 
-In the paper, day-ahead and real-time electricity markets with renewable operators as market participants are analyzed systematically and analytically through the risk aware optimization framework. In this framework, the risk level of renewable operators is parameterized in terms of the penalty on price variations. Optimization of risk level parameters provides the means of moving the Nash equilibrium to the Pareto frontier. In this sense, individual risk level is not merely a preference parameter but a methodology through which self-interested agents can distributively move toward Pareto optimality while maintaining their own incentive and Nash strategy. This is analogous to the so-called mechanism design literature~\cite{hurwicz1960optimality,myerson1979incentive} in the sense that,  rather than redesigning the market structure, the risk parameters act as a voluntary coordination instrument, inducing Pareto-optimal Nash behavior without coercive means or centralized enforcement. This risk aware optimization methodology is analytically formulated and rigorously analyzed, and it is also shown that the equal risk seeking (ERS) Nash strategy is best at avoiding disparity among the individual payoffs. The proposed distributed algorithm of implementing the ERS Nash strategy exchanges only privacy-preserving information through neighboring communication, in line with standard distributed algorithms \cite{qu, molzahn2017survey, yang2019survey}. This two-layer structure, in which the physical dispatch of renewable generation and microgrids is coordinated through an overlaid communication network, reflects the cyber-physical character of modern microgrids: the cyber layer carries only consensus variables while all market-sensitive data remain local to each operator.
+We distinguish coordinated controller design from the subsequent bidding game. The participants jointly select the price-deviation coefficients to maximize aggregate expected renewable profit, and these coefficients remain fixed during bidding. Nash optimality then concerns each controller's bid under its prescribed objective. Implementation assumes adherence to the configured controllers; selecting the coefficients is not modeled as an equilibrium of self-interested owners. In particular, the coefficients are not declarations of intrinsic risk preferences, and their numerical computation does not establish commitment or incentive compatibility. Section~\ref{sec:beta_deviation} analyzes the distinct game in which owners may change their coefficients unilaterally. The proposed distributed algorithm computes the agreed design through neighboring communication \cite{qu, molzahn2017survey, yang2019survey}. This market-coordination layer connects microgrid aggregators through an overlaid communication network.
 
 
-The remainder of the paper is organized as follows. Section~II formulates the day-ahead and real-time electricity markets in a stochastic setting and introduces risk aware objectives for renewable operators to perform cooperative and noncooperative optimization. In Section~III, coalition bidding strategy and Nash bidding strategy under fixed risk level parameters are derived. In Section~IV, Pareto-optimal condition is obtained for risk level parameters, equal risk seeking (ERS) strategy is synthesized to achieve Pareto optimality. Section~V presents a distributed algorithm for renewable operators to implement their ERS strategies. Illustrative case studies are provided in Section~VI, followed by the concluding remarks in Section~VII.
+The remainder of the paper is organized as follows. Section~II formulates the day-ahead and real-time electricity markets in a stochastic setting and introduces risk aware objectives for renewable operators to perform cooperative and noncooperative optimization. In Section~III, coalition bidding strategy and Nash bidding strategy under fixed risk level parameters are derived. Section~IV characterizes profit-efficient controller designs and analyzes unilateral coefficient deviations. Section~V presents a distributed algorithm for renewable operators to implement their ERS strategies. Illustrative case studies are provided in Section~VI, followed by the concluding remarks in Section~VII.
 
 \section{Problem Formulation}
 
@@ -89,13 +90,15 @@ In this paper, we consider the simple case that all traditional generation asset
 % Price return
 \draw[arr, bend right=10] (util) to
       node[right, font=\scriptsize]{$\lambda^o\!,\lambda$} (op2);
-% Consensus communication graph
-\draw[comm] (op1) -- node[below, font=\scriptsize]{$\xi,\psi$} (op2);
-\draw[comm] (op2) -- (op3);
-\draw[comm, bend left=28]  (op1) to (util);
+% Public consensus and separate private operator masking links
+\draw[comm, bend left=28] (op1) to node[left, font=\scriptsize]{$\psi$} (util);
+\draw[comm, bend right=18] (op2) to (util);
 \draw[comm, bend right=28] (op3) to (util);
+\draw[comm, blue, dotted] (op1) -- node[below, font=\scriptsize]{private masks} (op2);
+\draw[comm, blue, dotted] (op2) -- (op3);
+\draw[comm, blue, dotted, bend right=20] (op1) to (op3);
 \end{tikzpicture}
-\caption{System and communication structure. Solid: bid submission and price return. Dashed: privacy-preserving consensus variables $\xi_i,\psi_i$ of  Algorithm~\ref{alg:dist_risk_aware} and defined in Section V.}
+\caption{Solid: submitted quantities and prices. Dashed: public consensus graph $G_c$. Dotted: private operator mask graph $G_m$. These are distinct logical communication layers.}
 \label{fig:system_schematic}
 \end{figure}
 
@@ -132,7 +135,7 @@ P_g + \sum_{j\in\Omega} x_j   = x_{n+1}. \label{eq:RT_power}
 \end{equation}
 It is well known that, with global information, day-ahead price $\lambda^o$ and real-time $\lambda$ are the dual variables associated with constraints \eqref{eq:DA_power} and \eqref{eq:RT_power}, respectively. 
 
-The renewable generation operators aim to maximize the following objectives\footnote{Strictly speaking, we should use $J_i^{\prime} = \Pi_i - \beta_i \mathbb{E}[(\Pi_i - \mathbb{E}[\Pi_i])^2]$ which also yields a second-order polynomial in $\alpha_i$ as does \eqref{eq:J_i} but involves calculations of higher moments. Accordingly, \eqref{eq:J_i} is adopted instead.} individually:
+The bidding controllers assigned to the renewable operators maximize the following objectives\footnote{Strictly speaking, we should use $J_i^{\prime} = \Pi_i - \beta_i \mathbb{E}[(\Pi_i - \mathbb{E}[\Pi_i])^2]$ which also yields a second-order polynomial in $\alpha_i$ as does \eqref{eq:J_i} but involves calculations of higher moments. Accordingly, \eqref{eq:J_i} is adopted instead.} individually:
 \begin{subequations}
 \begin{equation} 
 J_i = \Pi_i - \beta_i \mathbb{E}[(\lambda - \lambda^o)^2], \label{eq:J_i}
@@ -143,11 +146,11 @@ where $\beta_i\in\mathbb{R}$,
 = \lambda^o \alpha_i x_i^o + \mathbb{E}[\lambda (x_i - \alpha_i x_i^o)], \label{eq:Pi_i}
 \end{equation}
 \end{subequations}
-and the pair $\{\alpha_i, \; \beta_i\}$ represents the bidding strategy of the $i$-th operator into the electricity markets. Throughout this paper, $J_i$ exclusively denotes the risk aware objective defined in~\eqref{eq:J_i}; the special case $\beta_i=0$ reduces $J_i$ to pure expected profit maximization and is referred to as the risk neutral strategy. If $\beta_i=0$ is chosen, the $i$-th entity aims to maximize its average profit from the total revenues from participating in the day-ahead and real-time markets. By selecting $\beta_i>0$, the $i$-th entity also attempts to reduce its profit variation by suppressing variations of real-time price $\lambda$ around day-ahead price $\lambda^o$.  By choosing $\beta_i<0$, the $i$th entity tries to maximize its profit by encouraging more variations of real-time price $\lambda$ around day-ahead price $\lambda^o$. In other words, the $i$-th entity is risk averse if $\beta_i>0$ and risk seeking if $\beta_i<0$.
+Here $\alpha_i$ is the strategic action of controller $i$, whereas $\beta_i$ is a prescribed controller-design coefficient. We assume $a_2>0$ and $x_i^o>0$ for participating operators, and use $\beta_i\geq-1/(4a_2)$ in the Nash analysis. A positive coefficient penalizes the mean-square price deviation, a negative coefficient rewards it, and zero gives expected-profit maximization. The terms risk averse, risk seeking, and risk neutral describe these controller objectives, not the owners' intrinsic preferences.
 
-The risk aware bidding strategy $\{\alpha_i,\beta_i\}$ offers four advantages: (i) achieving Pareto-optimal Nash equilibria that maximize the total profit $\sum_{i\in\Omega} \Pi_i$; 
-% (equivalently, maximizing $g(\alpha_1^*,\cdots,\alpha_n^*)$ as defined in \eqref{eq:G});
-(ii) enabling distributed implementation without centralized coordination; (iii) maintaining incentive compatibility as firms remain self-interested; and (iv) preserving privacy through minimal information exchange. Power grid congestion is not considered in this paper but could be incorporated in future work.
+For each fixed vector $\boldsymbol\beta$, the bidding game $G(\boldsymbol\beta)$ has payoffs $J_i$ and bid actions $\alpha_i$. Coefficients are selected jointly before the market interval and held fixed while controllers choose bids. We assume that participants implement the agreed controllers without unilateral coefficient changes or overrides of their generated bids during that interval. Such adherence requires a binding implementation arrangement; neither announcing coefficients nor running consensus establishes it. This paper assumes that arrangement and does not derive participation incentives or an enforcement mechanism.
+
+The design criterion is the aggregate expected renewable profit $\Pi=\sum_i\Pi_i$ at the induced bidding equilibrium. Throughout, Nash optimality refers to the fixed controller objectives $J_i$, while Pareto efficiency refers to the expected-profit vector $(\Pi_1,\ldots,\Pi_n)$. Maximizing its sum establishes the latter, but does not establish Pareto efficiency in the $J_i$ utilities. Power grid congestion is outside the present model.
 
 To characterize these strategies, we first solve the centralized case under global information, which provides the analytical foundation for the Nash equilibrium and Pareto conditions derived in subsequent sections.
 
@@ -179,7 +182,7 @@ The lower-level optimization problems are also quadratic, and the centralized so
 \alpha^* = \frac{1 + 4a_2 \beta}{2(1 + 2a_2\beta)}.
 \label{eq:alpha_1}
 \end{equation}
-In addition, by further choosing $\beta_i$ to optimize $\sum_i \Pi_i$ with $\Pi_i$ in \eqref{eq:Pi_i}, the optimal bidding strategy $\{\alpha^*, \; \beta^*\}$ is given by}
+In addition, by further choosing $\beta_i$ to optimize $\sum_i \Pi_i$ with $\Pi_i$ in \eqref{eq:Pi_i}, the jointly designed coefficient and its induced coalition bid are}
 \begin{equation}
 \alpha^*  =  \frac{1}{2}, \quad
 \beta^*  =  0.
@@ -223,12 +226,11 @@ which yields the optimal bidding strategy \eqref{eq:optimal_1}. This completes t
 
 It follows from \eqref{eq:alpha_1} that
 \[ \lim_{\beta\rightarrow-1/(4a_2)} \alpha = 0, \quad  \lim_{\beta\rightarrow0} \alpha = 0.5, \quad \lim_{\beta\rightarrow +\infty} \alpha = 1. \]
-Since $\alpha\in[0,1]$, the design parameter $\beta$ translates an operator's risk level into a specific choice of $\alpha$ value. Although the specific value corresponding to the risk neutral choice may differ, this translation is applicable to not only cooperative coalition game but also noncooperative games. 
+For the coalition, the prescribed coefficient $\beta$ determines the bid through~\eqref{eq:alpha_1}. The noncooperative bidding game below similarly depends on fixed controller coefficients, which are selected at a separate coordinated design stage.
 
 The following theorem provides the solution to non-cooperative optimization in which each agent devises its strategy according to its own objective function $J_i$. 
 
-\noindent \textbf{Theorem 1:} {\it For renewable energy generation operators, their oligopoly game always has a Nash equilibrium. Specifically,
-for any choice of $\beta_i\in[-(4a_2)^{-1},+\infty)$, the optimal bidding strategy $\alpha_i^*$ to optimize objective $J_i$ in \eqref{eq:J_i} forms a Nash equilibrium corresponding to the solution to the linear algebraic equation:
+\noindent \textbf{Theorem 1:} {\it Consider the uncapped bidding game with $a_2>0$ and $x_i^o>0$. For every fixed prescribed vector with $\beta_i\in[-(4a_2)^{-1},+\infty)$, the optimal bidding strategy $\alpha_i^*$ to optimize objective $J_i$ in \eqref{eq:J_i} forms a Nash equilibrium corresponding to the solution to the linear algebraic equation:
 denoting $\boldsymbol{\alpha}^*=[\alpha_1^* \; \cdots \; \alpha_n^*]^T$,
 \begin{equation}
 A \boldsymbol{\alpha}^* = B,
@@ -239,7 +241,7 @@ where $x_r^o = \sum_{j\in\Omega} x_j^o$, $\eta_i = x_i^o/x_r^o\geq0$ with $\sum_
 (1+4a_2\beta_i)\eta_j & \mbox{if $i\not=j$}\end{array} \right., \]
 and
 \[ B=[B_i], \quad B_i = (1+4a_2\beta_i). \]
-In addition,  the total profit $\Pi=\sum_{i\in\Omega}\Pi_i$ can be maximized by choosing $\beta_j$ to maximize the following function: 
+At the coordinated design stage, the total profit $\Pi=\sum_{i\in\Omega}\Pi_i$ can be maximized by jointly selecting $\boldsymbol\beta$ to maximize the following function:
 \begin{equation} 
 g(\boldsymbol{\alpha}^*) = f(\boldsymbol{\alpha}^*) \left[ 1 - f(\boldsymbol{\alpha}^*)  \right](x_r^o)^2,
 \label{eq:G}
@@ -253,13 +255,13 @@ f(\boldsymbol{\alpha}) \stackrel{\triangle}{=} \sum_{i\in\Omega}  \alpha_i \eta_
 
 \noindent \textbf{Proof:} It follows from \eqref{eq:Pi_i},  \eqref{eq:lambda*}, and \eqref{eq:lambda} that 
 \begin{eqnarray}
-\Pi_i & = & \left[ 2a_2\left(x_{n+1}^o-\sum_{j\in\Omega} \alpha_j x_j^o 
+\Pi_i & = & \left[ 2a_2\left(x_{n+1}^o-\sum_j \alpha_j x_j^o
   \right) +a_1 \right] \alpha_i x_i^o \nonumber \\ && 
-  + \mathbb{E}\left[\left(2a_2\left(x_{n+1}-\sum_{j\in\Omega} x_j \right) + a_1\right) (x_i - \alpha_i x_i^o)\right] \nonumber \\
-  & = & 2a_2\sum_{j\in\Omega}\alpha_i(1-\alpha_j)x_j^o x_i^o +a_1 x_i^o  \nonumber \\ 
-  && + 2a_2\mathbb{E}\left[\left(x_{n+1}-\sum_{j\in\Omega} x_j \right) x_i\right] \nonumber\\
-   & = & 2a_2\sum_{j\in\Omega}\alpha_i(1-\alpha_j)x_j^o x_i^o +a_1 x_i^o  \nonumber \\ 
-  && + 2a_2\left(x_{n+1}^o x_i^o + \sigma_{iL}- \sum_{j\in\Omega} (x_j^o  x_i^o+ \sigma_{ij})\right), \label{eq:Pi_j_exp}
+  + \mathbb{E}\left[\left(2a_2\left(x_{n+1}-\sum_j x_j \right) + a_1\right) (x_i - \alpha_i x_i^o)\right] \nonumber \\
+  & = & 2a_2\sum_j\alpha_i(1-\alpha_j)x_j^o x_i^o +a_1 x_i^o  \nonumber \\
+  && + 2a_2\mathbb{E}\left[\left(x_{n+1}-\sum_j x_j \right) x_i\right] \nonumber\\
+   & = & 2a_2\sum_j\alpha_i(1-\alpha_j)x_j^o x_i^o +a_1 x_i^o  \nonumber \\
+  && + 2a_2\left(x_{n+1}^o x_i^o + \sigma_{iL}- \sum_j (x_j^o x_i^o+\sigma_{ij})\right), \label{eq:Pi_j_exp}
 \end{eqnarray}
 where the identity $\mathbb{E}[x_ix_j]=x_i^ox_j^o+\sigma_{ij}$ is used. On the other hand it follows from \eqref{eq:lambda*} and \eqref{eq:lambda} that 
 \begin{eqnarray} 
@@ -278,12 +280,20 @@ The expression of $J_i$ defined in \eqref{eq:J_i} becomes explicit in terms of $
 \frac{\partial J^2_i}{\partial \alpha_i^2} & = & - 4a_2(1+2a_2\beta_i) (x_i^o)^2 <0 \;\;\; \forall \beta_i\geq-\frac{1}{4a_2}. \hspace*{.3in} \label{eq:p2_Ji}
 \end{eqnarray}
 \end{subequations}
-Equation \eqref{eq:p2_Ji} shows that, for each fixed choice of the other players' bids, $J_i$ is strictly concave in $\alpha_i$. Hence the first-order condition characterizes the unique best response of operator $i$. Setting \eqref{eq:p1_Ji} to zero yields
+Equation \eqref{eq:p2_Ji} shows that, for each fixed choice of the other players' bids, $J_i$ is strictly concave in $\alpha_i$. Hence any feasible stationary point is the unique best response of controller $i$. Setting \eqref{eq:p1_Ji} to zero yields
 \begin{equation}
    (1+4a_2\beta_i) \sum_{j\in\Omega}(1-\alpha_j)x_j^o 
 - \alpha_i x_i^o=0, \label{eq:p1Ji=0}
 \end{equation}  
-and collecting these best-response equations for all $i$ yields matrix equation \eqref{eq:alpha_i}, whose solution gives the Nash equilibrium.
+To include boundary bids, define $q_i=\alpha_i x_i^o$, $Q=\sum_iq_i$, and $k_i=1+4a_2\beta_i\geq0$. No equilibrium can have $Q\geq x_r^o$: by~\eqref{eq:p1_Ji}, any positive bidder would benefit from reducing its bid. Thus $Q<x_r^o$ at equilibrium. A controller with $k_i>0$ then bids positively, whereas $k_i=0$ gives $q_i=0$. All equilibrium bids therefore satisfy~\eqref{eq:p1Ji=0}.
+
+Collecting these conditions yields~\eqref{eq:alpha_i}. With $K=\sum_i k_i$, summing~\eqref{eq:p1Ji=0} gives $f=K/(1+K)$ and hence the unique solution
+\begin{equation}
+\alpha_i^*(\boldsymbol\beta)
+=\frac{1+4a_2\beta_i}{1+n+4a_2\sum_j\beta_j}\eta_i^{-1}.
+\label{eq:general_nash_closed}
+\end{equation}
+The denominator is positive and the bids are nonnegative; strict own-bid concavity makes these the best responses.
 
 It follows from \eqref{eq:alpha_i} that $\alpha_i^*$ are functions of $\beta_j$. We know from  \eqref{eq:Pi_j_exp} that 
 \begin{eqnarray}
@@ -302,7 +312,7 @@ Theorem 1 extends the results in \cite{Chow2017} in several ways. First, load un
 \end{equation}
 is less as long as there is some correlation (e.g., due to weather) between renewable generation and load variation. Second, risk aware bidding strategies are considered, specifically, Theorem 1 allows us to study and compare three classes of bidding strategies: risk neutral, risk averse, and risk seeking. The latter two correspond to optimization of design parameters $\beta_j$. 
 
-Theorem 1 shows that the Nash equilibrium in terms of design parameters $\beta_j$ can be further optimized, and the optimal choices of $\beta_j$ are the main subject of this paper. To illustrate some of the specifics, let us first consider the two simple cases: $n=1$ and $n=2$. And the corresponding results are provided by the subsequent corollaries, followed by the risk neutral strategy for the general case of $n$ operators. 
+Theorem 1 defines a family of fixed-coefficient bidding equilibria. Selecting a member of this family to maximize aggregate expected profit is the coordinated controller-design problem studied below. To illustrate some of the specifics, let us first consider the two simple cases: $n=1$ and $n=2$. And the corresponding results are provided by the subsequent corollaries, followed by the risk neutral strategy for the general case of $n$ operators.
 
 \noindent  \textbf{Corollary 1:} {\it If $n=1$, the optimal coalition (C) bidding strategy becomes the same as that in Lemma 1 and with $g^C(\alpha^*)=\frac{1}{4} (x_r^o)^2$.}
 
@@ -318,14 +328,14 @@ Theorem 1 shows that the Nash equilibrium in terms of design parameters $\beta_j
 \label{eq:2p-alpha2}
 \end{equation} 
 \end{subequations}
-Furthermore, $\beta_i$ can be optimized with respect to $(\Pi_1+\Pi_2)$, and the outcomes are strategically dependent as follows. 
+The following cases compare a fixed RN benchmark with a coordinated design maximizing $(\Pi_1+\Pi_2)$ at the induced bidding equilibrium.
 \begin{itemize}
-\item Risk neutral (RN) optimal bidding strategy is $\beta_i^{NR}=0$ for $i=1,2$; and the corresponding optimized profit is:
+\item The risk neutral (RN) benchmark fixes $\beta_i^{RN}=0$ for $i=1,2$; its induced equilibrium gives:
 \begin{equation}
 g^{RN}(\alpha_1^*, \alpha_2^*)  =  \frac{2}{9}(x_r^o)^2. 
 \label{eq:2p-neutral}
 \end{equation} 
-\item Risk seeking (RS) optimal bidding strategy  and the corresponding enhanced optimal profit are:
+\item The risk seeking (RS) aggregate-profit-maximizing coefficient condition and the induced profit are:
 \begin{subequations}
 \label{eq:2p-RS}
 \begin{equation}
@@ -339,31 +349,7 @@ g^{RS}(\alpha_1^*,\alpha_2^*) = \frac{1}{4}(x_r^o)^2 = g^C(\alpha^*)   > g^{RN}(
 \end{subequations}
 \end{itemize} }
 
- \noindent \textbf{Proof:} It follows from \eqref{eq:alpha_i} that 
- \begin{eqnarray*}
-  && \begin{bmatrix} 2(1+2a_2 \beta_1)\eta_1 & (1+4a_2\beta_1)\eta_2  \\ (1+4a_2\beta_2)\eta_1  & 2(1+2a_2 \beta_2)\eta_2  \end{bmatrix}   
-  \begin{bmatrix}  \alpha_1^* \\ \alpha_2^* \end{bmatrix}  \\
-  & = &  \begin{bmatrix}  (1+4a_2\beta_1) \\ (1+4a_2\beta_2)\end{bmatrix},
-      \end{eqnarray*}
- whose solution is given by \eqref{eq:2p-alpha}.
-
-It follows from \eqref{eq:2p-alpha} that, when $\beta_i=0$,
-\[ \alpha_1^* = \frac{1}{3}\eta_1^{-1}, \quad \alpha_2^* = \frac{1}{3}\eta_2^{-1}. \]
-Substituting the above solutions into \eqref{eq:F} and \eqref{eq:G} yields \eqref{eq:2p-neutral}.
-
-To further optimize the risk aware bidding strategy \eqref{eq:2p-alpha}, we rewrite the solution as
-\[ \alpha_1^* = \theta_1 \eta_1^{-1}, \quad \alpha_2^* = \theta_2\eta_2^{-1}, \]
-where 
-\begin{equation}
-    \theta_i = \frac{(1+4a_2\beta_i)}{3+4a_2(\beta_1+\beta_2)}. \label{eq:theta}
-\end{equation} 
-It follows from \eqref{eq:F} and \eqref{eq:G} that 
-\begin{eqnarray*}
-    g(\alpha_1^*, \alpha_2^*) & = & (\theta_1+\theta_2) [1- (\theta_1+\theta_2)] (x_r^o)^2, 
-\end{eqnarray*}
-which is maximized to be that in \eqref{eq:2p-RS-g} if
-\[ \theta_1+\theta_2=\frac{1}{2}. \]
-Invoking \eqref{eq:theta} and solving for the optimal values of $\beta_i$ yields $\beta_i^{RS}$ in \eqref{eq:2p-RS-beta}. This completes the proof. \hfill $\Box$
+\noindent\textbf{Proof:} Setting $n=2$ in~\eqref{eq:general_nash_closed} gives~\eqref{eq:2p-alpha}. With $\beta_1=\beta_2=0$, $f=2/3$, giving~\eqref{eq:2p-neutral}. Since $g=f(1-f)(x_r^o)^2$ is maximized at $f=1/2$, the general solution yields~\eqref{eq:2p-RS}.\hfill$\Box$
 
 \noindent  \textbf{Corollary 3:} {\it In the general case of $n>2$, the optimal risk neutral bidding strategy is
 \begin{equation}
@@ -372,32 +358,20 @@ Invoking \eqref{eq:theta} and solving for the optimal values of $\beta_i$ yields
 and the total profit $\Pi$ in \eqref{eq:Pi_exp} is optimized with
 \[ g^{RN}(\boldsymbol{\alpha}^*)=f(1-f)(x_r^o)^2=\frac{n}{(n+1)^2} (x_r^o)^2. \]}
 
-\noindent \textbf{Proof:} When $\beta_i=0$, the matrix equation \eqref{eq:alpha_i} reduces to 
-\[ \left[\mbox{diag}\{\eta_1,\cdots,\eta_n\} + \one \boldsymbol{\eta}^T \right] \boldsymbol{\alpha}=\one, \]
-where $\boldsymbol{\eta}=[\eta_1 \; \cdots \; \eta_n]^T$ and $\one=[1 \; \cdots \; 1]^T$. It is simple to verify that the solution is given by \eqref{eq:alpha_i_0}. Substituting \eqref{eq:alpha_i_0} into \eqref{eq:F} yields 
+\noindent\textbf{Proof:} Equation~\eqref{eq:general_nash_closed} with all $\beta_i=0$ gives~\eqref{eq:alpha_i_0}. Summation yields $f=n/(n+1)$, and substitution into~\eqref{eq:G} gives the stated profit.\hfill$\Box$
+
+\section{Coordinated Controller Design for Profit-Efficient Bidding}
+
+Let $\boldsymbol\alpha^*(\boldsymbol\beta)$ denote the Nash equilibrium of the fixed-coefficient bidding game. The coordinated design problem is
 \begin{equation}
-f(\boldsymbol{\alpha}^*)=\sum_{i\in\Omega}\alpha_i^*\eta_i=\frac{n}{n+1}, \label{eq:f_RN_0}
+\max_{\boldsymbol\beta\in\mathcal B}
+\sum_{i\in\Omega}\Pi_i\bigl(\boldsymbol\alpha^*(\boldsymbol\beta)\bigr),
+\qquad \mathcal B=[-1/(4a_2),\infty)^n.
+\label{eq:controller_design}
 \end{equation}
-and the corresponding total profit follows from \eqref{eq:G}.  \hfill $\Box$
+Here the bidding model has no upper bid bound. The optimization in~\eqref{eq:controller_design} selects controller coefficients jointly; it is not a game in which each owner independently optimizes $\beta_i$. The following result characterizes designs attaining maximum aggregate expected profit, conditional on implementing the selected controllers.
 
-The significant outcome of Theorem 1 and its corollaries is that, while the total profit under noncooperative risk neutral Nash equilibrium is typically worse than that of cooperative coalition solution, risk aware Nash strategies
-could be employed to recover the same profit as the cooperative coalition's. Indeed, Corollary 2 provides an infinite number of combinations in risk levels as long as the aggregate risk level of $(\beta_1+\beta_2)$ assumes an optimal risk seeking value. In the next section, this result is extended to a centralized solution to the general case of $n$ market participants. 
-
-\section{Risk Aware Nash Solutions with Pareto Payoff}
-
-The results in Section~III establish that, for any fixed choice of the
-risk parameters $\{\beta_i\}_{i=1}^n$, the noncooperative bidding game
-among renewable generators admits a unique Nash equilibrium in terms of
-the bidding coefficients $\{\alpha_i^\ast\}_{i=1}^n$.
-However, the resulting Nash equilibrium is generally not Pareto optimal
-with respect to the total expected profit, and there are an infinite number of risk level choices that yield the same Pareto solution. In this section, we show that the Nash equilibrium can be systematically
-shifted to a Pareto-optimal operating point by appropriately selecting
-the risk parameters $\{\beta_i\}$.
-Importantly, this Pareto enhancement does not require coordination on
-the bidding variables $\alpha_i$ themselves, but only on the aggregate
-risk exposure across agents.
-
-\noindent\textbf{Theorem 2:} {\it There exists a family of risk levels in  $\boldsymbol{\beta}=[\beta_1 \; \cdots \; \beta_n]^T$ such that the corresponding Nash equilibrium  $\boldsymbol{\alpha}^*=[\alpha_1^* \; \cdots \; \alpha_n^*]^T$ satisfying \eqref{eq:alpha_i} achieves the maximum aggregate profit:
+\noindent\textbf{Theorem 2:} {\it In the uncapped model, there exists a family of prescribed controller coefficients $\boldsymbol{\beta}=[\beta_1 \; \cdots \; \beta_n]^T$ such that the corresponding Nash equilibrium  $\boldsymbol{\alpha}^*=[\alpha_1^* \; \cdots \; \alpha_n^*]^T$ satisfying \eqref{eq:alpha_i} achieves the maximum aggregate profit:
 \[
 g^{RS}(\boldsymbol{\alpha}^*)  = \frac{1}{4}(x_r^o)^2 \stackrel{\triangle}{=} g^{\max},
 \]
@@ -406,7 +380,7 @@ Specifically, any admissible set of risk levels satisfying
 \begin{equation}
 f(\boldsymbol{\alpha}^*(\boldsymbol{\beta})) = \frac{1}{2}, \label{eq:pareto_condition}
 \end{equation}
-will result in a Pareto-optimal Nash equilibrium. Furthermore, the Pareto-optimal total profit is reached if and only if the aggregate risk satisfies the following condition:
+yields a Nash equilibrium of the fixed controller objectives that is Pareto efficient in expected profits. The maximum aggregate expected profit is attained if and only if the prescribed coefficients satisfy
 \begin{equation}
 \sum_{i\in\Omega} \beta_i = \frac{1-n}{4a_2},
 \label{eq:beta_sum_condition}
@@ -416,55 +390,21 @@ and the corresponding bidding strategy is
     \alpha_i^* = \frac{1}{2}(1+4a_2\beta_i)\eta_i^{-1}. \label{eq:alpha_optimal}
 \end{equation}}
 
-\noindent\textbf{Proof:} Define the mapping $\Phi: \mathbb{R}^n \to \mathbb{R}$ as \[ \Phi(\boldsymbol{\beta}) = f(\boldsymbol{\alpha}^*(\boldsymbol{\beta})), \] 
-where $\boldsymbol{\alpha}^*(\boldsymbol{\beta})$ denotes the Nash equilibrium solution of \eqref{eq:alpha_i}. It follows from \eqref{eq:alpha_i} that $\Phi(\cdot)$ is continuous. To establish existence, we show that $\Phi(\cdot)$ attains values below and above $\frac{1}{2}$:
-\begin{itemize}
-\item It follows from \eqref{eq:p1Ji=0} that, as $\beta_i \to -\frac{1}{4a_2}$ for all $i$, $\alpha_i^* \to 0$ and hence $\Phi(\boldsymbol{\beta}) \to 0 < \frac{1}{2}$. 
-\item It follows from Corollary~3 that, when $\beta_i = 0$ for all $i$, $\alpha_i^* = \tfrac{1}{n+1}\eta_i^{-1}$ and consequently $\Phi(\boldsymbol{0}) = f(\boldsymbol{\alpha}^*(\boldsymbol{0})) = \tfrac{n}{n+1} > \frac{1}{2}$ for $n \geq 2$.
-\end{itemize}
-Therefore, by continuity of $\Phi(\cdot)$ and the intermediate value theorem \cite{rudin}, there exists $\boldsymbol{\beta}^*$ such that $\Phi(\boldsymbol{\beta}^*) = \frac{1}{2}$, achieving $g = g^{\max}$. 
-
-Dividing both sides of \eqref{eq:p1Ji=0} by $x_r^o$ and using $\eta_i = x_i^o/x_r^o$ and $\sum_j(1-\alpha_j^*)x_j^o/x_r^o = 1 - \sum_j\alpha_j^*\eta_j = 1-f(\boldsymbol{\alpha}^*)$, it follows that, at the Nash equilibrium,
+\noindent\textbf{Proof:} From~\eqref{eq:general_nash_closed},
 \begin{equation}
-    \alpha_i^* \eta_i
-= (1+4a_2\beta_i)\bigl(1-f(\boldsymbol{\alpha}^\ast)\bigr). \label{eq:alpha_equation}
+f(\boldsymbol\alpha^*)
+=\frac{n+4a_2\sum_i\beta_i}{1+n+4a_2\sum_i\beta_i}.
+\label{eq:design_aggregate}
 \end{equation}
-Summing both sides over all $i$ yields
-\[ f(\boldsymbol{\alpha}^\ast)
-= \bigl(1-f(\boldsymbol{\alpha}^\ast)\bigr)
-\left(n + 4a_2\sum_{i\in\Omega} \beta_i\right),
-\]
-which renders the following result:
-\[
-f(\boldsymbol{\alpha}^\ast)
-= \frac{n + 4a_2\sum_{i\in\Omega} \beta_i}{1 + n + 4a_2\sum_{i\in\Omega} \beta_i}.
-\]
-Therefore, we know that the Pareto optimality condition \eqref{eq:pareto_condition} holds if and
-only if
-\[
-n + 4a_2\sum_{i\in\Omega} \beta_i = 1,
-\]
-which yields \eqref{eq:beta_sum_condition}. Substituting the results in \eqref{eq:beta_sum_condition} and \eqref{eq:pareto_condition} into \eqref{eq:alpha_equation} yields the bidding strategy \eqref{eq:alpha_optimal}.
-\hfill $\Box$
+The bid-dependent total-profit term $g=f(1-f)(x_r^o)^2$ is maximized precisely at $f=1/2$, which is equivalent to~\eqref{eq:beta_sum_condition}. This condition is attainable: the constant vector defined by $\beta_i=(1-n)/(4a_2n)$ belongs to $\mathcal B$. Substitution into~\eqref{eq:general_nash_closed} under the sum condition gives~\eqref{eq:alpha_optimal}.\hfill$\Box$
 
-The Pareto-optimal condition \eqref{eq:pareto_condition} is a constraint only on the aggregate risk level; therefore, infinitely many heterogeneous risk allocations $\{\beta_i\}$ yield Pareto-optimal Nash equilibria.
-If there is only one renewable generator ($n=1$ or one coalition of all the operators), condition \eqref{eq:beta_sum_condition} reduces to $\beta_1 = 0$,
-which confirms, as in Corollary~1, that, in the absence of competition, risk seeking or risk averse behavior provides no strategic advantage. In the case of duopoly, condition \eqref{eq:beta_sum_condition} reduces to \eqref{eq:2p-RS-beta} in Corollary 2. As the number of renewable operators increases, the aggregate risk level $\sum_{i\in\Omega} \beta_i$ decreases monotonically. In the limit of $n\to\infty$, it is better to restate condition \eqref{eq:beta_sum_condition} on a per-agent basis, that is, 
-\[
-\frac{1}{n}\sum_{i\in\Omega} \beta_i
-= \frac{1-n}{4a_2 n}
-= -\frac{1}{4a_2} + \frac{1}{4a_2 n} \to 
- -\frac{1}{4a_2} \mbox{ as } n\to\infty, 
-\]
-which coincides with the lower bound on $\beta_i$ as stated in Theorem 1. This means that, as the number of renewable operators grows, Pareto optimality forces the \emph{average} risk level to approach its feasibility lower bound from above. In the large-population limit, aggregate optimal performance is therefore achieved when the collective risk level reaches its lower bound. This reveals an emergent mean-field structure: rather than requiring coordination of individual bidding strategies, Pareto efficiency is recovered through convergence of the aggregate risk profile to its lower limit. This connection is reminiscent of mean-field game theory~\cite{huang2006large}, 
-%~\cite{huang2006large,lasry2007mean}
-in which the strategic interactions of a large population of agents can often be characterized through a single aggregate quantity. Here the average risk level of $\frac{1}{n}\sum_i\beta_i$ plays the role of the mean-field state, and Pareto efficiency emerges as this quantity converges to a well-defined limit, without requiring direct coordination of individual bids. % Exploring this connection formally—including rigorous mean-field limits and equilibrium uniqueness—is a promising direction for future work.
+Condition~\eqref{eq:beta_sum_condition} admits heterogeneous coordinated designs. For $n=1$ it reduces to $\beta_1=0$, recovering the coalition benchmark.
 
-All the renewable entities may adopt the same risk level as
+A symmetric coordinated design assigns the same coefficient to every controller:
 \begin{equation}
     \beta_i^*=\beta_0, \;\;\; \forall i\in\Omega. \label{eq:final_beta}
 \end{equation}   
-Note that all the entities employing a common risk seeking level is a fair policy enforceable by the utility and is also supported by the Nash equilibria formed by all the operators. In this special case, Theorem 2 reduces to the following corollary. 
+This equal risk seeking (ERS) choice is a prescribed controller configuration. Its implementation is assumed as in Section~II; the fixed-coefficient Nash result does not establish an incentive to retain this configuration. In this special case, Theorem 2 reduces to the following corollary.
 It should be noted that, when implementing equal risk seeking strategy \eqref{eq:alpha_optimal_simplified} or \eqref{eq:alpha_optimal}, the renewable operators do not need to know the value of parameter $a_2$ even though an explicit calculation of the equal risk level in \eqref{eq:final_beta}  would require the value of $a_2$.
 
 \noindent \textbf{Corollary 4:} {\it The equal risk seeking (ERS) bidding strategy (under \eqref{eq:final_beta}) is given by
@@ -481,68 +421,80 @@ Substituting the above into~\eqref{eq:alpha_optimal} yields strategy \eqref{eq:a
 $f(\boldsymbol{\alpha}^*)=\tfrac{1}{2n}\sum_i 1=\tfrac{1}{2}$, and
 $g^{ERS}(\boldsymbol{\alpha}^*)=\frac{1}{4}(x_r^o)^2=g^{\max}$. \hfill $\Box$
 
-Corollary 4 also implies that every operator prefers the Pareto-optimal (risk seeking) Nash equilibrium to the risk neutral Nash equilibrium. To see this conclusion, note from~\eqref{eq:Pi_j_exp} that operator~$i$'s mean profit is given by 
-\[ \Pi_i = 2a_2\,\alpha_i(1-f)(x_r^o)^2\eta_i + C_i, \]
-where $C_i$ is the sum of those terms that are in \eqref{eq:Pi_j_exp} and independent of bidding strategies used. It follows from Corollaries 4 and 3 that, under the ERS strategy, 
-\[ \alpha_i^*(1-f^{ERS}) = \tfrac{1}{2n}\eta_i^{-1}\cdot\tfrac{1}{2} = \tfrac{1}{4n}\eta_i^{-1}; \] 
-and under the RN strategy, 
-\[ \alpha_i^{RN}(1-f^{RN}) = \tfrac{1}{n+1}\eta_i^{-1}\cdot\tfrac{1}{n+1} = \tfrac{1}{(n+1)^2}\eta_i^{-1}.\] 
-Hence, we have
+In the uncapped comparison, each operator's expected profit is $\Pi_i=C_i+2a_2\alpha_i(1-f)(x_r^o)^2\eta_i$, with $C_i$ independent of bids. Substituting the RN and ERS designs gives
 \[
-\Pi_i^{RS} - \Pi_i^{RN} = \frac{a_2(n-1)^2}{2n(n+1)^2} (x_r^o)^2 > 0 \quad \forall\, n \geq 2.
+\Pi_i^{ERS}-\Pi_i^{RN}
+=\frac{a_2(n-1)^2(x_r^o)^2}{2n(n+1)^2}>0,\quad n\geq2.
 \]
-All operators gain equally from adopting the risk seeking strategy and moving from RN Nash to the Pareto-optimal equilibrium, confirming that the proposed bidding mechanism is individually rational. 
+This common absolute profit gain compares two prescribed configurations. It does not establish participation under fixed owner preferences or stability against unilateral coefficient changes.
 
-In what follows, the Pareto-optimal bidding strategy is cast into a distributed optimization algorithm so that {\it minimum} information sharing is needed and privacy is protected.   
+\subsection{Unilateral Changes of the Controller Coefficient}
+\label{sec:beta_deviation}
+The preceding results hold with the designed coefficients fixed during bidding. To test their strategic stability, consider instead a two-stage game: each operator selects $\beta_i$ to maximize its own expected profit, and the bidding Nash equilibrium is then recomputed with the selected coefficients. This is distinct from the coordinated controller design considered above.
+
+\noindent\textbf{Proposition 1:} \textit{Suppose $n\geq2$, $a_2>0$, $x_i^o>0$, $\alpha_i\geq0$ with no upper bid bound, and $\beta_i\geq-1/(4a_2)$. Equal risk seeking is not a Nash equilibrium of this coefficient-selection game.}
+
+\noindent\textbf{Proof:} Write $X=x_r^o$, $q_i=\alpha_i x_i^o$, $k_i=1+4a_2\beta_i$, $K=\sum_jk_j$, and $K_{-i}=K-k_i$. Let $\widehat\Pi_i(\boldsymbol\beta)=\Pi_i(\boldsymbol\alpha^*(\boldsymbol\beta))$. The fixed-coefficient bidding equilibrium satisfies
+\begin{equation}
+q_i^*=\frac{Xk_i}{1+K},\qquad
+\widehat\Pi_i(\boldsymbol\beta)=C_i+\frac{2a_2X^2k_i}{(1+K)^2},
+\end{equation}
+where $C_i$ is independent of bids and coefficients. Holding rivals' coefficients fixed gives
+\begin{equation}
+\frac{\partial\widehat\Pi_i}{\partial\beta_i}
+=\frac{8a_2^2X^2(1+K_{-i}-k_i)}{(1+K)^3}.
+\end{equation}
+At the equal risk seeking design, $k_i=1/n$ and $K=1$, so
+\begin{equation}
+\left.\frac{\partial\widehat\Pi_i}{\partial\beta_i}\right|_{\rm ERS}
+=2a_2^2X^2\frac{n-1}{n}>0.
+\end{equation}
+A small upward deviation is therefore profitable.\hfill$\Box$
+
+For Scenario~1, changing only $\beta_1$ from $-5/3$ to $0$ gives recomputed bids $(0.9375,0.375,0.46875)$ and increases operator~1's expected profit by $1{,}031.25$~\$/hr; all three bids remain in $[0,1]$.
+This does not contradict Nash optimality of bids for fixed coefficients: the deviation changes the controller and induces new rival bids. The controller implementation assumed in Section~II is therefore substantive; the fixed-coefficient results do not establish incentive-compatible coefficient selection.
 
 \section{Distributed Risk Aware Solutions}
+\label{sec:private_consensus}
 
-It follows from \eqref{eq:Pi_exp}, Theorem 1, Theorem 2, and Corollary~4 that the Pareto-optimal total profit 
-\begin{eqnarray*}
-    \Pi^{\max}  
-     & = & 2a_2\left[  x_{n+1}^o - \frac{3}{4} x_r^o \right]x_r^o   +a_1 x_r^o  \nonumber \\ && 
-     + 2a_2 \left[ \sum_{i\in\Omega} \sigma_{iL} -\sum_{i\in\Omega}\sum_{j\in\Omega}\sigma_{ij}\right],
-\end{eqnarray*}
-is reached provided that the renewable operators use bidding strategy \eqref{eq:alpha_optimal_simplified}.
-Direct implementation of strategy \eqref{eq:alpha_optimal_simplified} by the $i$th operator requires the following information:
-\begin{itemize}
-    \item The total of renewable operators participating in the markets, $n$, which could be either fixed or changing; 
-    \item The percentage of renewable generation contributed by the $i$th operator with respect to the total renewable generation, $\eta_i$.
-\end{itemize}
-In what follows, $\eta_i$ is determined distributively and iteratively, based on the following lemma \cite{qu}. 
+Uncapped ERS requires only $n$ and $X=x_r^o$: each operator computes $\eta_i=x_i^o/X$ locally. Ordinary consensus initialized with $\psi_i(0)=x_i^o$ is not private. A neighbor sees the forecast immediately; even if initialization is hidden, a utility hub with $\psi_{n+1}(0)=0$ observes $\psi_i(1)=(1-h)x_i^o$ on a star and can reconstruct it. We therefore adapt the finite-field masking construction of~\cite{Gupta2020PrivateConsensus} before averaging.
 
-\noindent \textbf{Lemma 2:} {\it Consider $n$ agents and their average consensus protocol:
-\begin{eqnarray*}
-z_i(k+1) & = & z_i(k) + \epsilon_i \sum_{j \in \mathcal{N}_i} [z_j(k) - z_i(k)], \label{eq:consensus} 
-\end{eqnarray*}
-where $\mathcal{N}_i$ denotes the set of neighbors of the $i$th agent, and $\epsilon_i > 0$ is the consensus gain satisfying $\epsilon_i < \tfrac{1}{\max_i |\mathcal{N}_i|}$. Then, as long as the communication topology is connected, the average consensus is reached in the sense that  
-\begin{eqnarray*}
-\lim_{k \to \infty} z_i(k) & = & \frac{1}{m}\sum_{j=1}^m z_j(0), \quad \forall i.
-\end{eqnarray*}
-}
+\textit{Model and permitted disclosure.} The roster of $n\geq2$ operators and both graph topologies are public and fixed during each synchronous, lossless run. Forecasts use a public resolution $\Delta>0$, with $x_i^o=\Delta s_i$, $s_i\in\{1,\ldots,B\}$; choose a public prime $p>nB$. A private operator-to-operator graph $G_m$ carries fresh independent masks, and a separate connected undirected graph $G_c$ carries consensus among the operators and utility ($m=n+1$ nodes). The utility may relay encrypted peer traffic but must not know its plaintext. A utility-only star suffices for $G_c$, but not for private mask exchange against that utility. The public outputs are $X,n$ and submitted quantities $q_i=\alpha_i x_i^o=X/(2n)$; $\eta_i$ and $\alpha_i$ remain local.
+
+Orient the edges of $G_m$ arbitrarily and let $D$ be its incidence matrix. One endpoint privately shares a uniform $r_e\in\mathbb F_p$ with the other, independently of forecasts and other masks; define
+\begin{equation}
+ y_i=\left(s_i+\sum_e D_{ie}r_e\right)\bmod p,
+ \qquad y_i\in\{0,\ldots,p-1\}. \label{eq:masked_input}
+\end{equation}
+For the Laplacian $L_c$ of $G_c$, use a \emph{common} gain $0<h<1/d_{\max}$ and $W=I-hL_c$. Then $W$ is symmetric and doubly stochastic~\cite{qu}; let $\rho=\max_{\ell\geq2}|1-h\lambda_\ell(L_c)|<1$.
 
 \begin{algorithm}[hbt]
-\caption{Distributed Risk-Aware Nash Optimization}
+\caption{Masked Consensus for the Uncapped ERS Design}
 \label{alg:dist_risk_aware}
 \begin{algorithmic}[1]
-\Require $c>0$;\; $\xi_{n+1}(0)=1,\;\psi_{n+1}(0)=0$;\; $\xi_i(0)=0,\;\psi_i(0)=x_i^o$
-\Ensure $\alpha_i^*$ for each operator $i$
-\State Run average consensus~\eqref{eq:xi}--\eqref{eq:psi} until \mbox{$|\xi_i(k)-\xi_i(k-1)|\leq c$}:
+\Require Public $n,a_2,\Delta,B,p,G_m,G_c,h$; local $s_i$
+\State Exchange fresh masks privately and form $y_i$ by~\eqref{eq:masked_input}.
+\State Initialize $\psi_i(0)=y_i$ and $\psi_{n+1}(0)=0$.
+\State Run real-valued average consensus for a public $k_*$ satisfying the bound in step~4:
+\end{algorithmic}
 \begin{equation}
-    \xi_i(k+1) = \xi_i(k) + \epsilon_i \sum_{j \in \mathcal{N}_i} [\xi_j(k) - \xi_i(k)], \label{eq:xi}
+ \psi_i(k+1)=\psi_i(k)+h\sum_{j\in\mathcal N_i}
+ [\psi_j(k)-\psi_i(k)]. \label{eq:psi}
 \end{equation}
-\begin{equation}
-\psi_i(k+1) = \psi_i(k) + \epsilon_i \sum_{j \in \mathcal{N}_i} [\psi_j(k) - \psi_i(k)]. \label{eq:psi}
-\end{equation}
-\State Compute individually $\hat{n}_i = 1/\xi_i - 1$, $\eta_i = x_i^o\xi_i/\psi_i$, and $\beta_i' \triangleq a_2\beta_i = (1-\hat{n}_i)/(4\hat{n}_i)$
-\State Choose $\alpha_i^* = 1/(2\hat{n}_i\eta_i)$.
+\begin{algorithmic}[1]
+\setcounter{ALG@line}{3}
+\State Require $k_*$ so $m^{3/2}(p-1)\rho^{k_*}+e_{k_*}<1/2$, where $e_{k_*}$ bounds arithmetic error in $m\psi_i(k_*)$.
+\State Recover $S=\operatorname{round}(m\psi_i(k_*))\bmod p$ and $X=\Delta S$.
+\State Locally set $\beta_i=(1-n)/(4a_2n)$, $\eta_i=x_i^o/X$, $\alpha_i^*=1/(2n\eta_i)$; submit $q_i=X/(2n)$ directly, with a public precision rule.
 \end{algorithmic}
 \end{algorithm}
 
-The proposed distributed algorithm is given by Algorithm~\ref{alg:dist_risk_aware}. Since every participating renewable operator must communicate with the utility, the communication topology among all the participating operators and the utility is guaranteed to be connected. It follows from Lemma~2, initial conditions $\xi_i(0)$ and $\psi_i(0)$, and protocols \eqref{eq:xi} and \eqref{eq:psi} that $\xi_i(k)\rightarrow \frac{1}{n+1}$ and $\psi_i(k)\rightarrow \frac{1}{n+1}x_r^o$. Therefore, the estimate of $n$, $\eta_i$ and $\beta_i'$ can be computed distributively. There is no explicit sharing of private information, and required information is generated through diffusion of the consensus protocols \eqref{eq:xi} and \eqref{eq:psi}.
+\noindent\textbf{Proposition 2 (correctness and scoped privacy).}
+\textit{Algorithm~\ref{alg:dist_risk_aware} recovers the exact encoded total and ERS target bids before output rounding. Against a fixed honest-but-curious coalition of the utility and operators $C$, its transcript reveals no information beyond colluders' inputs and the total if the honest induced graph $G_m[\Omega\setminus C]$ is connected. This assumes private authenticated mask channels and independent uniform masks, with all parties following the protocol.}
 
-Algorithm~1 operates over an \emph{undirected, static} communication graph in which every renewable operator maintains a direct link with the utility, forming a star topology $K_{1,n}$. This structure guarantees connectivity for any $n \geq 1$: since every operator communicates with the utility, the graph is connected by construction and requires no additional peer-to-peer links. 
-%The analysis assumes synchronous updates and lossless communication links. Robustness to asynchronous operation, link failures, and dynamic operator participation are important extensions beyond the scope of this paper and are noted as future work.
+\noindent\textbf{Proof:} Masks cancel modulo $p$, so $(\sum_i y_i)\bmod p=\sum_i s_i<p$. With $\bar y=\sum_i y_i/m$, the consensus error obeys $|m\psi_i(k)-\sum_jy_j|\leq m^{3/2}(p-1)\rho^k$ in exact arithmetic. The stopping bound therefore certifies rounding; small successive increments alone do not. Conditional on colluders' inputs and incident masks, the honest-edge incidence image over $\mathbb F_p$ is the zero-sum subspace when the honest graph is connected. Thus masked inputs have identical distributions for any two admissible forecast vectors agreeing on colluders' inputs and the honest total. All consensus messages and prescribed bids are functions of these masked inputs and permitted outputs.\hfill$\Box$
+
+This is information-theoretic privacy with ideal private channels; encryption and pseudorandom masks give computational privacy under their security assumptions. It does not hide deductions from the released total (including a sole remaining forecast), protect against malicious messages or dropouts, or cover subsequent metering and settlement data. Fresh masks are required each interval. Publishing $\alpha_i$ together with $q_i$ would reveal $x_i^o$. The guarantee covers uncapped ERS, not saturation, extrema, or subgroup disclosures. Computation also does not enforce the controller adherence assumed in Section~II. Exactness is for the declared forecast grid; nearest rounding of real forecasts gives $|\widetilde X-X|\leq n\Delta/2$ and $|\widetilde q_i-q_i|\leq\Delta/4$, provided rounding neither clips forecasts nor makes them zero. Additional market bid rounding is outside these exactness guarantees.
 
 \section{Illustrative Example \label{sec:examples}}
 
@@ -578,7 +530,7 @@ Real-time realizations are $x_i \sim \mathcal{N}(x_i^o,\sigma_i^2)$, with standa
 
 \subsection{Analytical and Centralized Nash Solutions}
 
-Renewable operators have the following choices: 
+We compare the following prescribed bidding configurations:
 \begin{itemize}
     \item Coalition bidding strategy \eqref{eq:alpha_1} (if all agree to join); 
     \item Risk seeking Pareto-optimal Nash strategy \eqref{eq:alpha_i}, which has many risk aware choices for $\beta_i$. 
@@ -587,11 +539,11 @@ Renewable operators have the following choices:
 It follows from Lemma~1 that, if all operators cooperate and 
 adopt the coalition strategy, their bids are $\alpha^*=\frac{1}{2}$ (with $\beta^*=0$), which yields $f(\boldsymbol{\alpha}^*)=\frac{1}{2}$, $g^C(\boldsymbol{\alpha}^*) = 22{,}500$\,MW$^2$, and the total profit of $\Pi^C = 10{,}800$\,\$/hr. This serves as the upper bound for the collective profit.
 
-It follows from \eqref{eq:alpha_i_0} with $\beta_i=0$ that the risk neutral Nash bidding strategies are $\boldsymbol{\alpha}^* =(\alpha_1^*, \alpha_2^*, \alpha_3^*) = (0.625, 0.75, 0.9375)$, which results in $f(\boldsymbol{\alpha}^*)=0.75$, $g(\boldsymbol{\alpha}^*)=16{,}875$\,MW$^2$, and the total profit $\Pi^{RN} = 9{,}675$\,\$/hr. In this case, the collective profit is $10.42\%$ below that under the coalition solution. On the other hand risk seeking Pareto-optimal Nash bidding strategies allow different choices of risk seeking levels $\beta_i$ by different operators as long as constraint \eqref{eq:beta_sum_condition} is satisfied. Admissible choices of $\beta_i$ form the region shown in Figure~\ref{fig:beta_rs}. Should all renewable operators agree to choose the same risk level, we know from \eqref{eq:beta_sum_condition} that $\beta_i^* = -\frac{5}{3} $ (equivalently $\beta_i^{\prime *} = a_2\beta_i^* = -\frac{1}{6}$), which yields $\boldsymbol{\alpha}^*=(0.4167, 0.5000, 0.6250)$, resulting in $f(\boldsymbol{\alpha}^*)=0.5$, $g(\boldsymbol{\alpha}^*)=22{,}500$\,MW$^2$, and the total profit $\Pi^{ERS} = 10{,}800$\,\$/hr. This risk seeking Pareto-optimal Nash solution fully recovers the total profit under the coalition strategy.
+It follows from \eqref{eq:alpha_i_0} with $\beta_i=0$ that the risk neutral Nash bidding strategies are $\boldsymbol{\alpha}^* =(\alpha_1^*, \alpha_2^*, \alpha_3^*) = (0.625, 0.75, 0.9375)$, which results in $f(\boldsymbol{\alpha}^*)=0.75$, $g(\boldsymbol{\alpha}^*)=16{,}875$\,MW$^2$, and the total profit $\Pi^{RN} = 9{,}675$\,\$/hr. In this case, the collective profit is $10.42\%$ below that under the coalition solution. On the other hand risk seeking Pareto-optimal Nash bidding strategies allow coordinated coefficient assignments that differ across controllers as long as constraint \eqref{eq:beta_sum_condition} is satisfied. Admissible choices of $\beta_i$ form the region shown in Figure~\ref{fig:beta_rs}. For the coordinated design assigning the same coefficient to every controller, we know from \eqref{eq:beta_sum_condition} that $\beta_i^* = -\frac{5}{3} $ (equivalently $\beta_i^{\prime *} = a_2\beta_i^* = -\frac{1}{6}$), which yields $\boldsymbol{\alpha}^*=(0.4167, 0.5000, 0.6250)$, resulting in $f(\boldsymbol{\alpha}^*)=0.5$, $g(\boldsymbol{\alpha}^*)=22{,}500$\,MW$^2$, and the total profit $\Pi^{ERS} = 10{,}800$\,\$/hr. This risk seeking Pareto-optimal Nash solution fully recovers the total profit under the coalition strategy.
  
 \begin{table}[hbt!]
 \centering
-\caption{Bidding Strategy Performance: Scenario 1 \\($n=3$, $x^o=(120,100,80)$\,MW, with ERS yielding $|\Omega_{\rm ERS}|=0$)}
+\caption{Bidding Strategy Performance: Scenario 1 \\($n=3$, $x^o=(120,100,80)$\,MW, with ERS yielding no overbidding)}
 \label{tab:comparison}
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{|l|c|c|c|c|}
@@ -610,22 +562,17 @@ Algorithm~1 & $(0.42,\;0.50,\;0.63)$ & $0.50$ & $22{,}500$ & $10{,}800$ \\
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{figures/algorithm1_comp_profit_perunit_s1.png}
-    \caption{Per-unit profit $\Pi_i/x_i^o$ (\$/hr/MW) for all four strategies)}
+    \caption{Per-unit profit $\Pi_i/x_i^o$ (\$/hr/MW) for all four strategies.}
     \label{fig:algo1_comp_profit_perunit_s1}
 \end{figure}
 
-Table~\ref{tab:comparison}
-%and Figure~\ref{fig:algo1_comp_alpha}--\ref{fig:algo1_comp_profit}
-summarizes the performance of all four strategies. The distributed Algorithm~1 exactly reproduces the centralized Pareto-optimal result: each operator independently estimates $\hat{n}_i=3$ and $\hat{x}_r^o=300$\,MW from the consensus protocols and submits its own bid $\alpha_i^*$, yet the group achieves the same collective profit as the centralized solution without any operator revealing private information. Table~\ref{tab:comparison} also
-% or Figure~\ref{fig:algo1_comp_alpha}
-shows that RN Nash bids are noticeably higher for all operators, with operator~3 of the smallest capacity ($\eta_3=0.267$) bidding the highest and closest to the upper bound (of $\alpha_i^*\le1$). In essence, RS strategies push all bids down toward the coalition values. 
+Table~\ref{tab:comparison} reports the centralized ERS values also recovered by Algorithm~\ref{alg:dist_risk_aware}: with public $n=3$ and decoded $X=300$\,MW, each operator submits $q_i=50$\,MW and keeps its bidding fraction local. The resulting aggregate profit equals the coalition benchmark. The comparison of profit allocations is separate from validation of the masking protocol below.
 
-Figure~\ref{fig:algo1_comp_profit_perunit_s1} compares 
-per-unit profits under the four different strategies. Specifically, we see that all the operators share the same per-unit profit under the coalition strategy and the total profit is maximized; that all the operators achieve lower profits under the risk neutral Nash strategy, with the higher-capacity operator(s) suffering more reduction; and that equal risk seeking Nash strategy (either centralized or distributed) achieves Pareto-optimal performance (the same as the coalition strategy) collectively, with the total profit being maximized (to the same value as the coalition solution) and with the lower-capacity operator(s) gaining more profit enhancement. Indeed, all the operators benefit from adopting an equal risk seeking Nash strategy, albeit non-uniformly. The equal risk seeking result assumes all operators adopt the same $\beta'=-\tfrac{1}{6}$; the following subsection examines what happens when they do not.
+Figure~\ref{fig:algo1_comp_profit_perunit_s1} compares per-unit expected profits. ERS recovers the coalition's aggregate profit while allocating different per-unit profits across operators. Its absolute profit improvement over RN is equal across operators, so smaller operators receive a larger improvement per unit. These are prescribed configurations with ERS coefficient $\beta'=-1/6$; the next subsection considers alternative coordinated designs.
 
 \subsection{Unequal Risk Levels}
 
-Table~\ref{tab:alpha_pi_summary} compares equal risk seeking (ERS) Nash strategy outcome versus unequal risk seeking (URS) Nash strategies' outcomes for scenario 1 (S1). In this comparison, ERS S1 serves as the baseline, and URS S1-A and S1-B are representative alternative strategies the operators could adopt. ERS S1 is based on equal risk seeking level of $\boldsymbol{\beta}'=(-\tfrac{1}{6},\,-\tfrac{1}{6},\,-\tfrac{1}{6})$, URS S1-A corresponds to $\boldsymbol{\beta}'=(-0.10,\,-0.17,\,-0.23)$, and  URS S1-B uses $\boldsymbol{\beta}'=(-0.23,\,-0.17,\,-0.10)$. The risk seeking levels of both
+Table~\ref{tab:alpha_pi_summary} compares equal risk seeking (ERS) Nash strategy outcome versus unequal risk seeking (URS) Nash strategies' outcomes for scenario 1 (S1). In this comparison, ERS S1 serves as the baseline, and URS S1-A and S1-B are alternative coordinated coefficient configurations. Each row is evaluated with its coefficients fixed, rather than as a unilateral owner deviation. ERS S1 is based on equal risk seeking level of $\boldsymbol{\beta}'=(-\tfrac{1}{6},\,-\tfrac{1}{6},\,-\tfrac{1}{6})$, URS S1-A corresponds to $\boldsymbol{\beta}'=(-0.10,\,-0.17,\,-0.23)$, and  URS S1-B uses $\boldsymbol{\beta}'=(-0.23,\,-0.17,\,-0.10)$. The risk seeking levels of both
 URS S1-A and URS S1-B satisfy condition $\sum_i\beta_i'=-\tfrac{1}{2}$, that is, equality \eqref{eq:beta_sum_condition} in Theorem 2. As a result, URS S1-A and URS S1-B achieve the same Pareto-optimal total profit $\Pi$ as ERS S1 does.
 
 
@@ -647,26 +594,22 @@ URS S1-D           & $(0.292,\,0.350,\,1.000)$ & $(29.8,\,31.5,\,51.0)$ & $10{,}
 \end{tabular}}
 \end{table}
 
-While $\Pi$ is optimized, there are substantial disparities among the values of $\Pi_i$ under URS S1-A and URS S1-B. This is because different risk seeking levels adopted by the operators push some of their bidding values substantially away from coalition bidding values or ERS bidding values. Clearly, some of the operators would feel unfair as a result of different risk seeking levels, which further justifies the use of the proposed ERS strategy.
+While $\Pi$ is optimized, there are substantial disparities among the values of $\Pi_i$ under URS S1-A and URS S1-B. This is because different coefficients assigned to the controllers push some of their bidding values substantially away from coalition bidding values or ERS bidding values. These allocation differences motivate comparing equal and unequal controller designs; they do not establish which design an owner would select strategically.
 
 URS strategy S1-B also pushes operator 3's bid above $1$, which is an overbidding case. Capping $\alpha_3^*$ at $1$ renders URS strategy S1-C, which, while simple for operator 3 to implement, is no longer Pareto optimal. URS strategy S1-D restores Pareto optimality by re-calculating $\alpha_i^*$. Detailed analysis on achieving Pareto optimality while disallowing overbid is not included in this paper due to page limitation. 
 
-Several general observations can be seen from the case study:
-\begin{itemize}
-\item Coalition strategy ensures optimal total payoff and equal per-unit profit, which would be preferred by larger market participants for the profit reason but not desired by all the participants for the privacy reason.
-\item In general, Nash strategies (including RN and ERS) would be preferred by all the participants due to their privacy concerns, but the results increase the per-unit profit for smaller market participants and at the expense of larger market participants. The ERS strategy retains the optimal total profit, while RN strategy yields lower total profit. 
-\item Overbidding in both RN and ERS settings would distort the per-unit profit more toward smaller market participants who would overbid. 
-\end{itemize}
+\subsection{Masked Implementation and Communication}
 
-\subsection{Distributed Implementation and Its Scalability}
+For Scenario~1, a triangle mask graph, $\Delta=1$\,MW, $B=120$, $p=1009$, and reproducible test seed $20261120$ give masked inputs $(43,244,13)$. At $k_*=37$, exact rational arithmetic gives maximum scaled consensus error $0.01374$ (rounded upward), below the certified bound $0.19223<1/4$. All nodes recover $X=300$\,MW and $q_i=50$\,MW, preserving the centralized ERS bids and profits. An exhaustive check over all $7^3$ triangle-mask assignments for inputs $(1,1,2)$ and $(1,2,1)$ gives identical view distributions, including for a utility colluding with operator~1; removing the remaining honest edge makes the views distinguishable. These finite checks illustrate Proposition~2 and its connectivity requirement; they do not replace its proof. The reproducible masks are public test data, not production secrets.
 
-As shown in Table \ref{tab:comparison}, Algorithm 1 produces the same results as those under centralized solutions. As the number $n$ of renewable operators increases,  Algorithm~1 is fully scalable, specifically, consensus protocols~\eqref{eq:xi}--\eqref{eq:psi} converge geometrically at a rate determined by the algebraic connectivity $\lambda_2(L)$, the second-smallest eigenvalue of graph Laplacian $L$. By Theorem~3.3 of~\cite{qu}, the convergence error satisfies $\|z(k) - z_{ss}\one\| \leq (1-\varepsilon\lambda_2)^k \|z(0) - z_{ss}\one\|$ for consensus value $z_{ss}$, so the number of iterations to reach $\varepsilon$-accuracy scales as $O\!\left(\log(1/\varepsilon)/\lambda_2\right)$. For the star graph $K_{1,n}$, the Laplacian eigenvalues are $0$, $1$ (with multiplicity $n-1$), and $n+1$ (with multiplicity $1$), giving $\lambda_2 = 1$ which is independently of $n$. In short, Algorithm~1 converges at a rate that does not degrade as $n$ increases, making it well-suited for  participation of numerous renewable operators in electricity markets. 
+For $G_c=K_{1,n}$ and $h=1/(n+1)$, $\rho=n/(n+1)$ for $n\geq2$. Hence the sufficient decoding budget is $O(n\log(m^{3/2}p))$ rounds with a fixed arithmetic-error margin, with $2n$ directed scalar transmissions per round. Masking adds one private field element per edge of $G_m$ per run. The graph must remain connected after removal of the colluding operators; a complete mask graph tolerates any coalition leaving at least two honest operators. Thus communication and the required precision depend on $n$ and $p$; size-independent convergence is not claimed.
 
 \section{Conclusion}
 
-It is well known that, in electricity markets, a coalition bidding strategy provides the best economic payoff for renewable operators (as one of the Pareto-optimal solutions) but requires full information sharing and a collective action among them. On the other hand noncooperative and risk neutral Nash bidding strategies require minimum information sharing and are simple to implement, but their performance is inferior when compared to the Pareto-optimal solutions. In this paper, this performance gap is bridged by developing a risk aware bidding framework in which risk levels of renewable generation operators are represented by scalar parameters $\beta_i$, performance of Nash equilibrium is enhanced by optimizing $\beta_i$, and the resulting risk seeking Nash bidding strategies ensure Pareto optimality. 
+This paper separates coordinated design of risk aware bidding controllers from the noncooperative bidding game played with their coefficients fixed. In the uncapped model, the aggregate coefficient condition identifies designs whose bidding Nash equilibrium attains the coalition benchmark for aggregate expected renewable profit. Equal risk seeking provides a symmetric coefficient choice. Masked consensus recovers its target bids exactly for encoded forecasts and limits transcript disclosure under the stated channel, connectivity, and passive-adversary assumptions. Nash optimality is evaluated using the controller objectives $J_i$; profit efficiency is evaluated using $\Pi_i$.
 
-The proposed risk aware bidding framework is developed in three steps. First, the risk aware Nash equilibrium is analytically solved, and the Pareto optimality condition is derived in terms of risk levels of renewable generation operators. Three different Nash strategies are compared: the coalition strategy, the risk neutral strategy, and risk seeking strategies. It is shown that, for all operators, the best choices are either the coalition strategy (which requires full information sharing) or the risk seeking Nash strategy and that, as long as the aggregate risk level of all the operators satisfies a simple equality constraint, Pareto optimality is achieved. Second, the equal risk seeking strategy is analytically solved, and it represents a fair way for all the operators to implement their Nash strategies. Third, the equal risk seeking Nash strategy is formulated into a distributed algorithm for achieving Pareto optimality with minimum information sharing.
+The unilateral-deviation analysis shows that equal risk seeking is not an equilibrium of unrestricted coefficient selection by expected-profit-maximizing owners. Implementation therefore assumes adherence to the coordinated controllers. Designing and validating a mechanism that makes adoption and continued adherence individually optimal remains a separate problem.
+
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 
