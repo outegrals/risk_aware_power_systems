@@ -1,0 +1,593 @@
+{
+  "x": [
+    120.0,
+    100.0,
+    80.0
+  ],
+  "load_forecast": 400.0,
+  "a2": 0.1,
+  "a1": 1.0,
+  "base_covariance": [
+    [
+      144.0,
+      36.0,
+      28.799999999999997,
+      48.0
+    ],
+    [
+      36.0,
+      100.0,
+      24.0,
+      40.0
+    ],
+    [
+      28.799999999999997,
+      24.0,
+      64.0,
+      32.0
+    ],
+    [
+      48.0,
+      40.0,
+      32.0,
+      400.0
+    ]
+  ],
+  "base_covariance_positive_definite": true,
+  "cholesky_diagonal": [
+    12.0,
+    9.539392014169456,
+    7.425527694276114,
+    19.235384061671343
+  ],
+  "cholesky_reconstruction_max_error": 5.684341886080802e-14,
+  "method": "81-node product Gaussian quadrature, exact through degree five in each independent normal coordinate",
+  "distribution_scope": "untruncated joint Gaussian; no resampling or clipping; quantities are market settlement revenues",
+  "variance_identity": "Var(revenue_i)=m_lambda^2*sigma_ii+(x_i-q_i)^2*Var(lambda)+2*m_lambda*(x_i-q_i)*Cov(lambda,x_i)+Var(lambda)*sigma_ii+Cov(lambda,x_i)^2",
+  "records": [
+    {
+      "uncertainty_std_scale": 0.0,
+      "covariance_multiplier": 0.0,
+      "strategy": "risk_neutral",
+      "q": [
+        75.0,
+        75.0,
+        75.0
+      ],
+      "alpha": [
+        0.625,
+        0.75,
+        0.9375
+      ],
+      "V_net_load_error": 0.0,
+      "variance_real_time_price": 0.0,
+      "mean_real_time_price": 21.0,
+      "mean_day_ahead_price": 36.0,
+      "price_spread_squared_bias": 225.00000000000006,
+      "price_spread_second_moment_R": 225.00000000000006,
+      "individual_covariance_profit_corrections": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "aggregate_covariance_profit_correction": 0.0,
+      "individual_expected_revenue": [
+        3645.0,
+        3225.0,
+        2805.0
+      ],
+      "aggregate_expected_revenue": 9675.0,
+      "individual_realized_revenue_variance": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "individual_realized_revenue_standard_deviation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "direct_settlement_quadrature": {
+        "n_quadrature_nodes": 81,
+        "mean_revenue": [
+          3645.0,
+          3224.9999999999995,
+          2804.9999999999995
+        ],
+        "variance_revenue": [
+          0.0,
+          2.0679515313825692e-25,
+          2.0679515313825692e-25
+        ],
+        "R": 225.0
+      },
+      "quadrature_fitted_unilateral_best_responses": [
+        75.0,
+        75.0,
+        75.0
+      ],
+      "validation": {
+        "max_mean_error": 4.547473508864641e-13,
+        "max_variance_error": 2.0679515313825692e-25,
+        "R_error": 5.684341886080802e-14,
+        "max_quadrature_best_response_error": 0.0
+      }
+    },
+    {
+      "uncertainty_std_scale": 0.0,
+      "covariance_multiplier": 0.0,
+      "strategy": "ers",
+      "q": [
+        50.0,
+        50.0,
+        50.0
+      ],
+      "alpha": [
+        0.4166666666666667,
+        0.5,
+        0.625
+      ],
+      "V_net_load_error": 0.0,
+      "variance_real_time_price": 0.0,
+      "mean_real_time_price": 21.0,
+      "mean_day_ahead_price": 51.0,
+      "price_spread_squared_bias": 900.0000000000002,
+      "price_spread_second_moment_R": 900.0000000000002,
+      "individual_covariance_profit_corrections": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "aggregate_covariance_profit_correction": 0.0,
+      "individual_expected_revenue": [
+        4020.0,
+        3600.0,
+        3180.0
+      ],
+      "aggregate_expected_revenue": 10800.0,
+      "individual_realized_revenue_variance": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "individual_realized_revenue_standard_deviation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "direct_settlement_quadrature": {
+        "n_quadrature_nodes": 81,
+        "mean_revenue": [
+          4019.9999999999995,
+          3600.0,
+          3180.0
+        ],
+        "variance_revenue": [
+          2.0679515313825692e-25,
+          0.0,
+          0.0
+        ],
+        "R": 900.0
+      },
+      "quadrature_fitted_unilateral_best_responses": [
+        50.0,
+        49.99999999999997,
+        49.999999999999986
+      ],
+      "validation": {
+        "max_mean_error": 4.547473508864641e-13,
+        "max_variance_error": 2.0679515313825692e-25,
+        "R_error": 2.2737367544323206e-13,
+        "max_quadrature_best_response_error": 2.842170943040401e-14
+      }
+    },
+    {
+      "uncertainty_std_scale": 0.5,
+      "covariance_multiplier": 0.25,
+      "strategy": "risk_neutral",
+      "q": [
+        75.0,
+        75.0,
+        75.0
+      ],
+      "alpha": [
+        0.625,
+        0.75,
+        0.9375
+      ],
+      "V_net_load_error": 161.4,
+      "variance_real_time_price": 6.456000000000001,
+      "mean_real_time_price": 21.0,
+      "mean_day_ahead_price": 36.0,
+      "price_spread_squared_bias": 225.00000000000006,
+      "price_spread_second_moment_R": 231.45600000000005,
+      "individual_covariance_profit_corrections": [
+        -8.040000000000001,
+        -6.0,
+        -4.24
+      ],
+      "aggregate_covariance_profit_correction": -18.28,
+      "individual_expected_revenue": [
+        3636.96,
+        3219.0,
+        2800.76
+      ],
+      "aggregate_expected_revenue": 9656.720000000001,
+      "individual_realized_revenue_variance": [
+        14050.8576,
+        8957.4,
+        6448.2736
+      ],
+      "individual_realized_revenue_standard_deviation": [
+        118.53631342335562,
+        94.64354177649946,
+        80.30114320481371
+      ],
+      "direct_settlement_quadrature": {
+        "n_quadrature_nodes": 81,
+        "mean_revenue": [
+          3636.96,
+          3219.0,
+          2800.7599999999998
+        ],
+        "variance_revenue": [
+          14050.857599999994,
+          8957.399999999996,
+          6448.273599999998
+        ],
+        "R": 231.45599999999996
+      },
+      "quadrature_fitted_unilateral_best_responses": [
+        75.0,
+        75.0,
+        75.0
+      ],
+      "validation": {
+        "max_mean_error": 4.547473508864641e-13,
+        "max_variance_error": 5.4569682106375694e-12,
+        "R_error": 8.526512829121202e-14,
+        "max_quadrature_best_response_error": 0.0
+      }
+    },
+    {
+      "uncertainty_std_scale": 0.5,
+      "covariance_multiplier": 0.25,
+      "strategy": "ers",
+      "q": [
+        50.0,
+        50.0,
+        50.0
+      ],
+      "alpha": [
+        0.4166666666666667,
+        0.5,
+        0.625
+      ],
+      "V_net_load_error": 161.4,
+      "variance_real_time_price": 6.456000000000001,
+      "mean_real_time_price": 21.0,
+      "mean_day_ahead_price": 51.0,
+      "price_spread_squared_bias": 900.0000000000002,
+      "price_spread_second_moment_R": 906.4560000000002,
+      "individual_covariance_profit_corrections": [
+        -8.040000000000001,
+        -6.0,
+        -4.24
+      ],
+      "aggregate_covariance_profit_correction": -18.28,
+      "individual_expected_revenue": [
+        4011.96,
+        3594.0,
+        3175.76
+      ],
+      "aggregate_expected_revenue": 10781.720000000001,
+      "individual_realized_revenue_variance": [
+        24169.857600000007,
+        14762.400000000003,
+        7645.273600000001
+      ],
+      "individual_realized_revenue_standard_deviation": [
+        155.46658033159412,
+        121.50061728238258,
+        87.43725521767024
+      ],
+      "direct_settlement_quadrature": {
+        "n_quadrature_nodes": 81,
+        "mean_revenue": [
+          4011.96,
+          3594.0,
+          3175.7599999999998
+        ],
+        "variance_revenue": [
+          24169.857600000018,
+          14762.39999999999,
+          7645.2736
+        ],
+        "R": 906.4559999999999
+      },
+      "quadrature_fitted_unilateral_best_responses": [
+        49.99999999999996,
+        49.99999999999999,
+        49.999999999999986
+      ],
+      "validation": {
+        "max_mean_error": 4.547473508864641e-13,
+        "max_variance_error": 1.2732925824820995e-11,
+        "R_error": 3.410605131648481e-13,
+        "max_quadrature_best_response_error": 4.263256414560601e-14
+      }
+    },
+    {
+      "uncertainty_std_scale": 1.0,
+      "covariance_multiplier": 1.0,
+      "strategy": "risk_neutral",
+      "q": [
+        75.0,
+        75.0,
+        75.0
+      ],
+      "alpha": [
+        0.625,
+        0.75,
+        0.9375
+      ],
+      "V_net_load_error": 645.6,
+      "variance_real_time_price": 25.824000000000005,
+      "mean_real_time_price": 21.0,
+      "mean_day_ahead_price": 36.0,
+      "price_spread_squared_bias": 225.00000000000006,
+      "price_spread_second_moment_R": 250.82400000000007,
+      "individual_covariance_profit_corrections": [
+        -32.160000000000004,
+        -24.0,
+        -16.96
+      ],
+      "aggregate_covariance_profit_correction": -73.12,
+      "individual_expected_revenue": [
+        3612.84,
+        3201.0,
+        2788.04
+      ],
+      "aggregate_expected_revenue": 9601.880000000001,
+      "individual_realized_revenue_variance": [
+        59768.1216,
+        38198.4,
+        27248.3776
+      ],
+      "individual_realized_revenue_standard_deviation": [
+        244.4751962878852,
+        195.4441096579787,
+        165.07082601113984
+      ],
+      "direct_settlement_quadrature": {
+        "n_quadrature_nodes": 81,
+        "mean_revenue": [
+          3612.84,
+          3201.0,
+          2788.04
+        ],
+        "variance_revenue": [
+          59768.1216,
+          38198.4,
+          27248.377599999993
+        ],
+        "R": 250.82399999999996
+      },
+      "quadrature_fitted_unilateral_best_responses": [
+        75.00000000000001,
+        74.99999999999997,
+        75.0
+      ],
+      "validation": {
+        "max_mean_error": 0.0,
+        "max_variance_error": 7.275957614183426e-12,
+        "R_error": 1.1368683772161603e-13,
+        "max_quadrature_best_response_error": 2.842170943040401e-14
+      }
+    },
+    {
+      "uncertainty_std_scale": 1.0,
+      "covariance_multiplier": 1.0,
+      "strategy": "ers",
+      "q": [
+        50.0,
+        50.0,
+        50.0
+      ],
+      "alpha": [
+        0.4166666666666667,
+        0.5,
+        0.625
+      ],
+      "V_net_load_error": 645.6,
+      "variance_real_time_price": 25.824000000000005,
+      "mean_real_time_price": 21.0,
+      "mean_day_ahead_price": 51.0,
+      "price_spread_squared_bias": 900.0000000000002,
+      "price_spread_second_moment_R": 925.8240000000002,
+      "individual_covariance_profit_corrections": [
+        -32.160000000000004,
+        -24.0,
+        -16.96
+      ],
+      "aggregate_covariance_profit_correction": -73.12,
+      "individual_expected_revenue": [
+        3987.84,
+        3576.0,
+        3163.04
+      ],
+      "aggregate_expected_revenue": 10726.880000000001,
+      "individual_realized_revenue_variance": [
+        100244.12160000003,
+        61418.400000000016,
+        32036.377600000003
+      ],
+      "individual_realized_revenue_standard_deviation": [
+        316.61352087363554,
+        247.82735926446864,
+        178.98708780244456
+      ],
+      "direct_settlement_quadrature": {
+        "n_quadrature_nodes": 81,
+        "mean_revenue": [
+          3987.8399999999997,
+          3576.0,
+          3163.04
+        ],
+        "variance_revenue": [
+          100244.12159999998,
+          61418.399999999965,
+          32036.377599999967
+        ],
+        "R": 925.8239999999998
+      },
+      "quadrature_fitted_unilateral_best_responses": [
+        49.99999999999998,
+        49.99999999999997,
+        50.00000000000004
+      ],
+      "validation": {
+        "max_mean_error": 4.547473508864641e-13,
+        "max_variance_error": 5.093170329928398e-11,
+        "R_error": 3.410605131648481e-13,
+        "max_quadrature_best_response_error": 4.263256414560601e-14
+      }
+    },
+    {
+      "uncertainty_std_scale": 2.0,
+      "covariance_multiplier": 4.0,
+      "strategy": "risk_neutral",
+      "q": [
+        75.0,
+        75.0,
+        75.0
+      ],
+      "alpha": [
+        0.625,
+        0.75,
+        0.9375
+      ],
+      "V_net_load_error": 2582.4,
+      "variance_real_time_price": 103.29600000000002,
+      "mean_real_time_price": 21.0,
+      "mean_day_ahead_price": 36.0,
+      "price_spread_squared_bias": 225.00000000000006,
+      "price_spread_second_moment_R": 328.29600000000005,
+      "individual_covariance_profit_corrections": [
+        -128.64000000000001,
+        -96.0,
+        -67.84
+      ],
+      "aggregate_covariance_profit_correction": -292.48,
+      "individual_expected_revenue": [
+        3516.36,
+        3129.0,
+        2737.16
+      ],
+      "aggregate_expected_revenue": 9382.52,
+      "individual_realized_revenue_variance": [
+        296107.54559999995,
+        190694.40000000002,
+        132278.04160000003
+      ],
+      "individual_realized_revenue_standard_deviation": [
+        544.1576477455775,
+        436.68569933076583,
+        363.7004833650899
+      ],
+      "direct_settlement_quadrature": {
+        "n_quadrature_nodes": 81,
+        "mean_revenue": [
+          3516.3599999999997,
+          3128.9999999999995,
+          2737.16
+        ],
+        "variance_revenue": [
+          296107.5456,
+          190694.40000000005,
+          132278.04159999994
+        ],
+        "R": 328.296
+      },
+      "quadrature_fitted_unilateral_best_responses": [
+        75.00000000000001,
+        74.99999999999997,
+        75.0
+      ],
+      "validation": {
+        "max_mean_error": 4.547473508864641e-13,
+        "max_variance_error": 8.731149137020111e-11,
+        "R_error": 5.684341886080802e-14,
+        "max_quadrature_best_response_error": 2.842170943040401e-14
+      }
+    },
+    {
+      "uncertainty_std_scale": 2.0,
+      "covariance_multiplier": 4.0,
+      "strategy": "ers",
+      "q": [
+        50.0,
+        50.0,
+        50.0
+      ],
+      "alpha": [
+        0.4166666666666667,
+        0.5,
+        0.625
+      ],
+      "V_net_load_error": 2582.4,
+      "variance_real_time_price": 103.29600000000002,
+      "mean_real_time_price": 21.0,
+      "mean_day_ahead_price": 51.0,
+      "price_spread_squared_bias": 900.0000000000002,
+      "price_spread_second_moment_R": 1003.2960000000003,
+      "individual_covariance_profit_corrections": [
+        -128.64000000000001,
+        -96.0,
+        -67.84
+      ],
+      "aggregate_covariance_profit_correction": -292.48,
+      "individual_expected_revenue": [
+        3891.36,
+        3504.0,
+        3112.16
+      ],
+      "aggregate_expected_revenue": 10507.52,
+      "individual_realized_revenue_variance": [
+        458011.54560000007,
+        283574.4000000001,
+        151430.04160000003
+      ],
+      "individual_realized_revenue_standard_deviation": [
+        676.7655026669134,
+        532.5170419808178,
+        389.1401310582089
+      ],
+      "direct_settlement_quadrature": {
+        "n_quadrature_nodes": 81,
+        "mean_revenue": [
+          3891.3599999999997,
+          3504.0,
+          3112.16
+        ],
+        "variance_revenue": [
+          458011.54559999995,
+          283574.4,
+          151430.04159999997
+        ],
+        "R": 1003.2959999999999
+      },
+      "quadrature_fitted_unilateral_best_responses": [
+        50.0,
+        49.99999999999999,
+        50.00000000000002
+      ],
+      "validation": {
+        "max_mean_error": 4.547473508864641e-13,
+        "max_variance_error": 1.1641532182693481e-10,
+        "R_error": 3.410605131648481e-13,
+        "max_quadrature_best_response_error": 2.1316282072803006e-14
+      }
+    }
+  ]
+}

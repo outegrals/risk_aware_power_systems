@@ -1,0 +1,17 @@
+{
+  "short_pages": 9,
+  "long_pages": 14,
+  "checks": [
+    "active references resolve",
+    "new theorem and risk derivation independently audited",
+    "new equations and numerical tables visually inspected",
+    "validate_risk_and_caps.py passed"
+  ],
+  "files": {
+    "main.tex": "22938e81632d512c488d44ff8c6b8a654edf93a80e1cd489af221e225d7664c4",
+    "main_LONG.tex": "6741c0bd200fa5c089f86de6a2be1fcd76e0ba9023ad41b7f7c7ffe099b4c420",
+    "scripts/validate_risk_and_caps.py": "bd7d18c9439eb7ccb922762b2c9539cff4b88933c943979d44ce9fb10213d87e",
+    "output/pdf/main_risk_caps_revision.pdf": "d446e2ee06ca751613c06ef3c668a4ce2a601a084ad8d5c609aec03afa7e3171",
+    "output/pdf/main_LONG_risk_caps_revision.pdf": "aa0abfb999acfdd5f18f4769fbc6852f4fca7eac1b24a0ef499e2185b2a7098e"
+  }
+}

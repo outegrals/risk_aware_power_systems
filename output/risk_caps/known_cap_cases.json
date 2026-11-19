@@ -1,0 +1,1293 @@
+[
+  {
+    "name": "S1",
+    "x": [
+      120.0,
+      100.0,
+      80.0
+    ],
+    "u": [
+      120.0,
+      100.0,
+      80.0
+    ],
+    "X": 300.0,
+    "U": 300.0,
+    "profit_assumption": "zero covariance; deterministic expected-profit table",
+    "retuning_design": {
+      "target_Q": 150.0,
+      "water_level_t": 50.0,
+      "common_k": 0.3333333333333333,
+      "common_beta": -1.6666666666666667
+    },
+    "strategies": {
+      "risk_neutral_fixed": {
+        "q": [
+          75.0,
+          75.0,
+          75.0
+        ],
+        "Q": 225.0,
+        "r": 75.0,
+        "scalar_equation_residual": 0.0,
+        "k": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "beta": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "alpha": [
+          0.625,
+          0.75,
+          0.9375
+        ],
+        "individual_expected_profit": [
+          3645.0,
+          3225.0,
+          2805.0
+        ],
+        "aggregate_expected_profit": 9675.0,
+        "aggregate_profit_gap_to_capped_optimum": 1125.0,
+        "validation": {
+          "direct_best_responses": [
+            75.0,
+            75.0,
+            75.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      },
+      "ers_original_coefficient_fixed": {
+        "q": [
+          50.0,
+          50.0,
+          50.0
+        ],
+        "Q": 150.0,
+        "r": 150.0,
+        "scalar_equation_residual": 0.0,
+        "k": [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "beta": [
+          -1.6666666666666667,
+          -1.6666666666666667,
+          -1.6666666666666667
+        ],
+        "alpha": [
+          0.4166666666666667,
+          0.5,
+          0.625
+        ],
+        "individual_expected_profit": [
+          4020.0,
+          3600.0,
+          3180.0
+        ],
+        "aggregate_expected_profit": 10800.0,
+        "aggregate_profit_gap_to_capped_optimum": 0.0,
+        "validation": {
+          "direct_best_responses": [
+            50.0,
+            50.0,
+            50.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      },
+      "coordinated_retuned_common": {
+        "q": [
+          50.0,
+          50.0,
+          50.0
+        ],
+        "Q": 150.0,
+        "r": 150.0,
+        "scalar_equation_residual": 0.0,
+        "k": [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "beta": [
+          -1.6666666666666667,
+          -1.6666666666666667,
+          -1.6666666666666667
+        ],
+        "alpha": [
+          0.4166666666666667,
+          0.5,
+          0.625
+        ],
+        "individual_expected_profit": [
+          4020.0,
+          3600.0,
+          3180.0
+        ],
+        "aggregate_expected_profit": 10800.0,
+        "aggregate_profit_gap_to_capped_optimum": 0.0,
+        "validation": {
+          "direct_best_responses": [
+            50.0,
+            50.0,
+            50.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      }
+    },
+    "naive_componentwise_clipping": {
+      "risk_neutral_fixed": {
+        "q": [
+          75.0,
+          75.0,
+          75.0
+        ],
+        "Q": 225.0,
+        "validation": {
+          "direct_best_responses": [
+            75.0,
+            75.0,
+            75.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      },
+      "ers_original_coefficient_fixed": {
+        "q": [
+          50.0,
+          50.0,
+          50.0
+        ],
+        "Q": 150.0,
+        "validation": {
+          "direct_best_responses": [
+            50.0,
+            50.0,
+            50.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      }
+    }
+  },
+  {
+    "name": "S2",
+    "x": [
+      120.0,
+      100.0,
+      30.0
+    ],
+    "u": [
+      120.0,
+      100.0,
+      30.0
+    ],
+    "X": 250.0,
+    "U": 250.0,
+    "profit_assumption": "zero covariance; deterministic expected-profit table",
+    "retuning_design": {
+      "target_Q": 125.0,
+      "water_level_t": 47.5,
+      "common_k": 0.38,
+      "common_beta": -1.5499999999999998
+    },
+    "strategies": {
+      "risk_neutral_fixed": {
+        "q": [
+          73.33333333333334,
+          73.33333333333334,
+          30.0
+        ],
+        "Q": 176.66666666666669,
+        "r": 73.33333333333334,
+        "scalar_equation_residual": 2.842170943040401e-14,
+        "k": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "beta": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "alpha": [
+          0.6111111111111112,
+          0.7333333333333334,
+          1.0
+        ],
+        "individual_expected_profit": [
+          4795.555555555556,
+          4175.555555555556,
+          1370.0
+        ],
+        "aggregate_expected_profit": 10341.111111111111,
+        "aggregate_profit_gap_to_capped_optimum": 533.8888888888887,
+        "validation": {
+          "direct_best_responses": [
+            73.33333333333333,
+            73.33333333333333,
+            30.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 1.4210854715202004e-14,
+          "max_kkt_bracket_residual": 2.842170943040401e-14,
+          "max_normalized_kkt_residual": 1.1368683772161603e-16,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 4.0389678347315807e-29
+        }
+      },
+      "ers_original_coefficient_fixed": {
+        "q": [
+          44.0,
+          44.0,
+          30.0
+        ],
+        "Q": 118.0,
+        "r": 132.0,
+        "scalar_equation_residual": 0.0,
+        "k": [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "beta": [
+          -1.6666666666666667,
+          -1.6666666666666667,
+          -1.6666666666666667
+        ],
+        "alpha": [
+          0.36666666666666664,
+          0.44,
+          1.0
+        ],
+        "individual_expected_profit": [
+          4881.6,
+          4261.6,
+          1722.0
+        ],
+        "aggregate_expected_profit": 10865.2,
+        "aggregate_profit_gap_to_capped_optimum": 9.799999999999272,
+        "validation": {
+          "direct_best_responses": [
+            44.0,
+            44.0,
+            30.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      },
+      "coordinated_retuned_common": {
+        "q": [
+          47.5,
+          47.5,
+          30.0
+        ],
+        "Q": 125.0,
+        "r": 125.0,
+        "scalar_equation_residual": 0.0,
+        "k": [
+          0.38,
+          0.38,
+          0.38
+        ],
+        "beta": [
+          -1.5499999999999998,
+          -1.5499999999999998,
+          -1.5499999999999998
+        ],
+        "alpha": [
+          0.3958333333333333,
+          0.475,
+          1.0
+        ],
+        "individual_expected_profit": [
+          4907.5,
+          4287.5,
+          1680.0
+        ],
+        "aggregate_expected_profit": 10875.0,
+        "aggregate_profit_gap_to_capped_optimum": 0.0,
+        "validation": {
+          "direct_best_responses": [
+            47.5,
+            47.5,
+            30.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      }
+    },
+    "naive_componentwise_clipping": {
+      "risk_neutral_fixed": {
+        "q": [
+          62.5,
+          62.5,
+          30.0
+        ],
+        "Q": 155.0,
+        "validation": {
+          "direct_best_responses": [
+            78.75,
+            78.75,
+            30.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 16.25,
+          "max_kkt_bracket_residual": 32.5,
+          "max_normalized_kkt_residual": 0.13,
+          "max_direct_unilateral_objective_gain": 52.8125,
+          "max_stable_unilateral_objective_gain": 52.8125
+        }
+      },
+      "ers_original_coefficient_fixed": {
+        "q": [
+          41.666666666666664,
+          41.666666666666664,
+          30.0
+        ],
+        "Q": 113.33333333333333,
+        "validation": {
+          "direct_best_responses": [
+            44.583333333333336,
+            44.583333333333336,
+            30.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 2.9166666666666714,
+          "max_kkt_bracket_residual": 3.888888888888893,
+          "max_normalized_kkt_residual": 0.01555555555555557,
+          "max_direct_unilateral_objective_gain": 1.1342592592591245,
+          "max_stable_unilateral_objective_gain": 1.1342592592592617
+        }
+      }
+    }
+  },
+  {
+    "name": "S3",
+    "x": [
+      210.0,
+      45.0,
+      45.0
+    ],
+    "u": [
+      210.0,
+      45.0,
+      45.0
+    ],
+    "X": 300.0,
+    "U": 300.0,
+    "profit_assumption": "zero covariance; deterministic expected-profit table",
+    "retuning_design": {
+      "target_Q": 150.0,
+      "water_level_t": 60.000000000000014,
+      "common_k": 0.4000000000000001,
+      "common_beta": -1.4999999999999996
+    },
+    "strategies": {
+      "risk_neutral_fixed": {
+        "q": [
+          105.00000000000003,
+          45.0,
+          45.0
+        ],
+        "Q": 195.00000000000003,
+        "r": 105.00000000000003,
+        "scalar_equation_residual": 5.684341886080802e-14,
+        "k": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "beta": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "alpha": [
+          0.5000000000000001,
+          1.0,
+          1.0
+        ],
+        "individual_expected_profit": [
+          6615.0,
+          1889.9999999999998,
+          1889.9999999999998
+        ],
+        "aggregate_expected_profit": 10395.0,
+        "aggregate_profit_gap_to_capped_optimum": 405.0,
+        "validation": {
+          "direct_best_responses": [
+            105.0,
+            45.0,
+            45.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 2.842170943040401e-14,
+          "max_kkt_bracket_residual": 5.684341886080802e-14,
+          "max_normalized_kkt_residual": 1.8947806286936006e-16,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 1.6155871338926323e-28
+        }
+      },
+      "ers_original_coefficient_fixed": {
+        "q": [
+          52.500000000000014,
+          45.0,
+          45.0
+        ],
+        "Q": 142.5,
+        "r": 157.50000000000006,
+        "scalar_equation_residual": 5.684341886080802e-14,
+        "k": [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "beta": [
+          -1.6666666666666667,
+          -1.6666666666666667,
+          -1.6666666666666667
+        ],
+        "alpha": [
+          0.25000000000000006,
+          1.0,
+          1.0
+        ],
+        "individual_expected_profit": [
+          6063.75,
+          2362.5,
+          2362.5
+        ],
+        "aggregate_expected_profit": 10788.75,
+        "aggregate_profit_gap_to_capped_optimum": 11.25,
+        "validation": {
+          "direct_best_responses": [
+            52.5,
+            45.0,
+            45.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 1.4210854715202004e-14,
+          "max_kkt_bracket_residual": 1.4210854715202004e-14,
+          "max_normalized_kkt_residual": 4.7369515717340015e-17,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 1.3463226115771937e-29
+        }
+      },
+      "coordinated_retuned_common": {
+        "q": [
+          60.000000000000014,
+          45.0,
+          45.0
+        ],
+        "Q": 150.0,
+        "r": 150.0,
+        "scalar_equation_residual": 0.0,
+        "k": [
+          0.4000000000000001,
+          0.4000000000000001,
+          0.4000000000000001
+        ],
+        "beta": [
+          -1.4999999999999996,
+          -1.4999999999999996,
+          -1.4999999999999996
+        ],
+        "alpha": [
+          0.2857142857142858,
+          1.0,
+          1.0
+        ],
+        "individual_expected_profit": [
+          6210.0,
+          2295.0,
+          2295.0
+        ],
+        "aggregate_expected_profit": 10800.0,
+        "aggregate_profit_gap_to_capped_optimum": 0.0,
+        "validation": {
+          "direct_best_responses": [
+            60.00000000000001,
+            45.0,
+            45.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 7.105427357601002e-15,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      }
+    },
+    "naive_componentwise_clipping": {
+      "risk_neutral_fixed": {
+        "q": [
+          75.0,
+          45.0,
+          45.0
+        ],
+        "Q": 165.0,
+        "validation": {
+          "direct_best_responses": [
+            105.0,
+            45.0,
+            45.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 30.0,
+          "max_kkt_bracket_residual": 60.0,
+          "max_normalized_kkt_residual": 0.2,
+          "max_direct_unilateral_objective_gain": 180.0,
+          "max_stable_unilateral_objective_gain": 180.0
+        }
+      },
+      "ers_original_coefficient_fixed": {
+        "q": [
+          50.0,
+          45.0,
+          45.0
+        ],
+        "Q": 140.0,
+        "validation": {
+          "direct_best_responses": [
+            52.5,
+            45.0,
+            45.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 2.5,
+          "max_kkt_bracket_residual": 3.3333333333333286,
+          "max_normalized_kkt_residual": 0.011111111111111096,
+          "max_direct_unilateral_objective_gain": 0.8333333333330302,
+          "max_stable_unilateral_objective_gain": 0.8333333333333311
+        }
+      }
+    }
+  },
+  {
+    "name": "midpoint_counterexample",
+    "x": [
+      1.0,
+      18.0,
+      18.0,
+      18.0,
+      45.0
+    ],
+    "u": [
+      1.0,
+      18.0,
+      18.0,
+      18.0,
+      45.0
+    ],
+    "X": 100.0,
+    "U": 100.0,
+    "profit_assumption": "zero covariance; deterministic expected-profit table",
+    "retuning_design": {
+      "target_Q": 50.0,
+      "water_level_t": 12.25,
+      "common_k": 0.245,
+      "common_beta": -1.8875
+    },
+    "strategies": {
+      "risk_neutral_fixed": {
+        "q": [
+          1.0,
+          18.0,
+          18.0,
+          18.0,
+          22.500000000000007
+        ],
+        "Q": 77.5,
+        "r": 22.500000000000007,
+        "scalar_equation_residual": 0.0,
+        "k": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "beta": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "alpha": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          0.5000000000000001
+        ],
+        "individual_expected_profit": [
+          65.5,
+          1179.0,
+          1179.0,
+          1179.0,
+          2846.25
+        ],
+        "aggregate_expected_profit": 6448.75,
+        "aggregate_profit_gap_to_capped_optimum": 151.25,
+        "validation": {
+          "direct_best_responses": [
+            1.0,
+            18.0,
+            18.0,
+            18.0,
+            22.5
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 7.105427357601002e-15,
+          "max_kkt_bracket_residual": 7.105427357601002e-15,
+          "max_normalized_kkt_residual": 7.105427357601002e-17,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      },
+      "ers_original_coefficient_fixed": {
+        "q": [
+          1.0,
+          11.0,
+          11.0,
+          11.0,
+          11.0
+        ],
+        "Q": 45.0,
+        "r": 55.0,
+        "scalar_equation_residual": 0.0,
+        "k": [
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2
+        ],
+        "beta": [
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0,
+          -2.0
+        ],
+        "alpha": [
+          1.0,
+          0.6111111111111112,
+          0.6111111111111112,
+          0.6111111111111112,
+          0.24444444444444444
+        ],
+        "individual_expected_profit": [
+          72.0,
+          1219.0,
+          1219.0,
+          1219.0,
+          2866.0
+        ],
+        "aggregate_expected_profit": 6595.0,
+        "aggregate_profit_gap_to_capped_optimum": 5.0,
+        "validation": {
+          "direct_best_responses": [
+            1.0,
+            11.000000000000002,
+            11.000000000000002,
+            11.000000000000002,
+            11.000000000000002
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 1.7763568394002505e-15,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 5.684341886080802e-14,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      },
+      "coordinated_retuned_common": {
+        "q": [
+          1.0,
+          12.25,
+          12.25,
+          12.25,
+          12.25
+        ],
+        "Q": 50.0,
+        "r": 50.0,
+        "scalar_equation_residual": 0.0,
+        "k": [
+          0.245,
+          0.245,
+          0.245,
+          0.245,
+          0.245
+        ],
+        "beta": [
+          -1.8875,
+          -1.8875,
+          -1.8875,
+          -1.8875,
+          -1.8875
+        ],
+        "alpha": [
+          1.0,
+          0.6805555555555556,
+          0.6805555555555556,
+          0.6805555555555556,
+          0.2722222222222222
+        ],
+        "individual_expected_profit": [
+          71.0,
+          1220.5,
+          1220.5,
+          1220.5,
+          2867.5
+        ],
+        "aggregate_expected_profit": 6600.0,
+        "aggregate_profit_gap_to_capped_optimum": 0.0,
+        "validation": {
+          "direct_best_responses": [
+            1.0,
+            12.249999999999998,
+            12.249999999999998,
+            12.249999999999998,
+            12.249999999999998
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 1.7763568394002505e-15,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      }
+    },
+    "naive_componentwise_clipping": {
+      "risk_neutral_fixed": {
+        "q": [
+          1.0,
+          16.666666666666668,
+          16.666666666666668,
+          16.666666666666668,
+          16.666666666666668
+        ],
+        "Q": 67.66666666666667,
+        "validation": {
+          "direct_best_responses": [
+            1.0,
+            18.0,
+            18.0,
+            18.0,
+            24.5
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 7.833333333333332,
+          "max_kkt_bracket_residual": 15.66666666666666,
+          "max_normalized_kkt_residual": 0.15666666666666662,
+          "max_direct_unilateral_objective_gain": 12.272222222222226,
+          "max_stable_unilateral_objective_gain": 12.272222222222213
+        }
+      },
+      "ers_original_coefficient_fixed": {
+        "q": [
+          1.0,
+          10.0,
+          10.0,
+          10.0,
+          10.0
+        ],
+        "Q": 41.0,
+        "validation": {
+          "direct_best_responses": [
+            1.0,
+            11.500000000000002,
+            11.500000000000002,
+            11.500000000000002,
+            11.500000000000002
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 1.5000000000000018,
+          "max_kkt_bracket_residual": 1.8000000000000007,
+          "max_normalized_kkt_residual": 0.018000000000000006,
+          "max_direct_unilateral_objective_gain": 0.27000000000003865,
+          "max_stable_unilateral_objective_gain": 0.2700000000000002
+        }
+      }
+    },
+    "old_midpoint_rule": {
+      "cutoff_in_mw": 23.0,
+      "saturated_indices_zero_based": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "saturated_total": 55.0,
+      "q": [
+        1.0,
+        18.0,
+        18.0,
+        18.0,
+        -5.0
+      ],
+      "alpha": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        -0.1111111111111111
+      ],
+      "contains_negative_bid": true
+    }
+  },
+  {
+    "name": "shortage_caps",
+    "x": [
+      120.0,
+      100.0,
+      80.0
+    ],
+    "u": [
+      30.0,
+      20.0,
+      10.0
+    ],
+    "X": 300.0,
+    "U": 60.0,
+    "profit_assumption": "zero covariance; deterministic expected-profit table",
+    "retuning_design": {
+      "target_Q": 60.0,
+      "water_level_t": 30.0,
+      "common_k": 0.125,
+      "common_beta": -2.1875
+    },
+    "strategies": {
+      "risk_neutral_fixed": {
+        "q": [
+          30.0,
+          20.0,
+          10.0
+        ],
+        "Q": 60.0,
+        "r": 240.00000000000006,
+        "scalar_equation_residual": 5.684341886080802e-14,
+        "k": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "beta": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "alpha": [
+          0.25,
+          0.2,
+          0.125
+        ],
+        "individual_expected_profit": [
+          3960.0,
+          3060.0,
+          2160.0
+        ],
+        "aggregate_expected_profit": 9180.0,
+        "aggregate_profit_gap_to_capped_optimum": 0.0,
+        "validation": {
+          "direct_best_responses": [
+            30.0,
+            20.0,
+            10.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      },
+      "ers_original_coefficient_fixed": {
+        "q": [
+          30.0,
+          20.0,
+          10.0
+        ],
+        "Q": 60.0,
+        "r": 240.00000000000006,
+        "scalar_equation_residual": 5.684341886080802e-14,
+        "k": [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "beta": [
+          -1.6666666666666667,
+          -1.6666666666666667,
+          -1.6666666666666667
+        ],
+        "alpha": [
+          0.25,
+          0.2,
+          0.125
+        ],
+        "individual_expected_profit": [
+          3960.0,
+          3060.0,
+          2160.0
+        ],
+        "aggregate_expected_profit": 9180.0,
+        "aggregate_profit_gap_to_capped_optimum": 0.0,
+        "validation": {
+          "direct_best_responses": [
+            30.0,
+            20.0,
+            10.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      },
+      "coordinated_retuned_common": {
+        "q": [
+          30.0,
+          20.0,
+          10.0
+        ],
+        "Q": 60.0,
+        "r": 240.00000000000006,
+        "scalar_equation_residual": 5.684341886080802e-14,
+        "k": [
+          0.125,
+          0.125,
+          0.125
+        ],
+        "beta": [
+          -2.1875,
+          -2.1875,
+          -2.1875
+        ],
+        "alpha": [
+          0.25,
+          0.2,
+          0.125
+        ],
+        "individual_expected_profit": [
+          3960.0,
+          3060.0,
+          2160.0
+        ],
+        "aggregate_expected_profit": 9180.0,
+        "aggregate_profit_gap_to_capped_optimum": 0.0,
+        "validation": {
+          "direct_best_responses": [
+            30.0,
+            20.0,
+            10.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      }
+    },
+    "naive_componentwise_clipping": {
+      "risk_neutral_fixed": {
+        "q": [
+          30.0,
+          20.0,
+          10.0
+        ],
+        "Q": 60.0,
+        "validation": {
+          "direct_best_responses": [
+            30.0,
+            20.0,
+            10.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      },
+      "ers_original_coefficient_fixed": {
+        "q": [
+          30.0,
+          20.0,
+          10.0
+        ],
+        "Q": 60.0,
+        "validation": {
+          "direct_best_responses": [
+            30.0,
+            20.0,
+            10.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      }
+    }
+  },
+  {
+    "name": "zero_caps",
+    "x": [
+      120.0,
+      100.0,
+      80.0
+    ],
+    "u": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "X": 300.0,
+    "U": 0.0,
+    "profit_assumption": "zero covariance; deterministic expected-profit table",
+    "retuning_design": {
+      "target_Q": 0.0,
+      "water_level_t": 0.0,
+      "common_k": 0.0,
+      "common_beta": -2.5
+    },
+    "strategies": {
+      "risk_neutral_fixed": {
+        "q": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Q": 0.0,
+        "r": 300.0,
+        "scalar_equation_residual": 0.0,
+        "k": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "beta": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "alpha": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "individual_expected_profit": [
+          2520.0,
+          2100.0,
+          1680.0
+        ],
+        "aggregate_expected_profit": 6300.0,
+        "aggregate_profit_gap_to_capped_optimum": 0.0,
+        "validation": {
+          "direct_best_responses": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      },
+      "ers_original_coefficient_fixed": {
+        "q": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Q": 0.0,
+        "r": 300.0,
+        "scalar_equation_residual": 0.0,
+        "k": [
+          0.3333333333333333,
+          0.3333333333333333,
+          0.3333333333333333
+        ],
+        "beta": [
+          -1.6666666666666667,
+          -1.6666666666666667,
+          -1.6666666666666667
+        ],
+        "alpha": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "individual_expected_profit": [
+          2520.0,
+          2100.0,
+          1680.0
+        ],
+        "aggregate_expected_profit": 6300.0,
+        "aggregate_profit_gap_to_capped_optimum": 0.0,
+        "validation": {
+          "direct_best_responses": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      },
+      "coordinated_retuned_common": {
+        "q": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Q": 0.0,
+        "r": 300.0,
+        "scalar_equation_residual": 0.0,
+        "k": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "beta": [
+          -2.5,
+          -2.5,
+          -2.5
+        ],
+        "alpha": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "individual_expected_profit": [
+          2520.0,
+          2100.0,
+          1680.0
+        ],
+        "aggregate_expected_profit": 6300.0,
+        "aggregate_profit_gap_to_capped_optimum": 0.0,
+        "validation": {
+          "direct_best_responses": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      }
+    },
+    "naive_componentwise_clipping": {
+      "risk_neutral_fixed": {
+        "q": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Q": 0.0,
+        "validation": {
+          "direct_best_responses": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      },
+      "ers_original_coefficient_fixed": {
+        "q": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Q": 0.0,
+        "validation": {
+          "direct_best_responses": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "max_bid_feasibility_violation": 0.0,
+          "max_best_response_distance": 0.0,
+          "max_kkt_bracket_residual": 0.0,
+          "max_normalized_kkt_residual": 0.0,
+          "max_direct_unilateral_objective_gain": 0.0,
+          "max_stable_unilateral_objective_gain": 0.0
+        }
+      }
+    }
+  }
+]

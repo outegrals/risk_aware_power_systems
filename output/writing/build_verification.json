@@ -1,0 +1,78 @@
+{
+  "verified_utc": "2026-11-18T17:09:39.468251+00:00",
+  "style_reference": "Original submitted Risk_Aware_Bidding_Strategy_for_Power_markets.pdf",
+  "pages": {
+    "output/pdf/main_writing_revision.pdf": 10,
+    "output/pdf/main_LONG_writing_revision.pdf": 17
+  },
+  "sha256": {
+    "main.tex": "44fd9e6d1d4f4baf92df812b03ee1522783369516b7f779a31ff60a5892cf2cf",
+    "main_LONG.tex": "31226ddccb89637540016754d832f558913b14c640108ac91c621276b88ab62a",
+    "references.bib": "fbe1c376947712eb3453717afea0557cdc31aed64be4b6cdea05ba00222472f0",
+    "scripts/render_microgrid_evidence.py": "b570240d7c38ac8586862e19f71614603997f35f983d83fe8029c82511bfdf0e",
+    "output/microgrid/trajectory_plot.tex": "068335ad9e033f194f8ab4af73e215596cf2e944118de50a20fbeb262fe4d36d",
+    "output/pdf/main_writing_revision.pdf": "5c77c1c8f190cca6b0b0e41b2251cfe471faaed4f90a26048aac0d10f0d9ef56",
+    "output/pdf/main_LONG_writing_revision.pdf": "f15ce2de14bdd40e80e49e18ddb1d5d317f6c669102e00fde13b85e2e22b3d3f"
+  },
+  "preservation": {
+    "main.tex": {
+      "displayed_math": {
+        "before_count": 61,
+        "after_count": 61,
+        "identical": true
+      },
+      "tables": {
+        "before_count": 5,
+        "after_count": 5,
+        "identical": true
+      },
+      "labels": {
+        "before_count": 63,
+        "after_count": 63,
+        "identical": true
+      },
+      "graphics": {
+        "before_count": 0,
+        "after_count": 0,
+        "identical": true
+      },
+      "citations": {
+        "before_count": 13,
+        "after_count": 13,
+        "identical": true,
+        "identical_after_whitespace_normalization": true
+      }
+    },
+    "main_LONG.tex": {
+      "displayed_math": {
+        "before_count": 88,
+        "after_count": 88,
+        "identical": true
+      },
+      "tables": {
+        "before_count": 8,
+        "after_count": 8,
+        "identical": true
+      },
+      "labels": {
+        "before_count": 92,
+        "after_count": 92,
+        "identical": true
+      },
+      "graphics": {
+        "before_count": 16,
+        "after_count": 16,
+        "identical": true
+      },
+      "citations": {
+        "before_count": 19,
+        "after_count": 19,
+        "identical": false,
+        "identical_after_whitespace_normalization": true
+      }
+    }
+  },
+  "semantic_review": "Independent read-only review found the protected assumptions, technical corrections, and conclusions preserved; deadline wording clarified to distinguish no output at deadline from eventual retry completion.",
+  "scope": "Prose, title, headings, and captions revised. Displayed mathematics, numerical tables, labels, figures, and citation keys retained. No numerical simulations rerun for this prose-only change.",
+  "build_notes": "Both manuscripts compile without unresolved citations/references or missing glyphs. Existing package/font warnings and the expanded version's earlier 1.29672pt overfull alignment remain."
+}

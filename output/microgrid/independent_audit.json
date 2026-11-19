@@ -1,0 +1,2355 @@
+{
+  "status": "passed",
+  "source_sha256": "c37fc4b034d5a4f5183f207d77cc7ddcb19b21c8d4169c0ceae260c27659e28c",
+  "audit_sha256": "d5d3ea54dc04c98d94c5ae9ced1e910c8a213b16302c7f78ce18ba6a2d412a06",
+  "scope": {
+    "n_operators": 2,
+    "conditional_states_audited": 80,
+    "full_joint_scenarios_per_state": 81,
+    "total_joint_realizations_enumerated": 6480,
+    "independent_checks": [
+      "direct joint settlement expectation including imports and throughput cost",
+      "marginal export means and quantile caps from complete joint enumeration",
+      "unilateral quadratic objective fitted from direct settlement and price-spread evaluations",
+      "entire controller objective multiplied by interval duration",
+      "independent bisection versus sorted-breakpoint equilibrium solver",
+      "conditional shortfall probability, power balance, and SOC recurrence"
+    ],
+    "limits": "Numerical finite-case audit, not a general proof or a repeat of trajectory experiments. Does not assess communication or transient electrical dynamics."
+  },
+  "maxima": {
+    "max_mean_error": 7.771561172376096e-16,
+    "forecast_load_error": 2.6645352591003757e-15,
+    "max_quantile_cap_error": 7.216449660063518e-16,
+    "max_direct_settlement_cash_error": 1.4210854715202004e-14,
+    "max_direct_objective_best_response_error_MW": 5.623279619726418e-14,
+    "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+    "max_cap_shortfall_probability": 0.039999999999999994,
+    "max_balance_error_MW": 1.1102230246251565e-16,
+    "max_soc_recurrence_error_MWh": 2.220446049250313e-16
+  },
+  "max_import_in_enumerated_states_MW": 0.14442008937833406,
+  "solver_edge_cases": [
+    {
+      "case": "capacity_shortage",
+      "means": [
+        120.0,
+        100.0,
+        80.0
+      ],
+      "caps": [
+        30.0,
+        20.0,
+        10.0
+      ],
+      "max_root_error_MW": 0.0,
+      "retuned_target_error_MW": 0.0
+    },
+    {
+      "case": "capacity_equals_half_forecast",
+      "means": [
+        120.0,
+        100.0,
+        80.0
+      ],
+      "caps": [
+        50.0,
+        50.0,
+        50.0
+      ],
+      "max_root_error_MW": 0.0,
+      "retuned_target_error_MW": 0.0
+    },
+    {
+      "case": "all_zero_caps",
+      "means": [
+        120.0,
+        100.0,
+        80.0
+      ],
+      "caps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "max_root_error_MW": 0.0,
+      "retuned_target_error_MW": 0.0
+    },
+    {
+      "case": "one_positive_cap",
+      "means": [
+        120.0,
+        100.0,
+        80.0
+      ],
+      "caps": [
+        0.0,
+        200.0,
+        0.0
+      ],
+      "max_root_error_MW": 1.4210854715202004e-14,
+      "retuned_target_error_MW": 0.0
+    },
+    {
+      "case": "heterogeneous_five_operator",
+      "means": [
+        1.0,
+        18.0,
+        18.0,
+        18.0,
+        45.0
+      ],
+      "caps": [
+        1.0,
+        18.0,
+        18.0,
+        18.0,
+        45.0
+      ],
+      "max_root_error_MW": 7.105427357601002e-15,
+      "retuned_target_error_MW": 0.0
+    }
+  ],
+  "conditional_cases": [
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 0,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.3546262307338325,
+        0.26544433697541653
+      ],
+      "caps": [
+        0.3546262307338324,
+        0.26544433697541653
+      ],
+      "max_mean_error": 3.885780586188048e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 5.773159728050814e-15,
+      "max_direct_objective_best_response_error_MW": 9.769962616701378e-15,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 0.0,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 0,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.3546262307338324,
+        0.26544433697541653
+      ],
+      "caps": [
+        0.28862848530771523,
+        0.21676589902328064
+      ],
+      "max_mean_error": 2.7755575615628914e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 8.881784197001252e-16,
+      "max_direct_objective_best_response_error_MW": 4.135580766728708e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 0.0,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 0,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.3514096052259911,
+        0.2615483611908819
+      ],
+      "caps": [
+        0.22263073988159787,
+        0.16808746107114475
+      ],
+      "max_mean_error": 1.6653345369377348e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 7.577272143066693e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 1.734723475976807e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 0,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.32646483464709036,
+        0.241671775182606
+      ],
+      "caps": [
+        0.09063524902936332,
+        0.0707305851668728
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.3322676295501878e-15,
+      "max_direct_objective_best_response_error_MW": 0.0,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 1.3877787807814457e-17,
+      "maximum_import_MW": 0.0723753541412076
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 24,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.568996616387871,
+        0.4124132925996601
+      ],
+      "caps": [
+        0.568996616387871,
+        0.41241329259966003
+      ],
+      "max_mean_error": 1.1102230246251565e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 1.1102230246251565e-16,
+      "max_direct_settlement_cash_error": 3.552713678800501e-15,
+      "max_direct_objective_best_response_error_MW": 1.9040324872321435e-14,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 6.938893903907228e-18,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 24,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.5461077491828575,
+        0.39794984274694145
+      ],
+      "caps": [
+        0.48579246012305566,
+        0.35870399368702943
+      ],
+      "max_mean_error": 1.6653345369377348e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 2.3314683517128287e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.7755575615628914e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 24,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.5229481164624235,
+        0.3810385845555082
+      ],
+      "caps": [
+        0.401742161622551,
+        0.2973452937159156
+      ],
+      "max_mean_error": 1.1102230246251565e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 2.220446049250313e-15,
+      "max_direct_objective_best_response_error_MW": 5.162537064506978e-15,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.0816681711721685e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 24,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.4774426817942441,
+        0.34820725246246204
+      ],
+      "caps": [
+        0.2336415646215415,
+        0.17462789377368798
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 8.881784197001252e-16,
+      "max_direct_objective_best_response_error_MW": 6.5503158452884236e-15,
+      "max_bisection_equilibrium_error_MW": 8.326672684688674e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.7755575615628914e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 48,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.4631341564259543,
+        1.0604913238276976
+      ],
+      "caps": [
+        1.4631341564259543,
+        1.0604913238276974
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 7.105427357601002e-15,
+      "max_direct_objective_best_response_error_MW": 8.992806499463768e-15,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.7755575615628914e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 48,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.4631341564259543,
+        1.0604913238276976
+      ],
+      "caps": [
+        1.4631341564259543,
+        1.0604913238276974
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 1.3322676295501878e-15,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 7.993605777301127e-15,
+      "max_direct_objective_best_response_error_MW": 9.103828801926284e-15,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.7755575615628914e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 48,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.4501843593387314,
+        1.0508805818084606
+      ],
+      "caps": [
+        1.4501843593387314,
+        1.0508805818084606
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 5.329070518200751e-15,
+      "max_direct_objective_best_response_error_MW": 1.6653345369377348e-15,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.7755575615628914e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 48,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.3464184630645903,
+        0.97454710307687
+      ],
+      "caps": [
+        0.9639715047601579,
+        0.6936568139871704
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 7.105427357601002e-15,
+      "max_direct_objective_best_response_error_MW": 1.8984813721090177e-14,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.7755575615628914e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 76,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.22818153987596262,
+        0.16076769924513293
+      ],
+      "caps": [
+        0.22818153987596257,
+        0.1607676992451329
+      ],
+      "max_mean_error": 1.6653345369377348e-16,
+      "forecast_load_error": 2.6645352591003757e-15,
+      "max_quantile_cap_error": 1.1102230246251565e-16,
+      "max_direct_settlement_cash_error": 1.9984014443252818e-15,
+      "max_direct_objective_best_response_error_MW": 4.191091917959966e-15,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 0.0,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 76,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.2281815398759626,
+        0.1607676992451329
+      ],
+      "caps": [
+        0.17014863453028428,
+        0.1189103025343391
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 8.881784197001252e-16,
+      "max_direct_objective_best_response_error_MW": 2.6506574712925612e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 0.0,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 76,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.22797008096147867,
+        0.1607676992451329
+      ],
+      "caps": [
+        0.112115729184606,
+        0.07705290582354535
+      ],
+      "max_mean_error": 1.3877787807814457e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 8.881784197001252e-16,
+      "max_direct_objective_best_response_error_MW": 1.4210854715202004e-14,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 1.5178830414797062e-18,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 76,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.22063478817821658,
+        0.15677618646202837
+      ],
+      "caps": [
+        0.0,
+        0.0
+      ],
+      "max_mean_error": 2.7755575615628914e-17,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 4.440892098500626e-16,
+      "max_direct_objective_best_response_error_MW": 0.0,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.0816681711721685e-17,
+      "maximum_import_MW": 0.14442008937833406
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 95,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.33978298686165953,
+        0.2542076485574177
+      ],
+      "caps": [
+        0.3397829868616595,
+        0.2542076485574177
+      ],
+      "max_mean_error": 4.996003610813204e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 4.440892098500626e-16,
+      "max_direct_settlement_cash_error": 2.6645352591003757e-15,
+      "max_direct_objective_best_response_error_MW": 8.770761894538737e-15,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 0.0,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 95,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.3397829868616595,
+        0.2542076485574177
+      ],
+      "caps": [
+        0.2746709308626859,
+        0.2062016406745254
+      ],
+      "max_mean_error": 1.6653345369377348e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.3322676295501878e-15,
+      "max_direct_objective_best_response_error_MW": 1.1296519275560968e-14,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 0.0,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 95,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.33706896080829757,
+        0.2517466369057815
+      ],
+      "caps": [
+        0.20955887486371239,
+        0.1581956327916333
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 1.9984014443252818e-15,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 1.0408340855860843e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.1
+      ],
+      "step": 95,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.3156119946730928,
+        0.2335053376052025
+      ],
+      "caps": [
+        0.07933476286576507,
+        0.062183617025848736
+      ],
+      "max_mean_error": 2.7755575615628914e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 4.440892098500626e-16,
+      "max_direct_objective_best_response_error_MW": 5.623279619726418e-14,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.7755575615628914e-17,
+      "maximum_import_MW": 0.08114249611000285
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 0,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.48771138547531817,
+        0.3534971079425658
+      ],
+      "caps": [
+        0.4877113854753181,
+        0.3534971079425658
+      ],
+      "max_mean_error": 3.885780586188048e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 3.3306690738754696e-16,
+      "max_direct_settlement_cash_error": 2.6645352591003757e-15,
+      "max_direct_objective_best_response_error_MW": 1.1129985821867194e-14,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 8.326672684688674e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 0,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.48771138547531817,
+        0.3534971079425658
+      ],
+      "caps": [
+        0.4877113854753181,
+        0.3534971079425658
+      ],
+      "max_mean_error": 3.885780586188048e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 3.3306690738754696e-16,
+      "max_direct_settlement_cash_error": 2.6645352591003757e-15,
+      "max_direct_objective_best_response_error_MW": 6.467049118441537e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.1102230246251565e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 0,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.48771138547531817,
+        0.3534971079425658
+      ],
+      "caps": [
+        0.4877113854753181,
+        0.3534971079425658
+      ],
+      "max_mean_error": 3.885780586188048e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 3.3306690738754696e-16,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 4.801714581503802e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.0755285551056204e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 0,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.48644207592792094,
+        0.3526900170531924
+      ],
+      "caps": [
+        0.48644207592792094,
+        0.3526900170531924
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 1.3322676295501878e-15,
+      "max_quantile_cap_error": 4.440892098500626e-16,
+      "max_direct_settlement_cash_error": 3.552713678800501e-15,
+      "max_direct_objective_best_response_error_MW": 2.4424906541753444e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.1102230246251565e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 24,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.568996616387871,
+        0.4124132925996601
+      ],
+      "caps": [
+        0.568996616387871,
+        0.41241329259966003
+      ],
+      "max_mean_error": 1.1102230246251565e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 1.1102230246251565e-16,
+      "max_direct_settlement_cash_error": 3.552713678800501e-15,
+      "max_direct_objective_best_response_error_MW": 1.9040324872321435e-14,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 8.890457814381136e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 24,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.568996616387871,
+        0.4124132925996601
+      ],
+      "caps": [
+        0.568996616387871,
+        0.41241329259966003
+      ],
+      "max_mean_error": 1.1102230246251565e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 1.1102230246251565e-16,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 5.218048215738236e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 1.1102230246251565e-16,
+      "max_soc_recurrence_error_MWh": 1.0061396160665481e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 24,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.568996616387871,
+        0.4124132925996601
+      ],
+      "caps": [
+        0.568996616387871,
+        0.41241329259966003
+      ],
+      "max_mean_error": 1.1102230246251565e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 1.1102230246251565e-16,
+      "max_direct_settlement_cash_error": 2.6645352591003757e-15,
+      "max_direct_objective_best_response_error_MW": 4.107825191113079e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 1.1102230246251565e-16,
+      "max_soc_recurrence_error_MWh": 1.1102230246251565e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 24,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.5690643077667262,
+        0.4130252446843387
+      ],
+      "caps": [
+        0.5689966163878711,
+        0.41241329259966003
+      ],
+      "max_mean_error": 1.1102230246251565e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 2.6645352591003757e-15,
+      "max_direct_objective_best_response_error_MW": 5.218048215738236e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 1.1102230246251565e-16,
+      "max_soc_recurrence_error_MWh": 1.0408340855860843e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 48,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.4631341564259543,
+        1.0604913238276976
+      ],
+      "caps": [
+        1.4631341564259543,
+        1.0604913238276974
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 7.105427357601002e-15,
+      "max_direct_objective_best_response_error_MW": 8.992806499463768e-15,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 8.326672684688674e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 48,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.4631341564259543,
+        1.0604913238276976
+      ],
+      "caps": [
+        1.4631341564259543,
+        1.0604913238276974
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 1.3322676295501878e-15,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 7.993605777301127e-15,
+      "max_direct_objective_best_response_error_MW": 9.103828801926284e-15,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 8.326672684688674e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 48,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.4501843593387314,
+        1.0508805818084606
+      ],
+      "caps": [
+        1.4501843593387314,
+        1.0508805818084606
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 5.329070518200751e-15,
+      "max_direct_objective_best_response_error_MW": 1.6653345369377348e-15,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 8.326672684688674e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 48,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.3464184630645903,
+        0.97454710307687
+      ],
+      "caps": [
+        0.9639715047601579,
+        0.6936568139871704
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 7.105427357601002e-15,
+      "max_direct_objective_best_response_error_MW": 1.8984813721090177e-14,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 9.020562075079397e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 76,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.4091958816410126,
+        0.2965884435958626
+      ],
+      "caps": [
+        0.4091958816410126,
+        0.2965884435958626
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 2.6645352591003757e-15,
+      "max_quantile_cap_error": 4.440892098500626e-16,
+      "max_direct_settlement_cash_error": 5.773159728050814e-15,
+      "max_direct_objective_best_response_error_MW": 1.6264767310758543e-14,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 6.245004513516506e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 76,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.4091958816410126,
+        0.2965884435958626
+      ],
+      "caps": [
+        0.4091958816410126,
+        0.2965884435958626
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 4.440892098500626e-16,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 4.274358644806853e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 9.020562075079397e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 76,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.4091958816410126,
+        0.2965884435958626
+      ],
+      "caps": [
+        0.4091958816410126,
+        0.2965884435958626
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 4.440892098500626e-16,
+      "max_direct_settlement_cash_error": 3.552713678800501e-15,
+      "max_direct_objective_best_response_error_MW": 7.299716386910404e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.0950441942103595e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 76,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.40818540283750254,
+        0.2957291949578565
+      ],
+      "caps": [
+        0.40818540283750254,
+        0.2957291949578565
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 4.440892098500626e-16,
+      "max_direct_settlement_cash_error": 1.3322676295501878e-15,
+      "max_direct_objective_best_response_error_MW": 5.745404152435185e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.1102230246251565e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 95,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.48239507701344236,
+        0.349643805103691
+      ],
+      "caps": [
+        0.48239507701344236,
+        0.34964380510369086
+      ],
+      "max_mean_error": 7.216449660063518e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 1.1102230246251565e-16,
+      "max_direct_settlement_cash_error": 5.329070518200751e-15,
+      "max_direct_objective_best_response_error_MW": 1.071365218763276e-14,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.0061396160665481e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 95,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.48239507701344236,
+        0.349643805103691
+      ],
+      "caps": [
+        0.48239507701344236,
+        0.34964380510369086
+      ],
+      "max_mean_error": 7.216449660063518e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 1.1102230246251565e-16,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 1.8318679906315083e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.0408340855860843e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 95,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.48239507701344236,
+        0.349643805103691
+      ],
+      "caps": [
+        0.48239507701344236,
+        0.34964380510369086
+      ],
+      "max_mean_error": 7.216449660063518e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 1.1102230246251565e-16,
+      "max_direct_settlement_cash_error": 2.6645352591003757e-15,
+      "max_direct_objective_best_response_error_MW": 1.8318679906315083e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.1102230246251565e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.5,
+        0.5
+      ],
+      "step": 95,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.48098773412576834,
+        0.3487258572383929
+      ],
+      "caps": [
+        0.48098773412576834,
+        0.3487258572383929
+      ],
+      "max_mean_error": 7.216449660063518e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 7.216449660063518e-16,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 3.885780586188048e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.1102230246251565e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 0,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.48771138547531817,
+        0.3534971079425658
+      ],
+      "caps": [
+        0.4877113854753181,
+        0.3534971079425658
+      ],
+      "max_mean_error": 3.885780586188048e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 3.3306690738754696e-16,
+      "max_direct_settlement_cash_error": 2.6645352591003757e-15,
+      "max_direct_objective_best_response_error_MW": 1.1129985821867194e-14,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.0122792321330962e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 0,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.48771138547531817,
+        0.3534971079425658
+      ],
+      "caps": [
+        0.4877113854753181,
+        0.3534971079425658
+      ],
+      "max_mean_error": 3.885780586188048e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 3.3306690738754696e-16,
+      "max_direct_settlement_cash_error": 2.6645352591003757e-15,
+      "max_direct_objective_best_response_error_MW": 6.467049118441537e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.0122792321330962e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 0,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.4909280109831595,
+        0.3573930837271005
+      ],
+      "caps": [
+        0.4877113854753181,
+        0.3534971079425658
+      ],
+      "max_mean_error": 3.885780586188048e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 2.6645352591003757e-15,
+      "max_direct_objective_best_response_error_MW": 3.608224830031759e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.0990154059319366e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 0,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.5174984861803112,
+        0.37844799342851815
+      ],
+      "caps": [
+        0.4877113854753181,
+        0.3534971079425658
+      ],
+      "max_mean_error": 3.3306690738754696e-16,
+      "forecast_load_error": 1.3322676295501878e-15,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 5.384581669432009e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.220446049250313e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 24,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.5698427586235604,
+        0.4200626936581432
+      ],
+      "caps": [
+        0.5698427586235604,
+        0.42006269365814314
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 3.885780586188048e-16,
+      "max_direct_settlement_cash_error": 3.9968028886505635e-15,
+      "max_direct_objective_best_response_error_MW": 1.3350431871117507e-14,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 0.0,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 24,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.5927316258285739,
+        0.4345261435108618
+      ],
+      "caps": [
+        0.5689966163878711,
+        0.41241329259966003
+      ],
+      "max_mean_error": 1.1102230246251565e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 8.881784197001252e-16,
+      "max_direct_objective_best_response_error_MW": 4.551914400963142e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 1.1102230246251565e-16,
+      "max_soc_recurrence_error_MWh": 2.185751579730777e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 24,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.6158912585490078,
+        0.451437401702295
+      ],
+      "caps": [
+        0.5689966163878711,
+        0.41241329259966003
+      ],
+      "max_mean_error": 3.3306690738754696e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 2.6645352591003757e-15,
+      "max_direct_objective_best_response_error_MW": 5.2735593669694936e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 1.1102230246251565e-16,
+      "max_soc_recurrence_error_MWh": 2.0816681711721685e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 24,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.6614643845960426,
+        0.48488068588001976
+      ],
+      "caps": [
+        0.5689966163878711,
+        0.41241329259966003
+      ],
+      "max_mean_error": 7.771561172376096e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 2.6645352591003757e-15,
+      "max_direct_objective_best_response_error_MW": 3.83026943495679e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 1.1102230246251565e-16,
+      "max_soc_recurrence_error_MWh": 2.0816681711721685e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 48,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.4631341564259543,
+        1.0604913238276976
+      ],
+      "caps": [
+        1.4631341564259543,
+        1.0604913238276974
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 1.2434497875801753e-14,
+      "max_direct_objective_best_response_error_MW": 1.2989609388114332e-14,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 0.0,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 48,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.4631341564259543,
+        1.0604913238276976
+      ],
+      "caps": [
+        1.4631341564259543,
+        1.0604913238276974
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 1.3322676295501878e-15,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 1.4210854715202004e-14,
+      "max_direct_objective_best_response_error_MW": 1.9984014443252818e-15,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 0.0,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 48,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.4631341564259543,
+        1.0604913238276976
+      ],
+      "caps": [
+        1.4631341564259543,
+        1.0604913238276974
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 1.4210854715202004e-14,
+      "max_direct_objective_best_response_error_MW": 3.774758283725532e-15,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 0.0,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 48,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.4375525288748374,
+        1.0418366410276543
+      ],
+      "caps": [
+        1.4375525288748374,
+        1.0418366410276543
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 6.217248937900877e-15,
+      "max_direct_objective_best_response_error_MW": 7.549516567451064e-15,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 0.0,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 76,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.4091958816410126,
+        0.2965884435958626
+      ],
+      "caps": [
+        0.4091958816410126,
+        0.2965884435958626
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 2.6645352591003757e-15,
+      "max_quantile_cap_error": 4.440892098500626e-16,
+      "max_direct_settlement_cash_error": 5.773159728050814e-15,
+      "max_direct_objective_best_response_error_MW": 1.6264767310758543e-14,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 6.245004513516506e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 76,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.4091958816410126,
+        0.2965884435958626
+      ],
+      "caps": [
+        0.4091958816410126,
+        0.2965884435958626
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 4.440892098500626e-16,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 4.274358644806853e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.220446049250313e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 76,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.40940734055549655,
+        0.2965884435958626
+      ],
+      "caps": [
+        0.4091958816410126,
+        0.2965884435958626
+      ],
+      "max_mean_error": 2.7755575615628914e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 3.552713678800501e-15,
+      "max_direct_objective_best_response_error_MW": 9.18709552877317e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.0816681711721685e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 76,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.42198296789119194,
+        0.3048340531577422
+      ],
+      "caps": [
+        0.4091958816410126,
+        0.2965884435958626
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 7.632783294297951e-15,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.220446049250313e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 95,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.48239507701344236,
+        0.349643805103691
+      ],
+      "caps": [
+        0.48239507701344236,
+        0.34964380510369086
+      ],
+      "max_mean_error": 7.216449660063518e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 1.1102230246251565e-16,
+      "max_direct_settlement_cash_error": 5.329070518200751e-15,
+      "max_direct_objective_best_response_error_MW": 1.071365218763276e-14,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.0061396160665481e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 95,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.48239507701344236,
+        0.349643805103691
+      ],
+      "caps": [
+        0.48239507701344236,
+        0.34964380510369086
+      ],
+      "max_mean_error": 7.216449660063518e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 1.1102230246251565e-16,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 1.8318679906315083e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.0469737016526324e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 95,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.4851091030668043,
+        0.3521048167553272
+      ],
+      "caps": [
+        0.4823950770134424,
+        0.34964380510369086
+      ],
+      "max_mean_error": 5.551115123125783e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 5.495603971894525e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.942890293094024e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.9,
+        0.9
+      ],
+      "step": 95,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.5084044261587352,
+        0.37167857186260295
+      ],
+      "caps": [
+        0.4823950770134424,
+        0.34964380510369086
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 2.3314683517128287e-15,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.942890293094024e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 0,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.3546262307338325,
+        0.3534971079425658
+      ],
+      "caps": [
+        0.3546262307338324,
+        0.3534971079425658
+      ],
+      "max_mean_error": 3.885780586188048e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 2.7755575615628914e-16,
+      "max_direct_settlement_cash_error": 4.440892098500626e-15,
+      "max_direct_objective_best_response_error_MW": 1.1324274851176597e-14,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 8.326672684688674e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 0,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.3546262307338324,
+        0.3534971079425658
+      ],
+      "caps": [
+        0.28862848530771523,
+        0.3534971079425658
+      ],
+      "max_mean_error": 2.7755575615628914e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 2.7755575615628914e-16,
+      "max_direct_settlement_cash_error": 2.220446049250313e-15,
+      "max_direct_objective_best_response_error_MW": 5.329070518200751e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 1.8735013540549517e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 0,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.3514096052259911,
+        0.3573930837271005
+      ],
+      "caps": [
+        0.22263073988159787,
+        0.3534971079425658
+      ],
+      "max_mean_error": 1.1102230246251565e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 3.3306690738754696e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.0990154059319366e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 0,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.32646483464709036,
+        0.37844799342851815
+      ],
+      "caps": [
+        0.09063524902936332,
+        0.3534971079425658
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 9.048317650695026e-15,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.220446049250313e-16,
+      "maximum_import_MW": 0.0723753541412076
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 24,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.568996616387871,
+        0.4200626936581432
+      ],
+      "caps": [
+        0.568996616387871,
+        0.42006269365814314
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 3.885780586188048e-16,
+      "max_direct_settlement_cash_error": 7.105427357601002e-15,
+      "max_direct_objective_best_response_error_MW": 8.326672684688674e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 6.938893903907228e-18,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 24,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.5461077491828575,
+        0.4345261435108618
+      ],
+      "caps": [
+        0.48579246012305566,
+        0.41241329259966003
+      ],
+      "max_mean_error": 1.1102230246251565e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 2.6645352591003757e-15,
+      "max_direct_objective_best_response_error_MW": 3.9968028886505635e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.185751579730777e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 24,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.5229481164624235,
+        0.451437401702295
+      ],
+      "caps": [
+        0.401742161622551,
+        0.41241329259966003
+      ],
+      "max_mean_error": 1.6653345369377348e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 3.552713678800501e-15,
+      "max_direct_objective_best_response_error_MW": 3.6637359812630166e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.0122792321330962e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 24,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.4774426817942441,
+        0.48488068588001976
+      ],
+      "caps": [
+        0.2336415646215415,
+        0.41241329259966003
+      ],
+      "max_mean_error": 4.440892098500626e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 8.881784197001252e-16,
+      "max_direct_objective_best_response_error_MW": 5.384581669432009e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.0816681711721685e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 48,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.4631341564259543,
+        1.0604913238276976
+      ],
+      "caps": [
+        1.4631341564259543,
+        1.0604913238276974
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 9.769962616701378e-15,
+      "max_direct_objective_best_response_error_MW": 1.2989609388114332e-14,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.7755575615628914e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 48,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.4631341564259543,
+        1.0604913238276976
+      ],
+      "caps": [
+        1.4631341564259543,
+        1.0604913238276974
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 1.3322676295501878e-15,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 9.769962616701378e-15,
+      "max_direct_objective_best_response_error_MW": 1.9984014443252818e-15,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.7755575615628914e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 48,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.4501843593387314,
+        1.0604913238276976
+      ],
+      "caps": [
+        1.4501843593387314,
+        1.0604913238276974
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 7.105427357601002e-15,
+      "max_direct_objective_best_response_error_MW": 5.440092820663267e-15,
+      "max_bisection_equilibrium_error_MW": 0.0,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.7755575615628914e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 48,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        1.3464184630645903,
+        1.0418366410276543
+      ],
+      "caps": [
+        0.9639715047601579,
+        1.0418366410276543
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 2.220446049250313e-16,
+      "max_direct_settlement_cash_error": 7.105427357601002e-15,
+      "max_direct_objective_best_response_error_MW": 4.9960036108132044e-15,
+      "max_bisection_equilibrium_error_MW": 1.1102230246251565e-16,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 0.0,
+      "max_soc_recurrence_error_MWh": 2.7755575615628914e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 76,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.22818153987596262,
+        0.2965884435958626
+      ],
+      "caps": [
+        0.22818153987596257,
+        0.2965884435958626
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 2.6645352591003757e-15,
+      "max_quantile_cap_error": 1.1102230246251565e-16,
+      "max_direct_settlement_cash_error": 3.552713678800501e-15,
+      "max_direct_objective_best_response_error_MW": 5.6066262743570405e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 6.245004513516506e-17,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 76,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.2281815398759626,
+        0.2965884435958626
+      ],
+      "caps": [
+        0.17014863453028428,
+        0.2965884435958626
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 0.0,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 7.688294445529209e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.457167719820518e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 76,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.22797008096147867,
+        0.2965884435958626
+      ],
+      "caps": [
+        0.112115729184606,
+        0.2965884435958626
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 1.1102230246251565e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.0816681711721685e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 76,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.22063478817821658,
+        0.3048340531577422
+      ],
+      "caps": [
+        0.0,
+        0.2965884435958626
+      ],
+      "max_mean_error": 1.6653345369377348e-16,
+      "forecast_load_error": 8.881784197001252e-16,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.3322676295501878e-15,
+      "max_direct_objective_best_response_error_MW": 5.218048215738236e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.220446049250313e-16,
+      "maximum_import_MW": 0.14442008937833406
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 95,
+      "scale": 0.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.33978298686165953,
+        0.349643805103691
+      ],
+      "caps": [
+        0.3397829868616595,
+        0.34964380510369086
+      ],
+      "max_mean_error": 4.996003610813204e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 4.440892098500626e-16,
+      "max_direct_settlement_cash_error": 5.329070518200751e-15,
+      "max_direct_objective_best_response_error_MW": 6.356026815979021e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.0,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.0061396160665481e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 95,
+      "scale": 0.5,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.3397829868616595,
+        0.349643805103691
+      ],
+      "caps": [
+        0.2746709308626859,
+        0.34964380510369086
+      ],
+      "max_mean_error": 2.220446049250313e-16,
+      "forecast_load_error": 4.440892098500626e-16,
+      "max_quantile_cap_error": 1.1102230246251565e-16,
+      "max_direct_settlement_cash_error": 2.220446049250313e-15,
+      "max_direct_objective_best_response_error_MW": 6.494804694057166e-15,
+      "max_bisection_equilibrium_error_MW": 2.7755575615628914e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 2.0469737016526324e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 95,
+      "scale": 1.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.33706896080829757,
+        0.3521048167553272
+      ],
+      "caps": [
+        0.20955887486371239,
+        0.34964380510369086
+      ],
+      "max_mean_error": 3.3306690738754696e-16,
+      "forecast_load_error": 1.7763568394002505e-15,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 2.220446049250313e-15,
+      "max_direct_objective_best_response_error_MW": 4.884981308350689e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.942890293094024e-16,
+      "maximum_import_MW": 0.0
+    },
+    {
+      "asset_seed": 2026112531,
+      "initial_soc_fractions": [
+        0.1,
+        0.9
+      ],
+      "step": 95,
+      "scale": 2.0,
+      "joint_scenarios": 81,
+      "conditional_export_means": [
+        0.3156119946730928,
+        0.37167857186260295
+      ],
+      "caps": [
+        0.07933476286576507,
+        0.34964380510369086
+      ],
+      "max_mean_error": 2.7755575615628914e-16,
+      "forecast_load_error": 1.3322676295501878e-15,
+      "max_quantile_cap_error": 0.0,
+      "max_direct_settlement_cash_error": 1.7763568394002505e-15,
+      "max_direct_objective_best_response_error_MW": 1.5265566588595902e-15,
+      "max_bisection_equilibrium_error_MW": 5.551115123125783e-17,
+      "max_cap_shortfall_probability": 0.039999999999999994,
+      "max_balance_error_MW": 5.551115123125783e-17,
+      "max_soc_recurrence_error_MWh": 1.8735013540549517e-16,
+      "maximum_import_MW": 0.08114249611000285
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "verified_utc": "2026-11-18T16:53:10.772366+00:00",
+  "pages": {
+    "output/pdf/main_microgrid_revision.pdf": 10,
+    "output/pdf/main_LONG_microgrid_revision.pdf": 16
+  },
+  "sha256": {
+    "main.tex": "352b51538d89191acb12922ee502a001909572752b336d3b4305c155a64b808a",
+    "main_LONG.tex": "b9f15bdbe729e8c0a2f6106ecaaf38fcda66a6f546fb670d7b946e4ad18d50c2",
+    "references.bib": "fbe1c376947712eb3453717afea0557cdc31aed64be4b6cdea05ba00222472f0",
+    "scripts/validate_dynamic_microgrids.py": "c37fc4b034d5a4f5183f207d77cc7ddcb19b21c8d4169c0ceae260c27659e28c",
+    "scripts/audit_dynamic_microgrids.py": "d5d3ea54dc04c98d94c5ae9ced1e910c8a213b16302c7f78ce18ba6a2d412a06",
+    "scripts/validate_communication.py": "5ccb42aa69513ce3b9dbd9bd2d1e6fcd25dab7d4793f62f90db07812c96eb2bc",
+    "scripts/render_microgrid_evidence.py": "f930fe238752cc39a12e7b78eceedb46745d627cce0c48225b271f0c47b9b99d",
+    "output/microgrid/results.json": "ce9f6742cb2004e9cecdc08e7aa6f2d29b1734ff8870f17e8a93b2490aa1aedc",
+    "output/microgrid/independent_audit.json": "1a3873e9bdcab5654bd531e78b2141c6caac9146b795c5aa268eb97c76adbe37",
+    "output/microgrid/trajectory_plot.tex": "b0db3395d9b7b5552133037a2533df7af383ca66d807906c0de2204298d9c02a",
+    "output/communication/communication_validation.json": "706966d5fb6ae7dd2ef0625191b4e363f9f5877d66a85625a707991a3fdd7a85",
+    "output/pdf/main_microgrid_revision.pdf": "c7fddedfe9c069e2d8b35cb6b824078352c9395254c24d9247bf8d1d4ab31601",
+    "output/pdf/main_LONG_microgrid_revision.pdf": "ab8aa68d1d60a85920549e3ea479eb077e3b858f59db757712ac590c281d0b4d"
+  },
+  "numerical_checks": {
+    "physical_trajectories": 360,
+    "market_intervals": 69120,
+    "bidding_equilibria": 207360,
+    "independent_joint_scenarios": 6480,
+    "communication_cases": 32,
+    "mask_trials": 96,
+    "physical_audit": "passed",
+    "communication_audit": "passed"
+  },
+  "layout_review": "New model, numeric tables, communication analysis, trajectory figure, and final pages rendered and inspected.",
+  "build_notes": "No unresolved references/citations or missing glyphs. Inherited class-font warnings and algorithm.sty encoding warning remain; expanded version has one inherited 1.29672pt overfull alignment in earlier profit expansion.",
+  "scope": "Synthetic supervisory physical reference and separate uncapped communication study; no private constrained deployment or electrical transient validation."
+}
