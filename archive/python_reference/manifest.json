@@ -1,0 +1,47 @@
+[
+  {
+    "original": "scripts/validate_risk_and_caps.py",
+    "archived": "archive/python_reference/scripts/validate_risk_and_caps.py",
+    "sha256": "bd7d18c9439eb7ccb922762b2c9539cff4b88933c943979d44ce9fb10213d87e"
+  },
+  {
+    "original": "scripts/validate_dispatch_feasibility.py",
+    "archived": "archive/python_reference/scripts/validate_dispatch_feasibility.py",
+    "sha256": "b905287d127026650648d4adc2cd5e1ba16fdf93bcb9d71b3e001703388f398c"
+  },
+  {
+    "original": "scripts/render_microgrid_evidence.py",
+    "archived": "archive/python_reference/scripts/render_microgrid_evidence.py",
+    "sha256": "b570240d7c38ac8586862e19f71614603997f35f983d83fe8029c82511bfdf0e"
+  },
+  {
+    "original": "scripts/audit_dynamic_microgrids.py",
+    "archived": "archive/python_reference/scripts/audit_dynamic_microgrids.py",
+    "sha256": "d5d3ea54dc04c98d94c5ae9ced1e910c8a213b16302c7f78ce18ba6a2d412a06"
+  },
+  {
+    "original": "scripts/validate_masked_consensus.py",
+    "archived": "archive/python_reference/scripts/validate_masked_consensus.py",
+    "sha256": "3a9c3cc77e88b19a837743c4240a95510edc528276dd893136c27f3b3d37b046"
+  },
+  {
+    "original": "scripts/validate_dynamic_microgrids.py",
+    "archived": "archive/python_reference/scripts/validate_dynamic_microgrids.py",
+    "sha256": "c37fc4b034d5a4f5183f207d77cc7ddcb19b21c8d4169c0ceae260c27659e28c"
+  },
+  {
+    "original": "scripts/validate_communication.py",
+    "archived": "archive/python_reference/scripts/validate_communication.py",
+    "sha256": "5ccb42aa69513ce3b9dbd9bd2d1e6fcd25dab7d4793f62f90db07812c96eb2bc"
+  },
+  {
+    "original": "output/incentives/skeptical_checks.py",
+    "archived": "archive/python_reference/output/incentives/skeptical_checks.py",
+    "sha256": "e6e7ed36064c68c1626373dfe730448f8ee70799b2ab7d64c677060f504ce50c"
+  },
+  {
+    "original": "output/incentives/check_contracted.py",
+    "archived": "archive/python_reference/output/incentives/check_contracted.py",
+    "sha256": "acd01e115eccaeab1da5f6e9d5dc215a01ac5f25f0ecc93eed711ad064d8a5bf"
+  }
+]

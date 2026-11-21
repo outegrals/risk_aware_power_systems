@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "random_capped_cases": 200,
+  "max_identity_error": 1.0913936421275139E-11,
+  "contracted_deviation_net_gain": -500,
+  "fixed_rival_exit_gain": 500,
+  "re_equilibrated_capped_exit_gain": 1540.0000000000005,
+  "unanimous_RN_fallback_entry_gain": 375,
+  "capped_coalition_gain": 3.828125,
+  "scope": "Exploratory mechanism, not incorporated into original manuscript; fixed verified inputs and enforceable settlement"
+}

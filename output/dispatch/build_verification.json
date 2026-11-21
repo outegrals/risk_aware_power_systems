@@ -1,0 +1,14 @@
+{
+  "pages": {
+    "main": 10,
+    "main_LONG": 17
+  },
+  "checks": "All support-wide assertions passed; 64 baseline states and 69120 conditional microgrid states, whole bidding boxes. No all-history certificate or binding-capacity clearing claim.",
+  "sha256": {
+    "main.tex": "342c63fc36df2df3a66e17f800998be9e53580584a35b25efa998fcd9779114d",
+    "main_LONG.tex": "85a67faddf8f0e7ad1b6594399568c89903c034a295106a89e99679673884e6e",
+    "scripts/validate_dispatch_feasibility.py": "b905287d127026650648d4adc2cd5e1ba16fdf93bcb9d71b3e001703388f398c",
+    "output/dispatch/feasibility_checks.json": "0f12f3823d26cf6e8257d634f68367e43ab2dbf6ecc7ce86f97ce7c7875941fb"
+  },
+  "layout": "Main fonts and margins unchanged; redundant prose shortened. Existing minor expanded-version alignment warning remains."
+}

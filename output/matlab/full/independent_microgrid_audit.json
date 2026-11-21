@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "conditional_states": 80,
+  "joint_realizations": 6480,
+  "max_errors": [
+    1.5543122344752192E-15,
+    8.8817841970012523E-16,
+    1.3322676295501878E-15,
+    5.3290705182007514E-15,
+    9.6034291630076041E-15
+  ],
+  "error_order": [
+    "export means",
+    "load mean",
+    "quantile caps",
+    "direct settlement",
+    "fitted best response"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "source": "scripts/validate_dynamic_microgrids.py (archived after port)",
+  "asset_seed_base": 2026111800,
+  "shock_seed_base": 2026121800,
+  "fixture_sha256": "38addf9520e0594337113786c9ed25a31f828630fb0bd73b7ae1e58da81a757e",
+  "indices": "zero-based common, n local, external; convert to MATLAB one-based",
+  "purpose": "Frozen random inputs only; no precomputed state, bid or profit results"
+}

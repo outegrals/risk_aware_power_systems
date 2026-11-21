@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "bounded_baseline": [
+    {
+      "scale": 0,
+      "min_generation": 80,
+      "min_load": 400,
+      "min_pg": 100,
+      "max_pg": 100
+    },
+    {
+      "scale": 0.5,
+      "min_generation": 74.20667689001553,
+      "min_load": 385.754470495523,
+      "min_pg": 76.947126325736463,
+      "max_pg": 123.05287367426354
+    },
+    {
+      "scale": 1,
+      "min_generation": 68.413353780031059,
+      "min_load": 371.508940991046,
+      "min_pg": 53.894252651472925,
+      "max_pg": 146.10574734852707
+    },
+    {
+      "scale": 2,
+      "min_generation": 56.826707560062133,
+      "min_load": 343.017881982092,
+      "min_pg": 7.7885053029457936,
+      "max_pg": 192.21149469705421
+    }
+  ],
+  "dynamic_margins_MW": 2.933979581391327,
+  "intervals_checked": 2304,
+  "scope": "Whole bid box and conditional support at replayed states, not every possible history"
+}

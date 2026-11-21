@@ -133,6 +133,14 @@ P_g + \sum_{j\in\Omega} x_j   = x_{n+1}. \label{eq:RT_power}
 \end{equation}
 It is well known that, with global information, day-ahead price $\lambda^o$ and real-time $\lambda$ are the dual variables associated with constraints \eqref{eq:DA_power} and \eqref{eq:RT_power}, respectively. 
 
+The affine-price analysis assumes interior conventional dispatch. For capacity $\bar P_g$, a sufficient condition on the entire bidding box $0\leq q_i\leq u_i$ is
+\begin{equation}
+ \begin{gathered}0<x_{n+1}^o-\sum_i u_i\leq x_{n+1}^o<\bar P_g,\\
+ 0<x_{n+1}-\sum_i x_i<\bar P_g\quad\hbox{a.s.}\end{gathered}
+ \label{eq:dispatch_interior}
+\end{equation}
+Thus the conventional bounds are inactive for every feasible unilateral bid change and every supported realization. The uncapped game is an affine-price benchmark; an unbounded bid domain cannot satisfy this physical condition. Its equilibrium applies to a bounded market when it lies in a box satisfying~\eqref{eq:dispatch_interior}; otherwise the capped analysis is required. Binding conventional limits, scarcity pricing, and network congestion require a different clearing model and are not covered here.
+
 The bidding controllers maximize the following prescribed objectives individually:
 \begin{subequations}
 \begin{equation} 
@@ -625,6 +633,8 @@ Proposition~1 does not contradict the fixed-coefficient Nash result. In that res
 One must also distinguish the controller coefficient from a freely chosen coefficient in an owner's utility. If $(\alpha_i,\beta_i)$ were simultaneous actions in the literal payoff $J_i$, then at fixed bids $\partial J_i/\partial\beta_i=-\mathbb E[(\lambda-\lambda^o)^2]\leq0$. Whenever the deviation measure is positive, this would favor the smallest admissible coefficient, rather than the coordinated ERS value. The present model instead prescribes the controller objective and evaluates the separate design problem using expected profit.
 
 
+A direct quantity deviation is distinct from the coefficient deviation above: rivals' bids now remain fixed. In Scenario~1, $X=300$\,MW and ERS gives $q=(50,50,50)$\,MW. With $q_2=q_3=50$, operator~1's expected profit is $\Pi_1(q_1)=0.2q_1(200-q_1)+C_1$. Its profit-maximizing bid is $q_1=100$\,MW, within its $120$\,MW cap, and the gain is $0.2[100(100)-50(150)]=500$\,\$/hr. Under the prescribed $\beta_1=-5/3$, however, this change lowers $J_1$ by $1000/3$\,\$/hr. ERS is therefore a Nash equilibrium of the prescribed objectives, not of unrestricted expected-profit maximization; implementing it requires adherence to both coefficients and bids.
+
 \section{Distributed Risk Aware Solutions}
 \label{sec:private_consensus}
 
@@ -708,7 +718,7 @@ Consider the day-ahead/real-time electricity markets with three renewable genera
 \[
 J(P_g) = 0.1P_g^2 + P_g, \;\;\; P_g=x_4-(x_1+x_2+x_3). 
 \]
-Real-time realizations are $x_i \sim \mathcal{N}(x_i^o,\sigma_i^2)$, with standard deviations of $\sigma_1 = 12$\,MW, $\sigma_2 = 10$\,MW, $\sigma_3 = 8$\,MW, load uncertainty is $\sigma_L = 20$\,MW, cross-correlations are $\rho_{ij}=0.3$ among renewable operators, and $\rho_{iL}=0.2$ among renewables and the load. For allocation comparisons we report the covariance-free benchmark $\Pi^{(0)}=\Pi+\Delta\Pi$, using~\eqref{eq:D_P}; the corresponding individual benchmarks omit $2a_2(\sigma_{iL}-\sum_j\sigma_{ij})$. The uncertainty-sensitivity results below instead include all covariance terms. Means and deterministic caps are held fixed throughout those sweeps.
+For an unconstrained moment benchmark, real-time realizations are $x_i \sim \mathcal{N}(x_i^o,\sigma_i^2)$, with standard deviations of $\sigma_1 = 12$\,MW, $\sigma_2 = 10$\,MW, $\sigma_3 = 8$\,MW, load uncertainty is $\sigma_L = 20$\,MW, cross-correlations are $\rho_{ij}=0.3$ among renewable operators, and $\rho_{iL}=0.2$ among renewables and the load. For allocation comparisons we report the covariance-free benchmark $\Pi^{(0)}=\Pi+\Delta\Pi$, using~\eqref{eq:D_P}; the corresponding individual benchmarks omit $2a_2(\sigma_{iL}-\sum_j\sigma_{ij})$. The uncertainty-sensitivity results below instead include all covariance terms. Means and deterministic caps are held fixed throughout those sweeps.
 
 \begin{figure}[hbt!]
     \centering
@@ -821,6 +831,8 @@ The analytical revenue moments and squared price spreads are independently evalu
 
 The resulting bids remain $\boldsymbol\alpha^{\rm RN}=(0.625,0.75,0.9375)$ and $\boldsymbol\alpha^{\rm ERS}=(5/12,1/2,5/8)$ throughout the covariance sweep. At scale one, the common aggregate covariance correction is $-73.12$ and $V=645.6$. The realized-revenue standard deviations are $(316.614,247.827,178.987)$ under ERS and $(244.475,195.444,165.071)$ under RN. Thus every operator in this example receives a greater expected profit under ERS with a corresponding increase in revenue variability.
 
+The untruncated Gaussian benchmark does not satisfy~\eqref{eq:dispatch_interior} almost surely and permits negative generation. As a separate feasible check, let $x=x^o+sLz$, where $LL^T=\Sigma(1)$ is the lower Cholesky factor and the four entries of $z$ are independent equiprobable signs. Enumerating all 16 states at each tested scale preserves the means and covariance and reproduces expected profits and price-deviation moments, but not Gaussian fourth-moment formulas. With $\bar P_g=500$\,MW and $u=(120,100,80)$\,MW, the entire day-ahead bid box gives $P_g^o\in[100,400]$\,MW. Across the four scales, real-time dispatch lies in $[7.7885,192.2115]$\,MW and all generation and load realizations are positive; the direct quantity deviation is feasible in this box.
+
 \subsection{Binding Bid Limits and Coefficient Retuning}
 The effect of bidding limits is examined in Table~\ref{tab:corrected_caps} for four forecast configurations: S1, $x^o=(120,100,80)$; S2, $(120,100,30)$; S3, $(210,45,45)$; and S4, $(1,18,18,18,45)$, all in MW. In each case, $u_i=x_i^o$, $a_2=0.1$, $a_1=1$, and $x_L^o=400$\,MW. The constrained RN equilibrium is compared with the equilibrium at the original ERS coefficient and with the common coefficient adjusted according to~\eqref{eq:capped_common}. Profits are reported using the covariance-free benchmark. The adjusted coefficient represents a new coordinated design; each row gives the bidding equilibrium with that row's coefficient fixed.
 
@@ -892,7 +904,7 @@ For local surplus $v_i=R_i-D_i$ and reference $r_i(t)$, the policy is
  p_i^{\rm dis}&=\min\{(r_i-v_i)_+,P_i^{\max},\eta_d(E_i-E_i^{\min})/\tau\}.
  \label{eq:local_storage_policy}
 \end{align}
-Under this policy, excess positive power above $F_i$ is curtailed and a negative net exchange is supplied by the external grid, so an import does not represent unserved local demand. The policy depends on the current physical state and realization, independently of $q_i$, $\beta_i$, prices, or future disturbances. The positive-part terms also preclude simultaneous charging and discharging. Power balance and energy and power bounds are evaluated at every point of the conditional uncertainty support after each state transition. The smallest conventional generation is $2.0749$\,MW, remaining positive as required for the affine-price calculation used here.
+Under this policy, excess positive power above $F_i$ is curtailed and a negative net exchange is supplied by the external grid, so an import does not represent unserved local demand. The policy depends on the current physical state and realization, independently of $q_i$, $\beta_i$, prices, or future disturbances. The positive-part terms also preclude simultaneous charging and discharging. Power balance and energy and power bounds are evaluated at every point of the conditional uncertainty support after each state transition. Conventional dispatch is additionally checked over the entire conditional support and the whole bidding box, as described below.
 
 To specify the synthetic profiles, let $h$ be the hour of day, $w_i$ an asset-size multiplier, and $\phi_i$ a phase. The quantities $\log w_i$ and $\phi_i$ are drawn independently and uniformly from $[\log0.35,\log2]$ and $[-0.6,0.6]$, respectively. Battery capacity is $4w_i$\,MWh, the power limit is $0.65w_i$\,MW, and the feeder export limit is $1.8w_i$\,MW, with initial energy equal to half the battery capacity. The nominal power profiles in MW are
 \begin{align*}
@@ -902,6 +914,8 @@ To specify the synthetic profiles, let $h$ be the hour of day, $w_i$ an asset-si
  &\qquad\qquad+0.18e^{-((h-19)/3)^2}],\\
  r_i(h)&=w_i[0.60+0.10\sin(2\pi h/24)].
 \end{align*}
+For a conventional capacity of $\bar P_g=5\sum_i w_i$\,MW, where $w_i$ is the asset-size multiplier, replaying all 360 trajectories checks~\eqref{eq:dispatch_interior} over the whole bid box and full conditional support at each of 69,120 visited states. The minimum lower/upper dispatch margins are $4.6570/14.1592$\,MW day-ahead and $2.0749/14.3502$\,MW in real time. These checks cover all current-interval realizations at the visited states, not every possible multi-interval state history.
+
 Each common shock $z_0$ and local shock $z_i$ takes $(-1,0,1)$ with probabilities $(0.2,0.6,0.2)$, independently across intervals and, conditionally on $z_0$, across operators. Set $R_i=\bar R_i[1+s(0.18z_0+0.12z_i)]$ and $D_i=\bar D_i[1+s(0.04z_0+0.04z_i)]$. External demand has mean $\bar L=2.7\sum_iw_i[1+0.10\cos(2\pi(h-19)/24)]$ and realization $L^{\rm ext}=\bar L[1+s(0.06z_0+0.02z_L)]$, with an independent three-point $z_L$. System load is $L^{\rm ext}+\sum_iI_i$. The profiles, costs, and bounds are synthetic assumptions rather than parameters fitted to measured microgrid data. Since $a_2=5/n$, the market is rescaled as the population increases; this comparison does not represent expansion of a fixed electrical network.
 
 Conditional on the current energy, the nine combinations of common and local shocks determine each operator's export distribution before the next realization is sampled. Conditional independence then gives the cross-moments without enumerating all joint system states. Both conditional expected and realized cash include import purchases and the throughput cost $5(p_i^{\rm ch}+p_i^{\rm dis})$. These costs are independent of bids, so the bid-dependent part of aggregate expected cash remains $2\tau a_2Q(X-Q)$. Direct joint-state enumeration verifies this expression for the finite-support distribution, without applying the Gaussian variance formula to the clipped exports.

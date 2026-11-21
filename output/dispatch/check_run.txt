@@ -1,0 +1,48 @@
+{
+  "bounded_baseline": [
+    {
+      "scale": 0.0,
+      "min_generation": 80.0,
+      "min_load": 400.0,
+      "min_pg": 100.0,
+      "max_pg": 100.0
+    },
+    {
+      "scale": 0.5,
+      "min_generation": 74.20667689001553,
+      "min_load": 385.754470495523,
+      "min_pg": 76.94712632573646,
+      "max_pg": 123.05287367426354
+    },
+    {
+      "scale": 1.0,
+      "min_generation": 68.41335378003106,
+      "min_load": 371.508940991046,
+      "min_pg": 53.894252651472925,
+      "max_pg": 146.10574734852707
+    },
+    {
+      "scale": 2.0,
+      "min_generation": 56.826707560062125,
+      "min_load": 343.017881982092,
+      "min_pg": 7.788505302945794,
+      "max_pg": 192.2114946970542
+    }
+  ],
+  "baseline_capacity_MW": 500,
+  "baseline_day_ahead_range_MW": [
+    100,
+    400
+  ],
+  "direct_deviation_profit_gain_dollars_per_hour": 500.0,
+  "direct_deviation_J_gain_dollars_per_hour": -333.33333333333337,
+  "dynamic_capacity_rule": "5*sum(asset size) MW",
+  "intervals_checked": 69120,
+  "dynamic_min_margins_MW": {
+    "DA_lower": 4.657042293594543,
+    "DA_upper": 14.159177529852073,
+    "RT_lower": 2.074931433346123,
+    "RT_upper": 14.350236150946518
+  },
+  "scope": "Full conditional support at each replayed state and whole day-ahead bid box; not all possible multistep state histories. Gaussian variance results are not transferred to the bounded distribution."
+}

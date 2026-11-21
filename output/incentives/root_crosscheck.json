@@ -1,0 +1,43 @@
+{
+  "target": [
+    50.0,
+    50.0,
+    50.0
+  ],
+  "charges": [
+    20.0,
+    20.0,
+    20.0
+  ],
+  "contract_equilibrium": [
+    50.0,
+    50.0,
+    50.00000000000001
+  ],
+  "market_bid_dependent_payoffs": [
+    1500.0,
+    1500.0,
+    1500.0000000000002
+  ],
+  "fixed_rival_exit_best_response": 100.0,
+  "fixed_rival_exit_gain": 500.0,
+  "RN_equilibrium": [
+    75.0,
+    75.0,
+    75.0
+  ],
+  "ERS_minus_RN_each": 375.0,
+  "exit_equilibrium_retained_charges_uncapped": [
+    125.0,
+    25.0,
+    25.000000000000004
+  ],
+  "exit_operator_gain_uncapped": 1625.0,
+  "exit_equilibrium_retained_charges_baseline_caps": [
+    120,
+    26.666666666666668,
+    26.666666666666668
+  ],
+  "exit_operator_gain_baseline_caps": 1540.0000000000005,
+  "scope": "Fixed verified X; retained enrollment charges; exit player pays no charge and gets no rebate. Remaining participants redistribute internally. C_i cancels. Entry RN fallback is a distinct rule."
+}

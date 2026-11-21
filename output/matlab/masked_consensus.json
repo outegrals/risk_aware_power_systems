@@ -1,0 +1,38 @@
+{
+  "status": "passed",
+  "cases": [
+    {
+      "n": 3,
+      "iterations": 37,
+      "max_error": 0.013730590940724596,
+      "exact_integer_check": true
+    },
+    {
+      "n": 10,
+      "iterations": 127,
+      "max_error": 0.034212176366054337,
+      "exact_integer_check": false
+    },
+    {
+      "n": 50,
+      "iterations": 808,
+      "max_error": 0.018575840396806598,
+      "exact_integer_check": false
+    },
+    {
+      "n": 100,
+      "iterations": 1780,
+      "max_error": 0.013011571951210499,
+      "exact_integer_check": false
+    },
+    {
+      "n": 3,
+      "iterations": 37,
+      "max_error": 0.012427456152181549,
+      "exact_integer_check": true
+    }
+  ],
+  "exhaustive_triangle_masks_per_input": 343,
+  "unmasked_attack": "initial and first star-leaf states reveal forecasts",
+  "scope": "Finite passive-adversary checks, public test masks; not deployed cryptography"
+}

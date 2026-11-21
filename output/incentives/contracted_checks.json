@@ -1,0 +1,7 @@
+{
+  "seed": 182026,
+  "random_capped_cases": 200,
+  "max_unilateral_identity_error": 5.229594535194337e-12,
+  "checks": "budget balance, target first-order conditions, unilateral payoff identity, RN fallback surplus, fixed participation-transfer balance",
+  "proof_scope": "uniqueness follows from analytic negative-definite potential Hessian, not random sampling"
+}
